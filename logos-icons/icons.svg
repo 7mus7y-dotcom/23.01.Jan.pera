@@ -139,6 +139,30 @@
               stroke-linecap="round" />
     </symbol>
 
+    <!-- icon-sort -->
+    <symbol id="icon-sort" viewBox="0 0 24 24">
+      <path
+        fill="none"
+        stroke="currentColor"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="2"
+        d="M4 7h10M4 12h7M4 17h4M18 7l3 3m0 0-3 3m3-3H11"
+      />
+    </symbol>
+
+    <!-- icon-close -->
+    <symbol id="icon-close" viewBox="0 0 24 24">
+      <path
+        fill="none"
+        stroke="currentColor"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="2"
+        d="M6 6l12 12M18 6l-12 12"
+      />
+    </symbol>
+
     <!-- icon-cookie -->
     <symbol id="icon-cookie" viewBox="0 0 24 24">
       <path
@@ -357,4 +381,3 @@
 
 
 </svg>
-

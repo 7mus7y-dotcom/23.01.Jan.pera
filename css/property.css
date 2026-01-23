@@ -166,6 +166,12 @@
   margin-bottom: var(--space-md);
 }
 
+.property-filter-dialog__close{
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
 .filters-enhanced .property-filter-dialog{
   display: none;
 }
@@ -541,21 +547,52 @@
   display: flex;
   align-items: center;
   gap: var(--space-sm);
+  position: relative;
 }
 
-.property-sort label{
-  font-size: 0.95rem;
-  color: var(--text-soft);
+.property-sort__trigger{
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
 }
 
-.property-sort select{
-  padding: 0.4rem 0.6rem;
-  font-size: 0.95rem;
-  border: 1px solid var(--soft-blue);
-  border-radius: var(--radius-sm);
+.property-sort__menu{
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  min-width: 180px;
   background: var(--bg);
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  border-radius: var(--radius-sm);
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  z-index: 20;
+  box-shadow: 0 12px 24px rgba(15, 23, 42, 0.18);
+}
+
+.property-sort__option{
+  width: 100%;
+  text-align: left;
+  border: 0;
+  background: transparent;
   color: var(--text);
+  font-size: 0.95rem;
+  font-weight: 600;
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
   cursor: pointer;
+}
+
+.property-sort__option:hover,
+.property-sort__option:focus-visible{
+  background: rgba(15, 23, 42, 0.08);
+}
+
+.property-sort__option.is-active{
+  background: var(--brand);
+  color: #fff;
 }
 
 .property-sort__pills{
@@ -599,6 +636,12 @@
     flex-direction: column;
     align-items: flex-start;
     gap: var(--space-sm);
+  }
+
+  .property-sort__menu{
+    left: 0;
+    right: auto;
+    min-width: min(220px, 90vw);
   }
 
   .property-sort__pills{
