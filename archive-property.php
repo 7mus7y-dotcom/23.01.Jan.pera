@@ -514,6 +514,7 @@ if ( ! $is_filtered_search && ( $qo instanceof WP_Term ) && ! is_wp_error( $qo )
                           name="archive_base"
                           value="<?php echo esc_attr( trailingslashit( wp_parse_url( get_permalink(), PHP_URL_PATH ) ?: '/' ) ); ?>"
                         >
+                        <input type="hidden" name="sort" id="sort-input" value="<?php echo esc_attr( $sort ); ?>">
 
                         <div class="filter-row">
                             <!-- PRICE RANGE (V2, based on v2_price_usd_min) -->
@@ -761,37 +762,6 @@ if ( ! $is_filtered_search && ( $qo instanceof WP_Term ) && ! is_wp_error( $qo )
                         
                         
                         
-                        <!-- RESULTS SUMMARY + SORT -->
-                        <div class="property-results-bar">
-                        
-                          <div class="property-results-count">
-                            <span id="results-count" class="text-soft"><?php echo esc_html( $initial_count_text ); ?></span>
-                          </div>
-                        
-                          <div class="property-sort">
-                            <span class="property-sort__label">Sort by:</span>
-                        
-                            <input type="hidden" name="sort" id="sort-input" value="<?php echo esc_attr( $sort ); ?>">
-                        
-                            <div class="property-sort__pills">
-                              <button type="button" class="pill pill--outline sort-pill <?php echo ( $sort === 'date_desc' ) ? 'pill--active' : ''; ?>" data-sort="date_desc">
-                                Newest first
-                              </button>
-                              <button type="button" class="pill pill--outline sort-pill <?php echo ( $sort === 'date_asc' ) ? 'pill--active' : ''; ?>" data-sort="date_asc">
-                                Oldest first
-                              </button>
-                              <button type="button" class="pill pill--outline sort-pill <?php echo ( $sort === 'price_asc' ) ? 'pill--active' : ''; ?>" data-sort="price_asc">
-                                Price (Low → High)
-                              </button>
-                              <button type="button" class="pill pill--outline sort-pill <?php echo ( $sort === 'price_desc' ) ? 'pill--active' : ''; ?>" data-sort="price_desc">
-                                Price (High → Low)
-                              </button>
-                            </div>
-                          </div>
-                        
-                        </div>
-
-                    
                   </form>
                   </div>
                 </div>

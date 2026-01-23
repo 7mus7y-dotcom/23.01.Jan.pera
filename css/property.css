@@ -506,6 +506,13 @@
   gap: var(--space-lg);
 }
 
+.property-results-bar--inline{
+  justify-content: flex-start;
+  margin-bottom: 0;
+  flex-wrap: wrap;
+  gap: var(--space-md);
+}
+
 .property-results-count{
   font-size: 1rem;
   font-weight: 600;
