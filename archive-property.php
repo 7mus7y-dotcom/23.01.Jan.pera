@@ -478,33 +478,57 @@ if ( ! $is_filtered_search && ( $qo instanceof WP_Term ) && ! is_wp_error( $qo )
                     Filters
                   </button>
 
-                  <div class="property-sort" aria-label="Sort properties">
-                    <label>Sort</label>
-                    <div class="property-sort__pills">
+                  <div class="property-sort" data-sort-menu>
+                    <button
+                      type="button"
+                      class="btn btn--solid btn--black property-sort__trigger"
+                      aria-haspopup="menu"
+                      aria-expanded="false"
+                      aria-controls="property-sort-menu"
+                      data-sort-trigger
+                    >
+                      <svg class="icon" aria-hidden="true" width="18" height="18">
+                        <use href="<?php echo esc_url( get_stylesheet_directory_uri() . '/logos-icons/icons.svg#icon-sort' ); ?>"></use>
+                      </svg>
+                      Sort
+                    </button>
+                    <div class="property-sort__menu" id="property-sort-menu" role="menu" data-sort-dropdown hidden>
                       <button
                         type="button"
-                        class="pill pill--outline sort-pill <?php echo $sort === 'date_desc' ? 'pill--active' : ''; ?>"
+                        class="property-sort__option <?php echo $sort === 'date_desc' ? 'is-active' : ''; ?>"
+                        role="menuitemradio"
+                        aria-checked="<?php echo $sort === 'date_desc' ? 'true' : 'false'; ?>"
+                        data-sort-option
                         data-sort="date_desc"
                       >
                         Newest
                       </button>
                       <button
                         type="button"
-                        class="pill pill--outline sort-pill <?php echo $sort === 'date_asc' ? 'pill--active' : ''; ?>"
+                        class="property-sort__option <?php echo $sort === 'date_asc' ? 'is-active' : ''; ?>"
+                        role="menuitemradio"
+                        aria-checked="<?php echo $sort === 'date_asc' ? 'true' : 'false'; ?>"
+                        data-sort-option
                         data-sort="date_asc"
                       >
                         Oldest
                       </button>
                       <button
                         type="button"
-                        class="pill pill--outline sort-pill <?php echo $sort === 'price_asc' ? 'pill--active' : ''; ?>"
+                        class="property-sort__option <?php echo $sort === 'price_asc' ? 'is-active' : ''; ?>"
+                        role="menuitemradio"
+                        aria-checked="<?php echo $sort === 'price_asc' ? 'true' : 'false'; ?>"
+                        data-sort-option
                         data-sort="price_asc"
                       >
                         Price ↑
                       </button>
                       <button
                         type="button"
-                        class="pill pill--outline sort-pill <?php echo $sort === 'price_desc' ? 'pill--active' : ''; ?>"
+                        class="property-sort__option <?php echo $sort === 'price_desc' ? 'is-active' : ''; ?>"
+                        role="menuitemradio"
+                        aria-checked="<?php echo $sort === 'price_desc' ? 'true' : 'false'; ?>"
+                        data-sort-option
                         data-sort="price_desc"
                       >
                         Price ↓
@@ -532,9 +556,13 @@ if ( ! $is_filtered_search && ( $qo instanceof WP_Term ) && ! is_wp_error( $qo )
                         <h3 id="property-filters-title">Filters</h3>
                         <button
                           type="button"
-                          class="btn btn--solid btn--black"
+                          class="btn btn--ghost btn--black property-filter-dialog__close"
                           data-filter-close
+                          aria-label="Close filters"
                         >
+                          <svg class="icon" aria-hidden="true" width="16" height="16">
+                            <use href="<?php echo esc_url( get_stylesheet_directory_uri() . '/logos-icons/icons.svg#icon-close' ); ?>"></use>
+                          </svg>
                           Close
                         </button>
                       </div>
@@ -964,6 +992,7 @@ if ( ! empty( $sort ) && $sort !== 'date_desc' ) {
   const dialogTrigger = document.getElementById('filters-trigger');
   const dialogOverlay = dialog ? dialog.querySelector('[data-filter-overlay]') : null;
   const dialogClose = dialog ? dialog.querySelector('[data-filter-close]') : null;
+  let closeDialog = null;
 
   // Price slider bits
   const priceMinRange  = document.getElementById('price-min-range');
@@ -974,7 +1003,10 @@ if ( ! empty( $sort ) && $sort !== 'date_desc' ) {
 
   // Sort bits (Step 6)
   const sortInput  = document.getElementById('sort-input');         // hidden input name="sort"
-  const sortPills  = Array.from(document.querySelectorAll('.sort-pill'));
+  const sortMenu   = document.querySelector('[data-sort-menu]');
+  const sortTrigger = sortMenu ? sortMenu.querySelector('[data-sort-trigger]') : null;
+  const sortDropdown = sortMenu ? sortMenu.querySelector('[data-sort-dropdown]') : null;
+  const sortOptions = sortMenu ? Array.from(sortMenu.querySelectorAll('[data-sort-option]')) : [];
 
   // Global bounds from PHP
   const GLOBAL_MIN_PRICE = <?php echo (int) $global_min_price; ?>;
@@ -1004,7 +1036,7 @@ if ( ! empty( $sort ) && $sort !== 'date_desc' ) {
       }
     };
 
-    const closeDialog = () => {
+    closeDialog = () => {
       dialog.classList.remove('is-open');
       dialog.setAttribute('aria-hidden', 'true');
       document.body.classList.remove('has-open-dialog');
@@ -1302,20 +1334,38 @@ if ( ! empty( $sort ) && $sort !== 'date_desc' ) {
   }
 
   // ---------------------------
-  // Step 6: Sort pills binding
+  // Step 6: Sort menu binding
   // ---------------------------
-  function bindSortPills() {
-    if (!sortInput || !sortPills.length) return;
+  function bindSortMenu() {
+    if (!sortInput || !sortOptions.length || !sortTrigger || !sortDropdown || !sortMenu) return;
 
     function paint() {
       const current = getSortValue();
-      sortPills.forEach(btn => {
+      sortOptions.forEach(btn => {
         const v = String(btn.dataset.sort || '').trim();
-        btn.classList.toggle('pill--active', v === current);
+        const isActive = v === current;
+        btn.classList.toggle('is-active', isActive);
+        btn.setAttribute('aria-checked', isActive ? 'true' : 'false');
       });
     }
 
-    sortPills.forEach(btn => {
+    function setMenuOpen(isOpen) {
+      sortMenu.classList.toggle('is-open', isOpen);
+      sortTrigger.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+      sortDropdown.hidden = !isOpen;
+      if (isOpen) {
+        const active = sortOptions.find(btn => btn.classList.contains('is-active'));
+        const target = active || sortOptions[0];
+        if (target) target.focus();
+      }
+    }
+
+    sortTrigger.addEventListener('click', function (e) {
+      e.preventDefault();
+      setMenuOpen(!sortMenu.classList.contains('is-open'));
+    });
+
+    sortOptions.forEach(btn => {
       btn.addEventListener('click', function (e) {
         e.preventDefault();
         const v = String(btn.dataset.sort || '').trim();
@@ -1324,10 +1374,25 @@ if ( ! empty( $sort ) && $sort !== 'date_desc' ) {
         sortInput.value = v;
         paint();
         runAjaxFilter(1, false);
+        setMenuOpen(false);
+        sortTrigger.focus();
       });
     });
 
-    // Initial paint
+    document.addEventListener('click', function (e) {
+      if (!sortMenu.classList.contains('is-open')) return;
+      if (!sortMenu.contains(e.target)) setMenuOpen(false);
+    });
+
+    document.addEventListener('keydown', function (e) {
+      if (!sortMenu.classList.contains('is-open')) return;
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        setMenuOpen(false);
+        sortTrigger.focus();
+      }
+    });
+
     if (!sortInput.value) sortInput.value = DEFAULT_SORT;
     paint();
   }
@@ -1405,6 +1470,7 @@ if ( ! empty( $sort ) && $sort !== 'date_desc' ) {
   form.addEventListener('submit', function (e) {
     e.preventDefault();
     runAjaxFilter(1, false);
+    if (typeof closeDialog === 'function') closeDialog();
   });
 
   // Load more
@@ -1427,7 +1493,11 @@ if ( ! empty( $sort ) && $sort !== 'date_desc' ) {
 
       // Restore sort default
       if (sortInput) sortInput.value = DEFAULT_SORT;
-      sortPills.forEach(btn => btn.classList.toggle('pill--active', String(btn.dataset.sort || '') === DEFAULT_SORT));
+      sortOptions.forEach(btn => {
+        const isActive = String(btn.dataset.sort || '') === DEFAULT_SORT;
+        btn.classList.toggle('is-active', isActive);
+        btn.setAttribute('aria-checked', isActive ? 'true' : 'false');
+      });
 
       // Reset slider to bounds + mark as untouched
       if (priceMinRange && priceMaxRange) {
@@ -1506,7 +1576,7 @@ if ( ! empty( $sort ) && $sort !== 'date_desc' ) {
   // ---------------------------
   // Init bindings
   // ---------------------------
-  bindSortPills();
+  bindSortMenu();
   bindPillRows();
 
   // Initial UI sync: if URL had price params, hidden inputs should be populated
