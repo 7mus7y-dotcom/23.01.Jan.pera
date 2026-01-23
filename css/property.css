@@ -130,6 +130,72 @@
   margin-bottom: 30px;
 }
 
+.property-filters-toolbar{
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: var(--space-md);
+}
+
+.property-filters-trigger{
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.property-filter-dialog{
+  display: block;
+  position: static;
+}
+
+.property-filter-dialog__overlay{
+  display: none;
+}
+
+.property-filter-dialog__panel{
+  position: static;
+}
+
+.property-filter-dialog__header{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-md);
+}
+
+.filters-enhanced .property-filter-dialog{
+  display: none;
+}
+
+.filters-enhanced .property-filter-dialog.is-open{
+  display: block;
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+}
+
+.filters-enhanced .property-filter-dialog__overlay{
+  display: block;
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+}
+
+.filters-enhanced .property-filter-dialog__panel{
+  position: relative;
+  margin-left: auto;
+  width: min(520px, 100%);
+  height: 100%;
+  background: var(--bg);
+  padding: 24px;
+  overflow-y: auto;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.35);
+}
+
+.filters-enhanced body.has-open-dialog{
+  overflow: hidden;
+}
+
 .property-filters{
   display: flex;
   flex-direction: column;
