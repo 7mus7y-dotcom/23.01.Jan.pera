@@ -130,6 +130,87 @@
   margin-bottom: 30px;
 }
 
+.property-filters-toolbar{
+  margin-bottom: var(--space-md);
+  gap: var(--space-sm);
+  flex-wrap: wrap;
+}
+
+.property-filters-trigger{
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.property-filter-dialog{
+  display: block;
+  position: static;
+}
+
+.property-filter-dialog__overlay{
+  display: none;
+}
+
+.property-filter-dialog__panel{
+  position: static;
+}
+
+.property-filter-dialog__content{
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--space-md);
+}
+
+.property-filter-dialog__header{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-md);
+}
+
+.filters-enhanced .property-filter-dialog{
+  display: none;
+}
+
+.filters-enhanced .property-filter-dialog.is-open{
+  display: block;
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+}
+
+.filters-enhanced .property-filter-dialog__overlay{
+  display: block;
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+}
+
+.filters-enhanced .property-filter-dialog__panel{
+  position: relative;
+  margin-left: auto;
+  width: 100%;
+  height: 100%;
+  background: var(--bg);
+  padding: 24px;
+  overflow-y: auto;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.35);
+}
+
+.filters-enhanced body.has-open-dialog{
+  overflow: hidden;
+}
+
+@media (min-width: 768px){
+  .filters-enhanced .property-filter-dialog__panel{
+    width: 50vw;
+    max-width: none;
+  }
+}
+
 .property-filters{
   display: flex;
   flex-direction: column;
@@ -438,6 +519,13 @@
   align-items: center;
   margin-bottom: var(--space-md);
   gap: var(--space-lg);
+}
+
+.property-results-bar--inline{
+  justify-content: flex-start;
+  margin-bottom: 0;
+  flex-wrap: wrap;
+  gap: var(--space-md);
 }
 
 .property-results-count{

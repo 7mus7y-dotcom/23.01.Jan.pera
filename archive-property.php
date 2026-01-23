@@ -463,9 +463,68 @@ if ( ! $is_filtered_search && ( $qo instanceof WP_Term ) && ! is_wp_error( $qo )
                             <h2>Available properties</h2>
                             <p>Use the filters below to refine by district, property type, bedrooms and budget.</p>
                 </header>
-    
-    
-    
+
+                <div class="property-filters-toolbar flex items-center justify-start">
+                  <button
+                    type="button"
+                    id="filters-trigger"
+                    class="btn btn--solid btn--black property-filters-trigger"
+                    aria-haspopup="dialog"
+                    aria-controls="property-filter-dialog"
+                  >
+                    <svg class="icon" aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" focusable="false">
+                      <path d="M3 5h18l-7 8v5l-4 1v-6L3 5z" fill="currentColor"></path>
+                    </svg>
+                    Filters
+                  </button>
+                  <div class="property-results-bar property-results-bar--inline">
+                    <div class="property-results-count">
+                      <span id="results-count" class="text-soft"><?php echo esc_html( $initial_count_text ); ?></span>
+                    </div>
+
+                    <div class="property-sort">
+                      <span class="property-sort__label">Sort by:</span>
+
+                      <div class="property-sort__pills">
+                        <button type="button" class="pill pill--outline sort-pill <?php echo ( $sort === 'date_desc' ) ? 'pill--active' : ''; ?>" data-sort="date_desc">
+                          Newest first
+                        </button>
+                        <button type="button" class="pill pill--outline sort-pill <?php echo ( $sort === 'date_asc' ) ? 'pill--active' : ''; ?>" data-sort="date_asc">
+                          Oldest first
+                        </button>
+                        <button type="button" class="pill pill--outline sort-pill <?php echo ( $sort === 'price_asc' ) ? 'pill--active' : ''; ?>" data-sort="price_asc">
+                          Price (Low → High)
+                        </button>
+                        <button type="button" class="pill pill--outline sort-pill <?php echo ( $sort === 'price_desc' ) ? 'pill--active' : ''; ?>" data-sort="price_desc">
+                          Price (High → Low)
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div
+                  class="property-filter-dialog"
+                  id="property-filter-dialog"
+                  role="dialog"
+                  aria-modal="true"
+                  aria-hidden="true"
+                  aria-labelledby="property-filters-title"
+                >
+                  <div class="property-filter-dialog__overlay" data-filter-overlay></div>
+                  <div class="property-filter-dialog__panel" role="document">
+                    <div class="property-filter-dialog__content">
+                      <div class="property-filter-dialog__header">
+                        <h3 id="property-filters-title">Filters</h3>
+                        <button
+                          type="button"
+                          class="btn btn--solid btn--black"
+                          data-filter-close
+                        >
+                          Close
+                        </button>
+                      </div>
+
                       <!-- ======================================
                            FILTER FORM (V2)
                            - Keep names consistent with your JS:
@@ -480,6 +539,7 @@ if ( ! $is_filtered_search && ( $qo instanceof WP_Term ) && ! is_wp_error( $qo )
                           name="archive_base"
                           value="<?php echo esc_attr( trailingslashit( wp_parse_url( get_permalink(), PHP_URL_PATH ) ?: '/' ) ); ?>"
                         >
+                        <input type="hidden" name="sort" id="sort-input" value="<?php echo esc_attr( $sort ); ?>">
 
                         <div class="filter-row">
                             <!-- PRICE RANGE (V2, based on v2_price_usd_min) -->
@@ -727,38 +787,18 @@ if ( ! $is_filtered_search && ( $qo instanceof WP_Term ) && ! is_wp_error( $qo )
                         
                         
                         
-                        <!-- RESULTS SUMMARY + SORT -->
-                        <div class="property-results-bar">
-                        
-                          <div class="property-results-count">
-                            <span id="results-count" class="text-soft"><?php echo esc_html( $initial_count_text ); ?></span>
-                          </div>
-                        
-                          <div class="property-sort">
-                            <span class="property-sort__label">Sort by:</span>
-                        
-                            <input type="hidden" name="sort" id="sort-input" value="<?php echo esc_attr( $sort ); ?>">
-                        
-                            <div class="property-sort__pills">
-                              <button type="button" class="pill pill--outline sort-pill <?php echo ( $sort === 'date_desc' ) ? 'pill--active' : ''; ?>" data-sort="date_desc">
-                                Newest first
-                              </button>
-                              <button type="button" class="pill pill--outline sort-pill <?php echo ( $sort === 'date_asc' ) ? 'pill--active' : ''; ?>" data-sort="date_asc">
-                                Oldest first
-                              </button>
-                              <button type="button" class="pill pill--outline sort-pill <?php echo ( $sort === 'price_asc' ) ? 'pill--active' : ''; ?>" data-sort="price_asc">
-                                Price (Low → High)
-                              </button>
-                              <button type="button" class="pill pill--outline sort-pill <?php echo ( $sort === 'price_desc' ) ? 'pill--active' : ''; ?>" data-sort="price_desc">
-                                Price (High → Low)
-                              </button>
-                            </div>
-                          </div>
-                        
-                        </div>
-
-                    
                   </form>
+                    </div>
+                  </div>
+                </div>
+
+                <noscript>
+                  <style>
+                    .property-filter-dialog{display:block !important;position:static !important;}
+                    .property-filter-dialog__overlay{display:none !important;}
+                    .property-filter-dialog__panel{position:static !important;max-width:none !important;box-shadow:none !important;}
+                  </style>
+                </noscript>
             
 
 
@@ -906,6 +946,10 @@ if ( ! empty( $sort ) && $sort !== 'date_desc' ) {
   const loadMoreBtn = document.getElementById('load-more-btn');
   const resetBtn    = document.getElementById('filter-reset-btn');
   const paginationNav = document.querySelector('.property-pagination');
+  const dialog = document.getElementById('property-filter-dialog');
+  const dialogTrigger = document.getElementById('filters-trigger');
+  const dialogOverlay = dialog ? dialog.querySelector('[data-filter-overlay]') : null;
+  const dialogClose = dialog ? dialog.querySelector('[data-filter-close]') : null;
 
   // Price slider bits
   const priceMinRange  = document.getElementById('price-min-range');
@@ -924,6 +968,51 @@ if ( ! empty( $sort ) && $sort !== 'date_desc' ) {
 
   // If URL had min_price/max_price initially
   const HAS_PRICE_QS = <?php echo $has_price_qs ? 'true' : 'false'; ?>;
+
+  if (dialog && dialogTrigger) {
+    document.documentElement.classList.add('filters-enhanced');
+
+    const focusableSelector = 'a[href], button:not([disabled]), input, select, textarea, [tabindex]:not([tabindex="-1"])';
+    let lastFocused = null;
+    let previousBodyOverflow = '';
+
+    const openDialog = () => {
+      lastFocused = document.activeElement;
+      dialog.classList.add('is-open');
+      dialog.setAttribute('aria-hidden', 'false');
+      document.body.classList.add('has-open-dialog');
+      previousBodyOverflow = document.body.style.overflow;
+      document.body.style.overflow = 'hidden';
+
+      const focusTarget = dialog.querySelector('[data-filter-close]') || dialog.querySelector(focusableSelector);
+      if (focusTarget) {
+        focusTarget.focus();
+      }
+    };
+
+    const closeDialog = () => {
+      dialog.classList.remove('is-open');
+      dialog.setAttribute('aria-hidden', 'true');
+      document.body.classList.remove('has-open-dialog');
+      document.body.style.overflow = previousBodyOverflow;
+
+      if (lastFocused && typeof lastFocused.focus === 'function') {
+        lastFocused.focus();
+      }
+    };
+
+    dialogTrigger.addEventListener('click', openDialog);
+    if (dialogClose) dialogClose.addEventListener('click', closeDialog);
+    if (dialogOverlay) dialogOverlay.addEventListener('click', closeDialog);
+
+    document.addEventListener('keydown', (event) => {
+      if (!dialog.classList.contains('is-open')) return;
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        closeDialog();
+      }
+    });
+  }
 
   if (!form || !grid) return;
 
