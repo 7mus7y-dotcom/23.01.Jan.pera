@@ -464,7 +464,7 @@ if ( ! $is_filtered_search && ( $qo instanceof WP_Term ) && ! is_wp_error( $qo )
                             <p>Use the filters below to refine by district, property type, bedrooms and budget.</p>
                 </header>
 
-                <div class="property-filters-toolbar flex items-center justify-start">
+                <div class="property-filters-toolbar">
                   <button
                     type="button"
                     id="filters-trigger"
@@ -477,30 +477,6 @@ if ( ! $is_filtered_search && ( $qo instanceof WP_Term ) && ! is_wp_error( $qo )
                     </svg>
                     Filters
                   </button>
-                  <div class="property-results-bar property-results-bar--inline">
-                    <div class="property-results-count">
-                      <span id="results-count" class="text-soft"><?php echo esc_html( $initial_count_text ); ?></span>
-                    </div>
-
-                    <div class="property-sort">
-                      <span class="property-sort__label">Sort by:</span>
-
-                      <div class="property-sort__pills">
-                        <button type="button" class="pill pill--outline sort-pill <?php echo ( $sort === 'date_desc' ) ? 'pill--active' : ''; ?>" data-sort="date_desc">
-                          Newest first
-                        </button>
-                        <button type="button" class="pill pill--outline sort-pill <?php echo ( $sort === 'date_asc' ) ? 'pill--active' : ''; ?>" data-sort="date_asc">
-                          Oldest first
-                        </button>
-                        <button type="button" class="pill pill--outline sort-pill <?php echo ( $sort === 'price_asc' ) ? 'pill--active' : ''; ?>" data-sort="price_asc">
-                          Price (Low → High)
-                        </button>
-                        <button type="button" class="pill pill--outline sort-pill <?php echo ( $sort === 'price_desc' ) ? 'pill--active' : ''; ?>" data-sort="price_desc">
-                          Price (High → Low)
-                        </button>
-                      </div>
-                    </div>
-                  </div>
                 </div>
 
                 <div
@@ -513,17 +489,16 @@ if ( ! $is_filtered_search && ( $qo instanceof WP_Term ) && ! is_wp_error( $qo )
                 >
                   <div class="property-filter-dialog__overlay" data-filter-overlay></div>
                   <div class="property-filter-dialog__panel" role="document">
-                    <div class="property-filter-dialog__content">
-                      <div class="property-filter-dialog__header">
-                        <h3 id="property-filters-title">Filters</h3>
-                        <button
-                          type="button"
-                          class="btn btn--solid btn--black"
-                          data-filter-close
-                        >
-                          Close
-                        </button>
-                      </div>
+                    <div class="property-filter-dialog__header">
+                      <h3 id="property-filters-title">Filters</h3>
+                      <button
+                        type="button"
+                        class="btn btn--solid btn--black"
+                        data-filter-close
+                      >
+                        Close
+                      </button>
+                    </div>
 
                       <!-- ======================================
                            FILTER FORM (V2)
@@ -788,7 +763,6 @@ if ( ! $is_filtered_search && ( $qo instanceof WP_Term ) && ! is_wp_error( $qo )
                         
                         
                   </form>
-                    </div>
                   </div>
                 </div>
 
