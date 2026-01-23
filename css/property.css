@@ -132,7 +132,10 @@
 
 .property-filters-toolbar{
   display: flex;
-  justify-content: flex-end;
+  justify-content: flex-start;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-md);
   margin-bottom: var(--space-md);
 }
 
@@ -188,8 +191,24 @@
   height: 100%;
   background: var(--bg);
   padding: 24px;
-  overflow-y: auto;
+  overflow: hidden;
   box-shadow: 0 10px 30px rgba(15, 23, 42, 0.35);
+}
+
+.filters-enhanced .property-filter-dialog__content{
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 100%;
+  max-height: calc(100vh - 48px);
+  overflow: auto;
+}
+
+@media (min-width: 768px){
+  .filters-enhanced .property-filter-dialog__panel{
+    width: 50vw;
+    max-width: none;
+  }
 }
 
 .filters-enhanced body.has-open-dialog{
@@ -562,7 +581,7 @@
 
 .property-sort__pills .sort-pill:hover{ font-weight: 600; }
 
-.property-sort__pills .sort-pill.sort-pill--active{
+.property-sort__pills .sort-pill.pill--active{
   background-color: var(--brand);
   color: #fff;
   font-weight: 600;
