@@ -619,14 +619,15 @@ add_action( 'init', function () {
   if (
     is_page_template( 'page-citizenship.php' ) ||
     is_page_template( 'page-rent-with-pera.php' ) ||
-    is_page_template( 'page-sell-with-pera.php' )
+    is_page_template( 'page-sell-with-pera.php' ) ||
+    is_page_template( 'page-book-a-consultancy.php' )
   ) {
     require_once get_stylesheet_directory() . '/inc/enquiry.php';
     return;
   }
 
   // Safety fallback: if your pages are not using those exact filenames, load by slug as well
-  if ( is_page( array( 'citizenship-by-investment', 'rent-with-pera', 'sell-with-pera' ) ) ) {
+  if ( is_page( array( 'citizenship-by-investment', 'rent-with-pera', 'sell-with-pera', 'book-a-consultancy' ) ) ) {
     require_once get_stylesheet_directory() . '/inc/enquiry.php';
     return;
   }
@@ -670,4 +671,3 @@ add_filter( 'login_display_language_dropdown', '__return_false' );
 add_action( 'init', function () {
   add_post_type_support( 'page', 'excerpt' );
 }, 20 );
-
