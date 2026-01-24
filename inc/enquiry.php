@@ -42,7 +42,7 @@ function pera_handle_citizenship_enquiry() {
 
     // Context (whitelist)
     $raw_context  = isset( $_POST['form_context'] ) ? sanitize_text_field( wp_unslash( $_POST['form_context'] ) ) : 'general';
-    $allowed_ctx  = array( 'sell-page', 'rent-page', 'property', 'general', 'general-contact', 'sell', 'rent' );
+    $allowed_ctx  = array( 'sell-page', 'rent-page', 'property', 'general', 'general-contact', 'sell', 'rent', 'consultancy' );
     $form_context = in_array( $raw_context, $allowed_ctx, true ) ? $raw_context : 'general';
 
     // Core fields
@@ -57,10 +57,17 @@ function pera_handle_citizenship_enquiry() {
       : '';
 
     // Sell/Rent-only fields
-    $intent       = isset( $_POST['sr_intent'] )       ? sanitize_text_field( wp_unslash( $_POST['sr_intent'] ) )       : '';
-    $location     = isset( $_POST['sr_location'] )     ? sanitize_text_field( wp_unslash( $_POST['sr_location'] ) )     : '';
-    $details      = isset( $_POST['sr_details'] )      ? sanitize_textarea_field( wp_unslash( $_POST['sr_details'] ) )  : '';
-    $expectations = isset( $_POST['sr_expectations'] ) ? sanitize_text_field( wp_unslash( $_POST['sr_expectations'] ) ) : '';
+    $intent            = isset( $_POST['sr_intent'] )            ? sanitize_text_field( wp_unslash( $_POST['sr_intent'] ) )            : '';
+    $location          = isset( $_POST['sr_location'] )          ? sanitize_text_field( wp_unslash( $_POST['sr_location'] ) )          : '';
+    $details           = isset( $_POST['sr_details'] )           ? sanitize_textarea_field( wp_unslash( $_POST['sr_details'] ) )       : '';
+    $expectations      = isset( $_POST['sr_expectations'] )      ? sanitize_text_field( wp_unslash( $_POST['sr_expectations'] ) )      : '';
+    $consultancy_type  = isset( $_POST['sr_consultancy_type'] )  ? sanitize_text_field( wp_unslash( $_POST['sr_consultancy_type'] ) )  : '';
+    $language          = isset( $_POST['sr_language'] )          ? sanitize_text_field( wp_unslash( $_POST['sr_language'] ) )          : '';
+    $interest          = isset( $_POST['sr_interest'] )          ? sanitize_text_field( wp_unslash( $_POST['sr_interest'] ) )          : '';
+    $budget_range      = isset( $_POST['sr_budget_range'] )      ? sanitize_text_field( wp_unslash( $_POST['sr_budget_range'] ) )      : '';
+    $timeline          = isset( $_POST['sr_timeline'] )          ? sanitize_text_field( wp_unslash( $_POST['sr_timeline'] ) )          : '';
+    $area_preference   = isset( $_POST['sr_area_preference'] )   ? sanitize_text_field( wp_unslash( $_POST['sr_area_preference'] ) )   : '';
+    $consultancy_notes = isset( $_POST['sr_notes'] )             ? sanitize_textarea_field( wp_unslash( $_POST['sr_notes'] ) )         : '';
 
     // Property-only hidden fields
     $property_id    = isset( $_POST['sr_property_id'] )    ? absint( $_POST['sr_property_id'] ) : 0;
@@ -108,6 +115,28 @@ function pera_handle_citizenship_enquiry() {
       $body .= "Name: {$name}\n";
       $body .= "Phone: {$phone}\n";
       $body .= "Email: {$email}\n\n";
+      if ( $consultancy_type !== '' ) {
+        $body .= "Consultancy type: {$consultancy_type}\n";
+      }
+      if ( $language !== '' ) {
+        $body .= "Preferred language: {$language}\n";
+      }
+      if ( $interest !== '' ) {
+        $body .= "Primary interest: {$interest}\n";
+      }
+      if ( $budget_range !== '' ) {
+        $body .= "Budget range: {$budget_range}\n";
+      }
+      if ( $timeline !== '' ) {
+        $body .= "Timeline: {$timeline}\n";
+      }
+      if ( $area_preference !== '' ) {
+        $body .= "Preferred area: {$area_preference}\n";
+      }
+      if ( $consultancy_notes !== '' ) {
+        $body .= "\nConsultancy notes:\n{$consultancy_notes}\n";
+      }
+      $body .= "\n";
       $body .= "Intent: {$intent_norm}\n";
       $body .= "Property location: {$location}\n\n";
       $body .= "Property details:\n{$details}\n\n";
@@ -147,6 +176,8 @@ function pera_handle_citizenship_enquiry() {
     // Append fragment
     if ( $form_context === 'property' ) {
       $redirect .= '#contact-form';
+    } elseif ( $form_context === 'consultancy' ) {
+      $redirect .= '#booking';
     } else {
       // Sell / Rent / General enquiries should return to the contact section.
       $redirect .= '#contact';
