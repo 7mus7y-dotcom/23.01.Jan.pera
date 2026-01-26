@@ -513,9 +513,9 @@ body.has-open-dialog{
 .filter-price__slider input[type="range"]::-webkit-slider-thumb{ pointer-events: auto; }
 .filter-price__slider input[type="range"]::-moz-range-thumb{ pointer-events: auto; }
 
-/* Ensure MIN above MAX */
+/* Keep MAX (right/active) above MIN so its thumb never dips under the track */
 #price-min-range{ z-index: 2; }
-#price-max-range{ z-index: 1; }
+#price-max-range{ z-index: 3; }
 
 /* Thumb styling (Chrome / Safari / Edge) */
 .filter-price__slider input[type="range"]::-webkit-slider-thumb{
@@ -529,6 +529,7 @@ body.has-open-dialog{
 
   /* Center the 30px thumb on an 8px track: (8 - 30)/2 = -11 */
   margin-top: -11px;
+  position: relative;
   z-index: 3;
 }
 
@@ -540,6 +541,8 @@ body.has-open-dialog{
   border-radius: 50%;
   border: 3px solid #fff;
   cursor: pointer;
+  position: relative;
+  z-index: 3;
 }
 
 .filter-price__summary{
