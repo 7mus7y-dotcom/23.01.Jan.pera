@@ -177,7 +177,8 @@ $beds_options = array( 1, 2, 3, 4, 5, 6 );
           <p>
             Pera Property is a consultancy-led real estate agency focused exclusively on Istanbul.
             We work with both new developments and resale properties, advising clients from initial
-            strategy through to title deed.
+            strategy through to title deed. Prefer a structured, paid strategy session first?
+            <a href="/book-a-consultancy/">Book a consultancy</a> to validate your plan before viewing properties.
           </p>
 
           <p>
@@ -245,7 +246,7 @@ $beds_options = array( 1, 2, 3, 4, 5, 6 );
 
         <div class="hero-actions" style="margin-top: 16px;">
           <a class="btn btn--solid btn--green" href="/contact/">Speak to an advisor</a>
-          <a class="btn btn--ghost btn--blue" href="/buying-guide/">Read the buyer’s guide</a>
+          <a class="btn btn--ghost btn--blue" href="/book-a-consultancy/">Book a consultancy</a>
         </div>
 
       </div>
