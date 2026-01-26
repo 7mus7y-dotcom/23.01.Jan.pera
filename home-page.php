@@ -177,7 +177,7 @@ $beds_options = array( 1, 2, 3, 4, 5, 6 );
           <p>
             Pera Property is a consultancy-led real estate agency focused exclusively on Istanbul.
             We work with both new developments and resale properties, advising clients from initial
-            strategy through to title deed. Prefer a structured, paid strategy session first?
+            strategy through to title deed. Prefer a structured, free strategy session first?
             <a href="/book-a-consultancy/">Book a consultancy</a> to validate your plan before viewing properties.
           </p>
 
