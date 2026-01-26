@@ -186,7 +186,6 @@ get_header();
     <!-- BOOKING MODULE -->
     <section id="booking" class="section section-soft">
       <div class="content-panel-box">
-        <div class="content-panel-grid content-panel-grid--single">
           <div class="content-panel-right">
             <div class="enquiry-cta-header m-sm">
               <h2>Request a tailored briefing</h2>
@@ -291,7 +290,6 @@ get_header();
               </div>
             </form>
           </div>
-        </div>
       </div>
     </section>
 

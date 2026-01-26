@@ -893,7 +893,7 @@ button.pill:focus-visible {
   font-size: calc(var(--pill-font-size) * 1.05);
   letter-spacing: var(--pill-letter-spacing);
 }
-.page-template-page-book-a-consultancy .pill--nowrap {
+.pill--nowrap {
   white-space: nowrap;
 }
 
@@ -1687,7 +1687,7 @@ body.is-nav-open .offcanvas-backdrop {
   margin-top: 20px;
 }
 .pillars div {
-  background: #f5f5f5;
+  background: var(--pill-bg-dark);
   padding: 12px 14px;
   border-radius: 6px;
   text-align: center;
