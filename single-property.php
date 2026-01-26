@@ -575,6 +575,80 @@ $has_further_reading = ! empty( $post_ids );
 </section>
 
 
+<?php
+/* ======================================================
+   APARTMENT TOUR VIDEO
+   ====================================================== */
+$custom_video_enabled = function_exists( 'get_field' ) ? (bool) get_field( 'custom_video_checkbox', $property_id ) : false;
+$custom_video_heading = function_exists( 'get_field' ) ? (string) get_field( 'custom_video_heading', $property_id ) : '';
+$custom_video_text    = function_exists( 'get_field' ) ? get_field( 'custom_video_text', $property_id ) : '';
+$custom_video_file    = function_exists( 'get_field' ) ? get_field( 'video_file', $property_id ) : null;
+
+$custom_video_url          = '';
+$custom_video_attachment_id = 0;
+
+if ( $custom_video_file ) {
+  if ( is_array( $custom_video_file ) ) {
+    $custom_video_attachment_id = ! empty( $custom_video_file['ID'] ) ? (int) $custom_video_file['ID'] : 0;
+    $custom_video_url = ! empty( $custom_video_file['url'] ) ? (string) $custom_video_file['url'] : '';
+  } elseif ( is_numeric( $custom_video_file ) ) {
+    $custom_video_attachment_id = (int) $custom_video_file;
+    $custom_video_url = wp_get_attachment_url( $custom_video_attachment_id );
+  } elseif ( is_string( $custom_video_file ) ) {
+    $custom_video_url = $custom_video_file;
+    $custom_video_attachment_id = (int) attachment_url_to_postid( $custom_video_url );
+  }
+}
+
+$custom_video_width  = 0;
+$custom_video_height = 0;
+
+if ( $custom_video_attachment_id ) {
+  $custom_video_meta = wp_get_attachment_metadata( $custom_video_attachment_id );
+  if ( is_array( $custom_video_meta ) ) {
+    $custom_video_width  = (int) ( $custom_video_meta['width'] ?? 0 );
+    $custom_video_height = (int) ( $custom_video_meta['height'] ?? 0 );
+  }
+}
+
+$custom_video_aspect_ratio = '9 / 16';
+if ( $custom_video_width > 0 && $custom_video_height > 0 ) {
+  $custom_video_aspect_ratio = $custom_video_width . ' / ' . $custom_video_height;
+}
+
+$custom_video_text = $custom_video_text ? wp_kses_post( wpautop( $custom_video_text ) ) : '';
+?>
+
+<?php if ( $custom_video_enabled && $custom_video_url ) : ?>
+  <section class="section section-soft property-video-tour" id="property-video-tour">
+    <div class="container">
+      <header class="section-header">
+        <h2><?php echo esc_html( $custom_video_heading ?: 'Apartment tour' ); ?></h2>
+        <?php if ( $custom_video_text ) : ?>
+          <div class="property-video-tour__intro text-soft">
+            <?php echo $custom_video_text; ?>
+          </div>
+        <?php endif; ?>
+      </header>
+
+      <div
+        class="property-video-tour__media card-shell"
+        style="aspect-ratio: <?php echo esc_attr( $custom_video_aspect_ratio ); ?>;"
+      >
+        <video
+          class="property-video-tour__video"
+          controls
+          playsinline
+          preload="metadata"
+        >
+          <source src="<?php echo esc_url( $custom_video_url ); ?>" type="video/mp4">
+        </video>
+      </div>
+    </div>
+  </section>
+<?php endif; ?>
+
+
 <!-- =====================================
   OVERVIEW
   ===================================== -->

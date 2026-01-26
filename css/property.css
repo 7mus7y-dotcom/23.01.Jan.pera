@@ -984,6 +984,20 @@ body.is-lightbox-open{ overflow: hidden; }
    Property – About + Location
    ======================================================= */
 
+.property-video-tour__media{
+  width: 100%;
+  overflow: hidden;
+  border-radius: 16px;
+  background: var(--surface, #fff);
+}
+
+.property-video-tour__video{
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
 .property-location__about,
 .property-location__distances{
   line-height: 1.6;
