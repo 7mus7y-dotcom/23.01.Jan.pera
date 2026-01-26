@@ -65,18 +65,6 @@ get_header();
           <a href="mailto:info@peraproperty.com" class="btn btn--solid btn--blue">
             Email our team
           </a>
-
-          <a
-            href="https://wa.me/905452054356?text=Hello%20I%20would%20like%20to%20book%20a%20consultancy%20call%20with%20Pera%20Property"
-            target="_blank"
-            rel="noopener"
-            class="btn btn-icon-circle btn-whatsapp"
-            aria-label="Contact Pera Property via WhatsApp"
-          >
-            <svg class="icon" aria-hidden="true">
-              <use href="<?php echo esc_url( get_stylesheet_directory_uri() . '/logos-icons/icons.svg#icon-whatsapp' ); ?>"></use>
-            </svg>
-          </a>
         </div>
 
         <div class="pillars">
@@ -163,7 +151,7 @@ get_header();
 
         <article class="feature-card">
           <div class="feature-card-header">
-            <div class="pill pill--outline pill--sm">45 mins</div>
+            <div class="pill pill--outline pill--sm pill--nowrap">45 mins</div>
             <h3>Residency / CBI Consultation</h3>
           </div>
           <div class="feature-card-body">
@@ -198,27 +186,7 @@ get_header();
     <!-- BOOKING MODULE -->
     <section id="booking" class="section section-soft">
       <div class="content-panel-box">
-        <div class="content-panel-grid">
-          <div class="content-panel-left">
-            <header class="section-header">
-              <h2>Reserve your slot</h2>
-              <p>Choose a time that suits you. We will confirm the call and share the agenda.</p>
-            </header>
-
-            <div class="media-frame media-frame--map">
-              <iframe
-                class="media-embed media-embed--map"
-                title="Consultancy booking calendar"
-                src="https://calendly.com/pera-property/consultancy"
-                loading="lazy"
-              ></iframe>
-            </div>
-
-            <p>
-              Prefer a different platform? Email us and we will send a Google Calendar link.
-            </p>
-          </div>
-
+        <div class="content-panel-grid content-panel-grid--single">
           <div class="content-panel-right">
             <div class="enquiry-cta-header m-sm">
               <h2>Request a tailored briefing</h2>
@@ -468,7 +436,7 @@ get_header();
         <p>Secure your slot or reach us directly for urgent questions.</p>
       </div>
 
-      <div class="hero-actions">
+      <div class="hero-actions flex-center">
         <a href="#booking" class="btn btn--solid btn--green">Book your session</a>
         <a
           href="https://wa.me/905452054356?text=Hello%20I%20would%20like%20to%20book%20a%20consultancy%20call%20with%20Pera%20Property"

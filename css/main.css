@@ -893,6 +893,9 @@ button.pill:focus-visible {
   font-size: calc(var(--pill-font-size) * 1.05);
   letter-spacing: var(--pill-letter-spacing);
 }
+.page-template-page-book-a-consultancy .pill--nowrap {
+  white-space: nowrap;
+}
 
 
 /* -------------------------------------------------------
@@ -1690,6 +1693,10 @@ body.is-nav-open .offcanvas-backdrop {
   text-align: center;
   font-size: 0.9rem;
   font-weight: 500;
+}
+.page-template-page-book-a-consultancy #consultancy-hero .pillars div {
+  background: var(--pill-bg-dark);
+  color: var(--pill-text-on-color);
 }
 @media (max-width: 600px) {
   .pillars {
@@ -2639,6 +2646,9 @@ body:not(.single-post) tr:nth-child(even) {
   gap: 32px;
   align-items: flex-start;
   padding:var(--space-xs);
+}
+.page-template-page-book-a-consultancy .content-panel-grid--single {
+  grid-template-columns: minmax(0, 1fr);
 }
 
 /* Section header text */
