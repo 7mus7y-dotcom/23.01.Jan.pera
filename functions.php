@@ -583,6 +583,8 @@ add_action( 'after_switch_theme', 'pera_register_forgot_password_page' );
  */
 require_once get_stylesheet_directory() . '/inc/v2-units-index.php';
 require_once get_stylesheet_directory() . '/inc/ajax-property-archive.php';
+require_once get_stylesheet_directory() . '/inc/filter-for-admin-panel.php';
+
 
 /**
  * functions.php (or your existing loader section)
