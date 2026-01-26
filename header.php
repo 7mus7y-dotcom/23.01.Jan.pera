@@ -159,9 +159,15 @@ $logo_path = get_stylesheet_directory() . '/logos-icons/pera-logo.svg';
       </div>
 
       <div class="offcanvas-contact-login">
-        <a href="<?php echo esc_url( wp_login_url() ); ?>" class="btn btn--solid btn--green">
-          Client login
-        </a>
+        <?php if ( is_user_logged_in() ) : ?>
+          <a href="<?php echo esc_url( wp_logout_url( home_url( '/' ) ) ); ?>" class="btn btn--solid btn--green" rel="nofollow">
+            Log out
+          </a>
+        <?php else : ?>
+          <a href="<?php echo esc_url( wp_login_url() ); ?>" class="btn btn--solid btn--green">
+            Client login
+          </a>
+        <?php endif; ?>
       </div>
 
     </div>
