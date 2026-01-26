@@ -1,0 +1,799 @@
+<?php
+/**
+ * Single Bodrum Property
+ * Template for bodrum-property CPT.
+ */
+
+if ( ! defined( 'ABSPATH' ) ) {
+    exit;
+}
+
+if ( ! function_exists( 'pera_bp_normalize_ids' ) ) {
+    /**
+     * Normalize gallery/attachment fields into an array of attachment IDs.
+     *
+     * @param mixed $items Gallery field value.
+     * @return int[]
+     */
+    function pera_bp_normalize_ids( $items ) {
+        $ids = array();
+
+        if ( empty( $items ) ) {
+            return $ids;
+        }
+
+        if ( is_string( $items ) ) {
+            $maybe_ids = array_filter( array_map( 'trim', explode( ',', $items ) ) );
+            foreach ( $maybe_ids as $maybe_id ) {
+                if ( is_numeric( $maybe_id ) ) {
+                    $ids[] = (int) $maybe_id;
+                }
+            }
+            return array_values( array_unique( array_filter( $ids ) ) );
+        }
+
+        if ( is_array( $items ) ) {
+            foreach ( $items as $item ) {
+                if ( is_numeric( $item ) ) {
+                    $ids[] = (int) $item;
+                    continue;
+                }
+
+                if ( is_array( $item ) && ! empty( $item['ID'] ) ) {
+                    $ids[] = (int) $item['ID'];
+                    continue;
+                }
+
+                if ( is_object( $item ) && ! empty( $item->ID ) ) {
+                    $ids[] = (int) $item->ID;
+                }
+            }
+        }
+
+        return array_values( array_unique( array_filter( $ids ) ) );
+    }
+}
+
+if ( ! function_exists( 'pera_bp_collect_repeater_text' ) ) {
+    /**
+     * Collect text values from a repeater field.
+     *
+     * @param string $field_name Repeater field name.
+     * @param array  $subfields  Possible sub field keys to check.
+     * @param int    $post_id    Optional post ID.
+     * @return string[]
+     */
+    function pera_bp_collect_repeater_text( $field_name, array $subfields, $post_id = 0 ) {
+        $items = array();
+
+        if ( ! function_exists( 'have_rows' ) || ! have_rows( $field_name, $post_id ) ) {
+            return $items;
+        }
+
+        while ( have_rows( $field_name, $post_id ) ) {
+            the_row();
+            $value = '';
+
+            foreach ( $subfields as $subfield ) {
+                $candidate = get_sub_field( $subfield );
+                if ( is_string( $candidate ) ) {
+                    $candidate = trim( $candidate );
+                }
+                if ( ! empty( $candidate ) ) {
+                    $value = $candidate;
+                    break;
+                }
+            }
+
+            if ( ! empty( $value ) ) {
+                $items[] = $value;
+            }
+        }
+
+        return $items;
+    }
+}
+
+get_header();
+?>
+
+<main id="primary" class="site-main content-rail single-bodrum-property">
+
+<?php if ( have_posts() ) : ?>
+    <?php while ( have_posts() ) : the_post(); ?>
+        <?php
+        $post_id = get_the_ID();
+
+        if ( get_post_type( $post_id ) !== 'bodrum-property' ) {
+            ?>
+            <section class="section">
+                <div class="container">
+                    <p><?php echo esc_html__( 'This template is for Bodrum Property posts only.', 'hello-elementor-child' ); ?></p>
+                </div>
+            </section>
+            <?php
+            continue;
+        }
+
+        $display_title = function_exists( 'get_field' ) ? get_field( 'bp_display_title', $post_id ) : '';
+        if ( empty( $display_title ) ) {
+            $display_title = get_the_title( $post_id );
+        }
+
+        $tagline          = function_exists( 'get_field' ) ? get_field( 'bp_tagline', $post_id ) : '';
+        $status_badge     = function_exists( 'get_field' ) ? get_field( 'bp_status_badge', $post_id ) : '';
+        $discretion_note  = function_exists( 'get_field' ) ? (bool) get_field( 'bp_discretion_note', $post_id ) : false;
+        $hero_media_type  = function_exists( 'get_field' ) ? get_field( 'bp_hero_media_type', $post_id ) : '';
+        $hero_image_id    = function_exists( 'get_field' ) ? (int) get_field( 'bp_hero_image', $post_id ) : 0;
+        $hero_video_id    = function_exists( 'get_field' ) ? (int) get_field( 'bp_hero_video_mp4', $post_id ) : 0;
+        $hero_poster_id   = function_exists( 'get_field' ) ? (int) get_field( 'bp_hero_video_poster', $post_id ) : 0;
+        $hero_video_url   = $hero_video_id ? wp_get_attachment_url( $hero_video_id ) : '';
+        $hero_poster_url  = $hero_poster_id ? wp_get_attachment_url( $hero_poster_id ) : '';
+        $use_video        = ( 'video' === $hero_media_type && ! empty( $hero_video_url ) );
+        $use_image        = ( ! $use_video && $hero_image_id );
+        $has_hero_media   = $use_video || $use_image;
+        $hero_highlights  = function_exists( 'get_field' )
+            ? pera_bp_collect_repeater_text( 'bp_hero_highlights', array( 'bp_highlight', 'bp_hero_highlight', 'bp_text', 'text' ), $post_id )
+            : array();
+
+        $status_label = '';
+        $status_class = 'pill pill--outline';
+
+        switch ( $status_badge ) {
+            case 'for_sale':
+                $status_label = __( 'For sale', 'hello-elementor-child' );
+                $status_class = 'pill pill--green';
+                break;
+            case 'off_market':
+                $status_label = __( 'Off market', 'hello-elementor-child' );
+                $status_class = 'pill pill--outline';
+                break;
+            case 'sold':
+                $status_label = __( 'Sold', 'hello-elementor-child' );
+                $status_class = 'pill pill--red';
+                break;
+            case 'price_on_request':
+                $status_label = __( 'Price on request', 'hello-elementor-child' );
+                $status_class = 'pill pill--brand';
+                break;
+        }
+
+        $key_facts = function_exists( 'get_field' ) ? get_field( 'bp_key_facts', $post_id ) : array();
+        $location_line     = is_array( $key_facts ) && ! empty( $key_facts['bp_location_line'] ) ? $key_facts['bp_location_line'] : ( function_exists( 'get_field' ) ? get_field( 'bp_location_line', $post_id ) : '' );
+        $plot_area         = is_array( $key_facts ) && ! empty( $key_facts['bp_plot_area_sqm'] ) ? $key_facts['bp_plot_area_sqm'] : ( function_exists( 'get_field' ) ? get_field( 'bp_plot_area_sqm', $post_id ) : '' );
+        $internal_area     = is_array( $key_facts ) && ! empty( $key_facts['bp_internal_area_sqm'] ) ? $key_facts['bp_internal_area_sqm'] : ( function_exists( 'get_field' ) ? get_field( 'bp_internal_area_sqm', $post_id ) : '' );
+        $total_units       = is_array( $key_facts ) && ! empty( $key_facts['bp_total_units'] ) ? $key_facts['bp_total_units'] : ( function_exists( 'get_field' ) ? get_field( 'bp_total_units', $post_id ) : '' );
+        $config_summary    = is_array( $key_facts ) && ! empty( $key_facts['bp_config_summary'] ) ? $key_facts['bp_config_summary'] : ( function_exists( 'get_field' ) ? get_field( 'bp_config_summary', $post_id ) : '' );
+
+        $intro_heading = function_exists( 'get_field' ) ? get_field( 'bp_intro_heading', $post_id ) : '';
+        $intro_text    = function_exists( 'get_field' ) ? get_field( 'bp_intro_text', $post_id ) : '';
+
+        $gallery_items = function_exists( 'get_field' ) ? get_field( 'bp_gallery', $post_id ) : array();
+        $gallery_ids   = pera_bp_normalize_ids( $gallery_items );
+
+        $gallery_download_enabled = function_exists( 'get_field' ) ? (bool) get_field( 'bp_gallery_download_enabled', $post_id ) : false;
+        $gallery_download_field   = function_exists( 'get_field' ) ? get_field( 'bp_gallery_download_file', $post_id ) : null;
+        $gallery_download_url     = '';
+
+        if ( $gallery_download_enabled && $gallery_download_field ) {
+            if ( is_array( $gallery_download_field ) && ! empty( $gallery_download_field['url'] ) ) {
+                $gallery_download_url = $gallery_download_field['url'];
+            } elseif ( is_numeric( $gallery_download_field ) ) {
+                $gallery_download_url = wp_get_attachment_url( (int) $gallery_download_field );
+            }
+        }
+
+        $features  = function_exists( 'get_field' )
+            ? pera_bp_collect_repeater_text( 'bp_features', array( 'bp_feature', 'feature', 'bp_text', 'text' ), $post_id )
+            : array();
+        $amenities = function_exists( 'get_field' ) ? get_field( 'bp_amenities', $post_id ) : '';
+
+        $dual_use_heading   = function_exists( 'get_field' ) ? get_field( 'bp_dual_use_heading', $post_id ) : '';
+        $dual_use_text      = function_exists( 'get_field' ) ? get_field( 'bp_dual_use_text', $post_id ) : '';
+        $hospitality_assets = function_exists( 'get_field' )
+            ? pera_bp_collect_repeater_text( 'bp_hospitality_assets', array( 'bp_hospitality_asset', 'bp_text', 'text' ), $post_id )
+            : array();
+        $operations_note    = function_exists( 'get_field' ) ? get_field( 'bp_operations_note', $post_id ) : '';
+
+        $map_mode        = function_exists( 'get_field' ) ? get_field( 'bp_map_mode', $post_id ) : '';
+        $map_embed       = function_exists( 'get_field' ) ? get_field( 'bp_map_embed', $post_id ) : '';
+        $map_image_id    = function_exists( 'get_field' ) ? (int) get_field( 'bp_map_image', $post_id ) : 0;
+        $location_notes  = function_exists( 'get_field' )
+            ? pera_bp_collect_repeater_text( 'bp_location_highlights', array( 'bp_location_highlight', 'bp_highlight', 'bp_text', 'text' ), $post_id )
+            : array();
+
+        $primary_cta_label   = function_exists( 'get_field' ) ? get_field( 'bp_primary_cta_label', $post_id ) : '';
+        $secondary_cta_label = function_exists( 'get_field' ) ? get_field( 'bp_secondary_cta_label', $post_id ) : '';
+        $enquiry_recipient   = function_exists( 'get_field' ) ? get_field( 'bp_enquiry_recipient', $post_id ) : '';
+        $enquiry_gating_note = function_exists( 'get_field' ) ? get_field( 'bp_enquiry_gating_note', $post_id ) : '';
+
+        $primary_cta_label   = $primary_cta_label ? $primary_cta_label : __( 'Request details', 'hello-elementor-child' );
+        $secondary_cta_label = $secondary_cta_label ? $secondary_cta_label : __( 'Arrange viewing', 'hello-elementor-child' );
+        $primary_cta_url     = esc_url( site_url( '/book-a-consultancy/' ) );
+        $secondary_cta_url   = '#enquiry';
+        ?>
+
+        <!-- =====================================
+            HERO (BODRUM PROPERTY)
+        ===================================== -->
+        <section class="hero hero--left" id="bodrum-hero">
+            <?php if ( $has_hero_media ) : ?>
+                <div class="hero__media" aria-hidden="true">
+                    <?php if ( $use_video ) : ?>
+                        <video
+                            class="hero-media"
+                            src="<?php echo esc_url( $hero_video_url ); ?>"
+                            <?php if ( $hero_poster_url ) : ?>poster="<?php echo esc_url( $hero_poster_url ); ?>"<?php endif; ?>
+                            controls
+                            playsinline
+                            muted
+                            preload="metadata"
+                        ></video>
+                    <?php elseif ( $hero_image_id ) : ?>
+                        <?php
+                        echo wp_get_attachment_image(
+                            $hero_image_id,
+                            'full',
+                            false,
+                            array(
+                                'class'    => 'hero-media',
+                                'loading'  => 'eager',
+                                'decoding' => 'async',
+                            )
+                        );
+                        ?>
+                    <?php endif; ?>
+                    <div class="hero-overlay" aria-hidden="true"></div>
+                </div>
+            <?php endif; ?>
+
+            <div class="hero-content">
+                <?php if ( $status_label ) : ?>
+                    <div class="hero-actions">
+                        <span class="<?php echo esc_attr( $status_class ); ?>">
+                            <?php echo esc_html( $status_label ); ?>
+                        </span>
+                    </div>
+                <?php endif; ?>
+
+                <?php if ( $display_title ) : ?>
+                    <h1><?php echo esc_html( $display_title ); ?></h1>
+                <?php endif; ?>
+
+                <?php if ( $tagline ) : ?>
+                    <p class="lead"><?php echo esc_html( $tagline ); ?></p>
+                <?php endif; ?>
+
+                <?php if ( $hero_highlights ) : ?>
+                    <div class="hero-actions">
+                        <?php foreach ( $hero_highlights as $highlight ) : ?>
+                            <span class="pill pill--outline">
+                                <?php echo esc_html( $highlight ); ?>
+                            </span>
+                        <?php endforeach; ?>
+                    </div>
+                <?php endif; ?>
+
+                <?php if ( $discretion_note ) : ?>
+                    <p class="text-light">
+                        <?php echo esc_html__( 'Discreet marketing. Further details on request.', 'hello-elementor-child' ); ?>
+                    </p>
+                <?php endif; ?>
+            </div>
+        </section>
+
+        <?php
+        $has_key_facts = $location_line || $plot_area || $internal_area || $total_units || $config_summary;
+        if ( $has_key_facts ) :
+            ?>
+            <section class="section">
+                <div class="container">
+                    <header class="section-header">
+                        <h2><?php echo esc_html__( 'Key facts', 'hello-elementor-child' ); ?></h2>
+                    </header>
+
+                    <div class="table-wrap">
+                        <table>
+                            <tbody>
+                                <?php if ( $location_line ) : ?>
+                                    <tr>
+                                        <th><?php echo esc_html__( 'Location', 'hello-elementor-child' ); ?></th>
+                                        <td><?php echo esc_html( $location_line ); ?></td>
+                                    </tr>
+                                <?php endif; ?>
+                                <?php if ( $plot_area ) : ?>
+                                    <tr>
+                                        <th><?php echo esc_html__( 'Plot area (sqm)', 'hello-elementor-child' ); ?></th>
+                                        <td><?php echo esc_html( $plot_area ); ?></td>
+                                    </tr>
+                                <?php endif; ?>
+                                <?php if ( $internal_area ) : ?>
+                                    <tr>
+                                        <th><?php echo esc_html__( 'Internal area (sqm)', 'hello-elementor-child' ); ?></th>
+                                        <td><?php echo esc_html( $internal_area ); ?></td>
+                                    </tr>
+                                <?php endif; ?>
+                                <?php if ( $total_units ) : ?>
+                                    <tr>
+                                        <th><?php echo esc_html__( 'Total units', 'hello-elementor-child' ); ?></th>
+                                        <td><?php echo esc_html( $total_units ); ?></td>
+                                    </tr>
+                                <?php endif; ?>
+                                <?php if ( $config_summary ) : ?>
+                                    <tr>
+                                        <th><?php echo esc_html__( 'Configuration', 'hello-elementor-child' ); ?></th>
+                                        <td><?php echo esc_html( $config_summary ); ?></td>
+                                    </tr>
+                                <?php endif; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+        <?php endif; ?>
+
+        <?php if ( $intro_heading || $intro_text ) : ?>
+            <section class="section">
+                <div class="container">
+                    <header class="section-header">
+                        <?php if ( $intro_heading ) : ?>
+                            <h2><?php echo esc_html( $intro_heading ); ?></h2>
+                        <?php endif; ?>
+                        <?php if ( $intro_text ) : ?>
+                            <div class="lead">
+                                <?php echo wp_kses_post( $intro_text ); ?>
+                            </div>
+                        <?php endif; ?>
+                    </header>
+                </div>
+            </section>
+        <?php endif; ?>
+
+        <?php if ( function_exists( 'have_rows' ) && have_rows( 'bp_story_blocks', $post_id ) ) : ?>
+            <section class="section">
+                <div class="container">
+                    <?php while ( have_rows( 'bp_story_blocks', $post_id ) ) : the_row(); ?>
+                        <?php
+                        $layout = get_row_layout();
+                        ?>
+                        <?php if ( 'bp_block_text' === $layout ) : ?>
+                            <?php
+                            $block_heading = get_sub_field( 'bp_block_heading' );
+                            $block_text    = get_sub_field( 'bp_block_text' );
+                            if ( $block_heading || $block_text ) :
+                                ?>
+                                <div class="content-panel-box mb-md">
+                                    <div class="section-header">
+                                        <?php if ( $block_heading ) : ?>
+                                            <h3><?php echo esc_html( $block_heading ); ?></h3>
+                                        <?php endif; ?>
+                                    </div>
+                                    <?php if ( $block_text ) : ?>
+                                        <div>
+                                            <?php echo wp_kses_post( $block_text ); ?>
+                                        </div>
+                                    <?php endif; ?>
+                                </div>
+                            <?php endif; ?>
+                        <?php elseif ( 'bp_block_image_text' === $layout ) : ?>
+                            <?php
+                            $block_image      = get_sub_field( 'bp_block_image' );
+                            $block_image_id   = 0;
+                            if ( is_array( $block_image ) && ! empty( $block_image['ID'] ) ) {
+                                $block_image_id = (int) $block_image['ID'];
+                            } elseif ( is_numeric( $block_image ) ) {
+                                $block_image_id = (int) $block_image;
+                            }
+                            $block_heading    = get_sub_field( 'bp_block_heading' );
+                            $block_text       = get_sub_field( 'bp_block_text' );
+                            $block_image_side = get_sub_field( 'bp_block_image_side' );
+
+                            $has_block_content = $block_image_id || $block_heading || $block_text;
+                            if ( $has_block_content ) :
+                                $image_first = ( 'left' === $block_image_side );
+                                ?>
+                                <div class="content-panel-box mb-md">
+                                    <div class="content-panel-grid">
+                                        <?php if ( $image_first ) : ?>
+                                            <?php if ( $block_image_id ) : ?>
+                                                <div class="media-frame media-frame--image-fill">
+                                                    <?php
+                                                    echo wp_get_attachment_image(
+                                                        $block_image_id,
+                                                        'full',
+                                                        false,
+                                                        array(
+                                                            'class'    => 'media-image',
+                                                            'loading'  => 'lazy',
+                                                            'decoding' => 'async',
+                                                        )
+                                                    );
+                                                    ?>
+                                                </div>
+                                            <?php endif; ?>
+                                        <?php endif; ?>
+
+                                        <div>
+                                            <?php if ( $block_heading ) : ?>
+                                                <h3><?php echo esc_html( $block_heading ); ?></h3>
+                                            <?php endif; ?>
+                                            <?php if ( $block_text ) : ?>
+                                                <div>
+                                                    <?php echo wp_kses_post( $block_text ); ?>
+                                                </div>
+                                            <?php endif; ?>
+                                        </div>
+
+                                        <?php if ( ! $image_first ) : ?>
+                                            <?php if ( $block_image_id ) : ?>
+                                                <div class="media-frame media-frame--image-fill">
+                                                    <?php
+                                                    echo wp_get_attachment_image(
+                                                        $block_image_id,
+                                                        'full',
+                                                        false,
+                                                        array(
+                                                            'class'    => 'media-image',
+                                                            'loading'  => 'lazy',
+                                                            'decoding' => 'async',
+                                                        )
+                                                    );
+                                                    ?>
+                                                </div>
+                                            <?php endif; ?>
+                                        <?php endif; ?>
+                                    </div>
+                                </div>
+                            <?php endif; ?>
+                        <?php elseif ( 'bp_block_quote' === $layout ) : ?>
+                            <?php
+                            $quote_text  = get_sub_field( 'bp_quote' );
+                            $quote_attrib = get_sub_field( 'bp_quote_attrib' );
+                            if ( $quote_text || $quote_attrib ) :
+                                ?>
+                                <div class="content-panel-box mb-md">
+                                    <?php if ( $quote_text ) : ?>
+                                        <blockquote>
+                                            <p><?php echo esc_html( $quote_text ); ?></p>
+                                        </blockquote>
+                                    <?php endif; ?>
+                                    <?php if ( $quote_attrib ) : ?>
+                                        <p class="text-soft"><?php echo esc_html( $quote_attrib ); ?></p>
+                                    <?php endif; ?>
+                                </div>
+                            <?php endif; ?>
+                        <?php endif; ?>
+                    <?php endwhile; ?>
+                </div>
+            </section>
+        <?php endif; ?>
+
+        <?php if ( ! empty( $gallery_ids ) ) : ?>
+            <section class="section">
+                <div class="container">
+                    <header class="section-header">
+                        <h2><?php echo esc_html__( 'Gallery', 'hello-elementor-child' ); ?></h2>
+                    </header>
+
+                    <div class="grid-3">
+                        <?php foreach ( $gallery_ids as $image_id ) : ?>
+                            <div class="media-frame">
+                                <?php
+                                echo wp_get_attachment_image(
+                                    $image_id,
+                                    'large',
+                                    false,
+                                    array(
+                                        'class'    => 'media-image',
+                                        'loading'  => 'lazy',
+                                        'decoding' => 'async',
+                                    )
+                                );
+                                ?>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+
+                    <?php if ( $gallery_download_url ) : ?>
+                        <div class="hero-actions">
+                            <a class="btn btn--solid btn--blue" href="<?php echo esc_url( $gallery_download_url ); ?>">
+                                <?php echo esc_html__( 'Download gallery', 'hello-elementor-child' ); ?>
+                            </a>
+                        </div>
+                    <?php endif; ?>
+                </div>
+            </section>
+        <?php endif; ?>
+
+        <?php
+        $has_features_section = ! empty( $features ) || $amenities;
+        if ( $has_features_section ) :
+            $features_count = count( $features );
+            $feature_split  = $features_count ? (int) ceil( $features_count / 2 ) : 0;
+            $features_left  = $feature_split ? array_slice( $features, 0, $feature_split ) : array();
+            $features_right = $feature_split ? array_slice( $features, $feature_split ) : array();
+            ?>
+            <section class="section section-soft">
+                <div class="container">
+                    <header class="section-header">
+                        <h2><?php echo esc_html__( 'Features & amenities', 'hello-elementor-child' ); ?></h2>
+                    </header>
+
+                    <?php if ( $features ) : ?>
+                        <div class="grid-2">
+                            <ul class="checklist">
+                                <?php foreach ( $features_left as $feature ) : ?>
+                                    <li>
+                                        <svg class="icon icon-tick" aria-hidden="true">
+                                            <use href="<?php echo esc_url( get_stylesheet_directory_uri() . '/logos-icons/icons.svg#icon-check' ); ?>"></use>
+                                        </svg>
+                                        <?php echo esc_html( $feature ); ?>
+                                    </li>
+                                <?php endforeach; ?>
+                            </ul>
+                            <?php if ( $features_right ) : ?>
+                                <ul class="checklist">
+                                    <?php foreach ( $features_right as $feature ) : ?>
+                                        <li>
+                                            <svg class="icon icon-tick" aria-hidden="true">
+                                                <use href="<?php echo esc_url( get_stylesheet_directory_uri() . '/logos-icons/icons.svg#icon-check' ); ?>"></use>
+                                            </svg>
+                                            <?php echo esc_html( $feature ); ?>
+                                        </li>
+                                    <?php endforeach; ?>
+                                </ul>
+                            <?php endif; ?>
+                        </div>
+                    <?php endif; ?>
+
+                    <?php if ( $amenities ) : ?>
+                        <p class="text-soft">
+                            <?php echo wp_kses_post( $amenities ); ?>
+                        </p>
+                    <?php endif; ?>
+                </div>
+            </section>
+        <?php endif; ?>
+
+        <?php
+        $has_dual_use_section = $dual_use_heading || $dual_use_text || $hospitality_assets || $operations_note;
+        if ( $has_dual_use_section ) :
+            ?>
+            <section class="section">
+                <div class="container">
+                    <header class="section-header">
+                        <?php if ( $dual_use_heading ) : ?>
+                            <h2><?php echo esc_html( $dual_use_heading ); ?></h2>
+                        <?php else : ?>
+                            <h2><?php echo esc_html__( 'Dual-use & hospitality capability', 'hello-elementor-child' ); ?></h2>
+                        <?php endif; ?>
+                    </header>
+
+                    <?php if ( $dual_use_text ) : ?>
+                        <p><?php echo wp_kses_post( $dual_use_text ); ?></p>
+                    <?php endif; ?>
+
+                    <?php if ( $hospitality_assets ) : ?>
+                        <ul class="checklist mb-md">
+                            <?php foreach ( $hospitality_assets as $asset ) : ?>
+                                <li>
+                                    <svg class="icon icon-tick" aria-hidden="true">
+                                        <use href="<?php echo esc_url( get_stylesheet_directory_uri() . '/logos-icons/icons.svg#icon-check' ); ?>"></use>
+                                    </svg>
+                                    <?php echo esc_html( $asset ); ?>
+                                </li>
+                            <?php endforeach; ?>
+                        </ul>
+                    <?php endif; ?>
+
+                    <?php if ( $operations_note ) : ?>
+                        <div class="content-panel-box">
+                            <p class="text-soft">
+                                <?php echo esc_html( $operations_note ); ?>
+                            </p>
+                        </div>
+                    <?php endif; ?>
+                </div>
+            </section>
+        <?php endif; ?>
+
+        <?php if ( function_exists( 'have_rows' ) && have_rows( 'bp_floorplans', $post_id ) ) : ?>
+            <section class="section section-soft">
+                <div class="container">
+                    <header class="section-header">
+                        <h2><?php echo esc_html__( 'Floorplans', 'hello-elementor-child' ); ?></h2>
+                    </header>
+
+                    <div class="grid-3">
+                        <?php while ( have_rows( 'bp_floorplans', $post_id ) ) : the_row(); ?>
+                            <?php
+                            $fp_label = get_sub_field( 'bp_fp_label' );
+                            $fp_note  = get_sub_field( 'bp_fp_note' );
+                            $fp_image = get_sub_field( 'bp_fp_image' );
+                            $fp_image_id = 0;
+                            if ( is_array( $fp_image ) && ! empty( $fp_image['ID'] ) ) {
+                                $fp_image_id = (int) $fp_image['ID'];
+                            } elseif ( is_numeric( $fp_image ) ) {
+                                $fp_image_id = (int) $fp_image;
+                            }
+
+                            if ( ! $fp_label && ! $fp_note && ! $fp_image_id ) {
+                                continue;
+                            }
+                            ?>
+                            <div class="content-panel-box">
+                                <?php if ( $fp_image_id ) : ?>
+                                    <div class="media-frame">
+                                        <?php
+                                        echo wp_get_attachment_image(
+                                            $fp_image_id,
+                                            'large',
+                                            false,
+                                            array(
+                                                'class'    => 'media-image',
+                                                'loading'  => 'lazy',
+                                                'decoding' => 'async',
+                                            )
+                                        );
+                                        ?>
+                                    </div>
+                                <?php endif; ?>
+                                <?php if ( $fp_label ) : ?>
+                                    <h3><?php echo esc_html( $fp_label ); ?></h3>
+                                <?php endif; ?>
+                                <?php if ( $fp_note ) : ?>
+                                    <p class="text-soft"><?php echo esc_html( $fp_note ); ?></p>
+                                <?php endif; ?>
+                            </div>
+                        <?php endwhile; ?>
+                    </div>
+                </div>
+            </section>
+        <?php endif; ?>
+
+        <?php
+        $safe_map_embed = '';
+        if ( 'embed' === $map_mode && $map_embed ) {
+            $map_embed = preg_replace( '/<iframe\b(?![^>]*\bclass=)/i', '<iframe class="media-embed--map"', $map_embed, 1 );
+            $map_embed = preg_replace( '/<iframe\b([^>]*\bclass=")(\s*[^"]*)"/i', '<iframe$1$2 media-embed--map"', $map_embed, 1 );
+
+            $allowed_tags = array(
+                'iframe' => array(
+                    'src'             => true,
+                    'width'           => true,
+                    'height'          => true,
+                    'frameborder'     => true,
+                    'style'           => true,
+                    'allow'           => true,
+                    'allowfullscreen' => true,
+                    'loading'         => true,
+                    'referrerpolicy'  => true,
+                    'title'           => true,
+                    'class'           => true,
+                ),
+                'embed' => array(
+                    'src'    => true,
+                    'type'   => true,
+                    'width'  => true,
+                    'height' => true,
+                    'class'  => true,
+                ),
+            );
+
+            $safe_map_embed = wp_kses( $map_embed, $allowed_tags );
+        }
+
+        $has_map_content = ( 'embed' === $map_mode && $safe_map_embed ) || ( 'image' === $map_mode && $map_image_id );
+        $has_location_section = $has_map_content || $location_notes;
+        if ( $has_location_section ) :
+            ?>
+            <section class="section">
+                <div class="container">
+                    <header class="section-header">
+                        <h2><?php echo esc_html__( 'Location', 'hello-elementor-child' ); ?></h2>
+                    </header>
+
+                    <?php if ( $has_map_content && $location_notes ) : ?>
+                        <div class="grid-2">
+                            <div class="media-frame media-frame--map">
+                                <?php if ( 'embed' === $map_mode && $safe_map_embed ) : ?>
+                                    <?php echo $safe_map_embed; ?>
+                                <?php elseif ( 'image' === $map_mode && $map_image_id ) : ?>
+                                    <?php
+                                    echo wp_get_attachment_image(
+                                        $map_image_id,
+                                        'large',
+                                        false,
+                                        array(
+                                            'class'    => 'media-image',
+                                            'loading'  => 'lazy',
+                                            'decoding' => 'async',
+                                        )
+                                    );
+                                    ?>
+                                <?php endif; ?>
+                            </div>
+
+                            <div>
+                                <ul class="checklist">
+                                    <?php foreach ( $location_notes as $note ) : ?>
+                                        <li>
+                                            <svg class="icon icon-tick" aria-hidden="true">
+                                                <use href="<?php echo esc_url( get_stylesheet_directory_uri() . '/logos-icons/icons.svg#icon-check' ); ?>"></use>
+                                            </svg>
+                                            <?php echo esc_html( $note ); ?>
+                                        </li>
+                                    <?php endforeach; ?>
+                                </ul>
+                            </div>
+                        </div>
+                    <?php elseif ( $has_map_content ) : ?>
+                        <div class="media-frame media-frame--map">
+                            <?php if ( 'embed' === $map_mode && $safe_map_embed ) : ?>
+                                <?php echo $safe_map_embed; ?>
+                            <?php elseif ( 'image' === $map_mode && $map_image_id ) : ?>
+                                <?php
+                                echo wp_get_attachment_image(
+                                    $map_image_id,
+                                    'large',
+                                    false,
+                                    array(
+                                        'class'    => 'media-image',
+                                        'loading'  => 'lazy',
+                                        'decoding' => 'async',
+                                    )
+                                );
+                                ?>
+                            <?php endif; ?>
+                        </div>
+                    <?php elseif ( $location_notes ) : ?>
+                        <div>
+                            <ul class="checklist">
+                                <?php foreach ( $location_notes as $note ) : ?>
+                                    <li>
+                                        <svg class="icon icon-tick" aria-hidden="true">
+                                            <use href="<?php echo esc_url( get_stylesheet_directory_uri() . '/logos-icons/icons.svg#icon-check' ); ?>"></use>
+                                        </svg>
+                                        <?php echo esc_html( $note ); ?>
+                                    </li>
+                                <?php endforeach; ?>
+                            </ul>
+                        </div>
+                    <?php endif; ?>
+                </div>
+            </section>
+        <?php endif; ?>
+
+        <section class="section section-soft" id="enquiry"<?php echo $enquiry_recipient ? ' data-recipient="' . esc_attr( $enquiry_recipient ) . '"' : ''; ?>>
+            <div class="container">
+                <div class="content-panel-box">
+                    <header class="section-header">
+                        <h2><?php echo esc_html__( 'Start your Bodrum enquiry', 'hello-elementor-child' ); ?></h2>
+                        <p><?php echo esc_html__( 'Speak with a consultant to receive full details, pricing, and availability.', 'hello-elementor-child' ); ?></p>
+                    </header>
+
+                    <div class="hero-actions">
+                        <a class="btn btn--solid btn--blue" href="<?php echo esc_url( $primary_cta_url ); ?>">
+                            <?php echo esc_html( $primary_cta_label ); ?>
+                        </a>
+                        <a class="btn btn--solid btn--green" href="<?php echo esc_url( $secondary_cta_url ); ?>">
+                            <?php echo esc_html( $secondary_cta_label ); ?>
+                        </a>
+                    </div>
+
+                    <?php if ( $enquiry_gating_note ) : ?>
+                        <p class="text-soft">
+                            <?php echo esc_html( $enquiry_gating_note ); ?>
+                        </p>
+                    <?php endif; ?>
+                </div>
+            </div>
+        </section>
+
+    <?php endwhile; ?>
+<?php endif; ?>
+
+</main>
+
+<?php
+get_footer();
