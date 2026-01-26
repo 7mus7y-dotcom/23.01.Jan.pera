@@ -283,18 +283,32 @@ $featured_query = new WP_Query( array(
 
     <div class="cards-slider cards-slider--features cards-slider--snap cards-slider--grid-lg" aria-label="Featured properties">
       <?php if ( $featured_query->have_posts() ) : ?>
+        <?php $featured_index = 0; ?>
         <?php while ( $featured_query->have_posts() ) : $featured_query->the_post(); ?>
 
           <div class="slider-card">
-            <?php
-              set_query_var( 'pera_property_card_args', array(
-                'variant' => 'archive',
-              ) );
-              get_template_part( 'parts/property-card-v2' );
-              set_query_var( 'pera_property_card_args', null );
-            ?>
+            <?php if ( $featured_index < 5 ) : ?>
+              <?php
+                set_query_var( 'pera_property_card_args', array(
+                  'variant' => 'archive',
+                ) );
+                get_template_part( 'parts/property-card-v2' );
+                set_query_var( 'pera_property_card_args', null );
+              ?>
+            <?php else : ?>
+              <div class="property-card property-card--archive">
+                <div class="property-card__inner flex-center text-center">
+                  <div>
+                    <h3>Want to see more?</h3>
+                    <p class="text-sm">Check out all of our listings</p>
+                    <a class="btn btn--solid btn--blue" href="/property/">See all listings</a>
+                  </div>
+                </div>
+              </div>
+            <?php endif; ?>
           </div>
 
+          <?php $featured_index++; ?>
         <?php endwhile; ?>
       <?php else : ?>
         <p class="no-results">No featured properties available at the moment.</p>
