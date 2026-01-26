@@ -575,7 +575,9 @@ $has_further_reading = ! empty( $post_ids );
 </section>
 
 
-<?php
+
+<?php $DISABLE_APARTMENT_TOUR_VIDEO = true;
+
 /* ======================================================
    APARTMENT TOUR VIDEO
    ====================================================== */
@@ -619,7 +621,7 @@ if ( $custom_video_width > 0 && $custom_video_height > 0 ) {
 $custom_video_text = $custom_video_text ? wp_kses_post( wpautop( $custom_video_text ) ) : '';
 ?>
 
-<?php if ( $custom_video_enabled && $custom_video_url ) : ?>
+<?php if ( ! $DISABLE_APARTMENT_TOUR_VIDEO && $custom_video_enabled && $custom_video_url ) : ?>
   <section class="section section-soft property-video-tour" id="property-video-tour">
     <div class="container">
       <header class="section-header">
