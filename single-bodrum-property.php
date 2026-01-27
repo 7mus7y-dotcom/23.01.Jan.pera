@@ -214,6 +214,8 @@ get_header();
 
         $gallery_items = function_exists( 'get_field' ) ? get_field( 'bp_gallery', $post_id ) : array();
         $gallery_ids   = pera_bp_normalize_ids( $gallery_items );
+        $interior_gallery_items = function_exists( 'get_field' ) ? get_field( 'bp_interior_gallery', $post_id ) : array();
+        $interior_gallery_ids   = pera_bp_normalize_ids( $interior_gallery_items );
 
         $gallery_download_enabled = function_exists( 'get_field' ) ? (bool) get_field( 'bp_gallery_download_enabled', $post_id ) : false;
         $gallery_download_field   = function_exists( 'get_field' ) ? get_field( 'bp_gallery_download_file', $post_id ) : null;
@@ -268,6 +270,45 @@ get_header();
         $secondary_cta_label = $secondary_cta_label ? $secondary_cta_label : __( 'Arrange viewing', 'hello-elementor-child' );
         $primary_cta_url     = esc_url( site_url( '/book-a-consultancy/' ) );
         $secondary_cta_url   = '#enquiry';
+
+        $render_gallery_row = function( array $row_ids, $fallback_title ) {
+            if ( empty( $row_ids ) ) {
+                return;
+            }
+
+            echo '<div class="property-gallery-strip__row" role="list">';
+
+            foreach ( $row_ids as $image_id ) {
+                $image_id = absint( $image_id );
+                if ( ! $image_id ) {
+                    continue;
+                }
+
+                if ( ! wp_get_attachment_image_url( $image_id, 'full' ) ) {
+                    continue;
+                }
+
+                $alt_meta  = trim( (string) get_post_meta( $image_id, '_wp_attachment_image_alt', true ) );
+                $alt_label = $alt_meta !== '' ? $alt_meta : $fallback_title;
+
+                echo '<div class="property-gallery-strip__item" role="listitem" aria-label="' . esc_attr( $alt_label ) . '">';
+
+                echo wp_get_attachment_image(
+                    $image_id,
+                    'pera-card',
+                    false,
+                    array(
+                        'loading'  => 'lazy',
+                        'decoding' => 'async',
+                        'alt'      => $alt_label,
+                    )
+                );
+
+                echo '</div>';
+            }
+
+            echo '</div>';
+        };
         ?>
 
 		<!-- =====================================
@@ -476,52 +517,8 @@ get_header();
 
                             <div class="property-gallery-strip" aria-label="Gallery photos">
                                 <?php
-                                /**
-                                 * Render one row of gallery items.
-                                 *
-                                 * @param int[] $row_ids
-                                 */
-                                $render_gallery_row = function( array $row_ids ) use ( $display_title ) {
-                                    if ( empty( $row_ids ) ) {
-                                        return;
-                                    }
-
-                                    echo '<div class="property-gallery-strip__row" role="list">';
-
-                                    foreach ( $row_ids as $image_id ) {
-                                        $image_id = absint( $image_id );
-                                        if ( ! $image_id ) {
-                                            continue;
-                                        }
-
-                                        if ( ! wp_get_attachment_image_url( $image_id, 'full' ) ) {
-                                            continue;
-                                        }
-
-                                        $alt_meta  = trim( (string) get_post_meta( $image_id, '_wp_attachment_image_alt', true ) );
-                                        $alt_label = $alt_meta !== '' ? $alt_meta : $display_title;
-
-                                        echo '<div class="property-gallery-strip__item" role="listitem" aria-label="' . esc_attr( $alt_label ) . '">';
-
-                                        echo wp_get_attachment_image(
-                                            $image_id,
-                                            'pera-card',
-                                            false,
-                                            array(
-                                                'loading'  => 'lazy',
-                                                'decoding' => 'async',
-                                                'alt'      => $alt_label,
-                                            )
-                                        );
-
-                                        echo '</div>';
-                                    }
-
-                                    echo '</div>';
-                                };
-
-                                $render_gallery_row( $row1 );
-                                $render_gallery_row( $row2 );
+                                $render_gallery_row( $row1, $display_title );
+                                $render_gallery_row( $row2, $display_title );
                                 ?>
                             </div><!-- /.property-gallery-strip -->
                         </div><!-- /.property-gallery-shell -->
@@ -717,11 +714,110 @@ get_header();
             </section>
         <?php endif; ?>
 
+        <?php
+        $has_dual_use_section = $dual_use_heading || $dual_use_text || $hospitality_assets || $operations_note || ! empty( $interior_gallery_ids );
+        if ( $has_dual_use_section ) :
+            ?>
+            <section class="section">
+                <div class="container">
+                    <header class="section-header">
+                        <?php if ( $dual_use_heading ) : ?>
+                            <h2><?php echo esc_html( $dual_use_heading ); ?></h2>
+                        <?php else : ?>
+                            <h2><?php echo esc_html__( 'Dual-use & hospitality capability', 'hello-elementor-child' ); ?></h2>
+                        <?php endif; ?>
+                    </header>
 
 
-		<!-- =====================================
-		   FLOORPLANS
-		===================================== -->
+                    <?php if ( $hospitality_assets ) : ?>
+                        <ul class="checklist mb-md">
+                            <?php foreach ( $hospitality_assets as $asset ) : ?>
+                                <li>
+                                    <svg class="icon icon-tick" aria-hidden="true">
+                                        <use href="<?php echo esc_url( get_stylesheet_directory_uri() . '/logos-icons/icons.svg#icon-check' ); ?>"></use>
+                                    </svg>
+                                    <?php echo esc_html( $asset ); ?>
+                                </li>
+                            <?php endforeach; ?>
+                        </ul>
+                    <?php endif; ?>
+
+                    <?php if ( $operations_note ) : ?>
+                        <div class="content-panel-box">
+                            <p class="text-soft">
+                                <?php echo esc_html( $operations_note ); ?>
+                            </p>
+                        </div>
+                    <?php endif; ?>
+
+                    <?php
+                    $interior_row1 = array();
+                    $interior_row2 = array();
+
+                    if ( ! empty( $interior_gallery_ids ) ) {
+                        foreach ( $interior_gallery_ids as $index => $image_id ) {
+                            $image_id = absint( $image_id );
+                            if ( ! $image_id ) {
+                                continue;
+                            }
+
+                            if ( ! wp_get_attachment_image_url( $image_id, 'full' ) ) {
+                                continue;
+                            }
+
+                            if ( $index % 2 === 0 ) {
+                                $interior_row1[] = $image_id;
+                            } else {
+                                $interior_row2[] = $image_id;
+                            }
+                        }
+                    }
+
+                    $has_interior_rows = ( ! empty( $interior_row1 ) || ! empty( $interior_row2 ) );
+                    if ( $has_interior_rows ) :
+                        ?>
+                        <div class="property-gallery" id="property-interior-gallery">
+                            <header class="section-header">
+                                <h3><?php echo esc_html__( 'Interior gallery', 'hello-elementor-child' ); ?></h3>
+                            </header>
+
+                            <div class="property-gallery-shell" aria-label="<?php echo esc_attr__( 'Interior gallery photos', 'hello-elementor-child' ); ?>">
+                                <button
+                                    class="property-gallery-nav property-gallery-nav--prev"
+                                    type="button"
+                                    aria-label="<?php echo esc_attr__( 'Scroll left', 'hello-elementor-child' ); ?>"
+                                >
+                                    <svg aria-hidden="true" width="22" height="22">
+                                        <use href="<?php echo esc_url( get_stylesheet_directory_uri() . '/logos-icons/icons.svg#icon-chevron-left' ); ?>"></use>
+                                    </svg>
+                                </button>
+
+                                <button
+                                    class="property-gallery-nav property-gallery-nav--next"
+                                    type="button"
+                                    aria-label="<?php echo esc_attr__( 'Scroll right', 'hello-elementor-child' ); ?>"
+                                >
+                                    <svg aria-hidden="true" width="22" height="22">
+                                        <use href="<?php echo esc_url( get_stylesheet_directory_uri() . '/logos-icons/icons.svg#icon-chevron-right' ); ?>"></use>
+                                    </svg>
+                                </button>
+
+                                <div class="property-gallery-strip" aria-label="<?php echo esc_attr__( 'Interior gallery photos', 'hello-elementor-child' ); ?>">
+                                    <?php
+                                    $render_gallery_row( $interior_row1, $display_title );
+                                    $render_gallery_row( $interior_row2, $display_title );
+                                    ?>
+                                </div><!-- /.property-gallery-strip -->
+                            </div><!-- /.property-gallery-shell -->
+                        </div>
+                    <?php endif; ?>
+                </div>
+            </section>
+        <?php endif; ?>
+
+        <!-- =====================================
+           FLOORPLANS
+        ===================================== -->
 
         <?php if ( function_exists( 'have_rows' ) && have_rows( 'bp_floorplans', $post_id ) ) : ?>
             <section class="section section-soft">
@@ -987,39 +1083,41 @@ get_header();
 ===================================== -->
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    const shell = document.querySelector('.single-bodrum-property .property-gallery-shell');
-    if (!shell) {
+    const shells = document.querySelectorAll('.single-bodrum-property .property-gallery-shell');
+    if (!shells.length) {
         return;
     }
 
-    const strip = shell.querySelector('.property-gallery-strip');
-    const btnPrev = shell.querySelector('.property-gallery-nav--prev');
-    const btnNext = shell.querySelector('.property-gallery-nav--next');
+    shells.forEach(function (shell) {
+        const strip = shell.querySelector('.property-gallery-strip');
+        if (!strip) {
+            return;
+        }
 
-    if (!strip) {
-        return;
-    }
+        const btnPrev = shell.querySelector('.property-gallery-nav--prev');
+        const btnNext = shell.querySelector('.property-gallery-nav--next');
 
-    function scrollByAmount(dir) {
-        const amount = Math.max(240, Math.round(strip.clientWidth * 0.8));
-        strip.scrollBy({ left: dir * amount, behavior: 'smooth' });
-    }
+        function scrollByAmount(dir) {
+            const amount = Math.max(240, Math.round(strip.clientWidth * 0.8));
+            strip.scrollBy({ left: dir * amount, behavior: 'smooth' });
+        }
 
-    if (btnPrev) {
-        btnPrev.addEventListener('click', function (e) {
-            e.preventDefault();
-            e.stopPropagation();
-            scrollByAmount(-1);
-        });
-    }
+        if (btnPrev) {
+            btnPrev.addEventListener('click', function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                scrollByAmount(-1);
+            });
+        }
 
-    if (btnNext) {
-        btnNext.addEventListener('click', function (e) {
-            e.preventDefault();
-            e.stopPropagation();
-            scrollByAmount(1);
-        });
-    }
+        if (btnNext) {
+            btnNext.addEventListener('click', function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                scrollByAmount(1);
+            });
+        }
+    });
 });
 </script>
 
