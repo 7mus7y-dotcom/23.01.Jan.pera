@@ -185,28 +185,32 @@ add_action( 'wp_enqueue_scripts', function () {
   $is_contact_page = is_page_template( 'page-contact.php' );
   $is_about_new    = is_page_template( 'page-about-new.php' );
 
-  /* =========================
-     2) slider.css
-     Rule: home, single-property, single-post, contact, about-new
-     NOT on property archives / general archives
-  ========================= */
+/* =========================
+   2) slider.css
+   Rule: home, single-property, single-post, contact, about-new, single-bodrum-property
+   NOT on property archives / general archives
+========================= */
 
-  $needs_slider = (
-    $is_home ||
-    $is_single_property ||
-    $is_single_post ||
-    $is_contact_page ||
-    $is_about_new
+$is_single_bodrum_property = is_singular( 'bodrum-property' );
+
+$needs_slider = (
+  $is_home ||
+  $is_single_property ||
+  $is_single_bodrum_property ||
+  $is_single_post ||
+  $is_contact_page ||
+  $is_about_new
+);
+
+if ( $needs_slider ) {
+  wp_enqueue_style(
+    'pera-slider-css',
+    get_stylesheet_directory_uri() . '/css/slider.css',
+    array( 'pera-main-css' ),
+    filemtime( get_stylesheet_directory() . '/css/slider.css' )
   );
+}
 
-  if ( $needs_slider ) {
-    wp_enqueue_style(
-      'pera-slider-css',
-      get_stylesheet_directory_uri() . '/css/slider.css',
-      array( 'pera-main-css' ),
-      filemtime( get_stylesheet_directory() . '/css/slider.css' )
-    );
-  }
 
   /* =========================
      3) property.css
