@@ -2404,7 +2404,7 @@ body:not(.single-post) tr:nth-child(even) {
 
 .floating-whatsapp {
   position: fixed;
-  z-index: 9998;
+  z-index: 9996;
   bottom: max(80px, calc(env(safe-area-inset-bottom) + 24px));
   right: max(20px, calc((100vw - var(--container)) / 2 + 20px));
   width: 50px;
