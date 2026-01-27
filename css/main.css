@@ -1562,14 +1562,11 @@ body.is-nav-open .offcanvas-backdrop {
   font-size: 0.9rem;
   line-height: 1.5;
   color: #f5f5ff;
+      align-self: center;
+
 }
 
-/* Desktop: push director message to bottom */
-@media (min-width: 901px) {
-  .offcanvas-main-right {
-    align-self: end;
-  }
-}
+
 
 .offcanvas-director-title {
   font-size: 1rem;
