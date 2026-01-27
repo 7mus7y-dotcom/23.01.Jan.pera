@@ -874,49 +874,6 @@ get_header();
         <?php endif; ?>
 
 		<!-- =====================================
-		   DUAL-USE & HOSPITALITY CAPABILITY
-		===================================== -->
-
-        <?php
-        $has_dual_use_section = $dual_use_heading || $dual_use_text || $hospitality_assets || $operations_note;
-        if ( $has_dual_use_section ) :
-            ?>
-            <section class="section">
-                <div class="container p-sm">
-                    <header class="section-header">
-                        <?php if ( $dual_use_heading ) : ?>
-                            <h2><?php echo esc_html( $dual_use_heading ); ?></h2>
-                        <?php else : ?>
-                            <h2><?php echo esc_html__( 'Dual-use & hospitality capability', 'hello-elementor-child' ); ?></h2>
-                        <?php endif; ?>
-                    </header>
-
-                    <?php if ( $dual_use_text ) : ?>
-                        <p><?php echo wp_kses_post( $dual_use_text ); ?></p>
-                    <?php endif; ?>
-
-                    <?php if ( $hospitality_assets ) : ?>
-                        <ul class="checklist mb-md">
-                            <?php foreach ( $hospitality_assets as $asset ) : ?>
-                                <li>
-                                    <svg class="icon icon-tick" aria-hidden="true">
-                                        <use href="<?php echo esc_url( get_stylesheet_directory_uri() . '/logos-icons/icons.svg#icon-check' ); ?>"></use>
-                                    </svg>
-                                    <?php echo esc_html( $asset ); ?>
-                                </li>
-                            <?php endforeach; ?>
-                        </ul>
-                        <?php if ( $operations_note ) : ?>
-                            <?php echo esc_html( $operations_note ); ?>
-                        <?php endif; ?>
-                    <?php endif; ?>
-
- 
-                </div>
-            </section>
-        <?php endif; ?>
-
-		<!-- =====================================
 		   MAP SANITIZATION (EMBED MODE)
 		===================================== -->
 
