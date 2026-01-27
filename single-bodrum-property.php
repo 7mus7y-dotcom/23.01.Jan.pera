@@ -39,9 +39,15 @@ if ( ! function_exists( 'pera_bp_normalize_ids' ) ) {
                     continue;
                 }
 
-                if ( is_array( $item ) && ! empty( $item['ID'] ) ) {
-                    $ids[] = (int) $item['ID'];
-                    continue;
+                if ( is_array( $item ) ) {
+                    if ( ! empty( $item['ID'] ) ) {
+                        $ids[] = (int) $item['ID'];
+                        continue;
+                    }
+                    if ( ! empty( $item['id'] ) ) {
+                        $ids[] = (int) $item['id'];
+                        continue;
+                    }
                 }
 
                 if ( is_object( $item ) && ! empty( $item->ID ) ) {
@@ -468,41 +474,120 @@ get_header();
             </section>
         <?php endif; ?>
 
-        <?php if ( ! empty( $gallery_ids ) ) : ?>
-            <section class="section">
-                <div class="container">
-                    <header class="section-header">
-                        <h2><?php echo esc_html__( 'Gallery', 'hello-elementor-child' ); ?></h2>
-                    </header>
+        <?php
+        if ( ! empty( $gallery_ids ) ) :
+            $row1 = array();
+            $row2 = array();
 
-                    <div class="grid-3">
-                        <?php foreach ( $gallery_ids as $image_id ) : ?>
-                            <div class="media-frame">
+            foreach ( $gallery_ids as $index => $image_id ) {
+                $image_id = absint( $image_id );
+                if ( ! $image_id ) {
+                    continue;
+                }
+
+                if ( ! wp_get_attachment_image_url( $image_id, 'full' ) ) {
+                    continue;
+                }
+
+                if ( $index % 2 === 0 ) {
+                    $row1[] = $image_id;
+                } else {
+                    $row2[] = $image_id;
+                }
+            }
+
+            $has_rows = ( ! empty( $row1 ) || ! empty( $row2 ) );
+            if ( $has_rows ) :
+                ?>
+                <section class="section property-gallery" id="property-gallery">
+                    <div class="container">
+                        <header class="section-header">
+                            <h2><?php echo esc_html__( 'Gallery', 'hello-elementor-child' ); ?></h2>
+                        </header>
+
+                        <div class="property-gallery-shell" aria-label="Property photos">
+                            <button
+                                class="property-gallery-nav property-gallery-nav--prev"
+                                type="button"
+                                aria-label="Scroll left"
+                            >
+                                <svg aria-hidden="true" width="22" height="22">
+                                    <use href="<?php echo esc_url( get_stylesheet_directory_uri() . '/logos-icons/icons.svg#icon-chevron-left' ); ?>"></use>
+                                </svg>
+                            </button>
+
+                            <button
+                                class="property-gallery-nav property-gallery-nav--next"
+                                type="button"
+                                aria-label="Scroll right"
+                            >
+                                <svg aria-hidden="true" width="22" height="22">
+                                    <use href="<?php echo esc_url( get_stylesheet_directory_uri() . '/logos-icons/icons.svg#icon-chevron-right' ); ?>"></use>
+                                </svg>
+                            </button>
+
+                            <div class="property-gallery-strip" aria-label="Gallery photos">
                                 <?php
-                                echo wp_get_attachment_image(
-                                    $image_id,
-                                    'large',
-                                    false,
-                                    array(
-                                        'class'    => 'media-image',
-                                        'loading'  => 'lazy',
-                                        'decoding' => 'async',
-                                    )
-                                );
-                                ?>
-                            </div>
-                        <?php endforeach; ?>
-                    </div>
+                                /**
+                                 * Render one row of gallery items.
+                                 *
+                                 * @param int[] $row_ids
+                                 */
+                                $render_gallery_row = function( array $row_ids ) use ( $display_title ) {
+                                    if ( empty( $row_ids ) ) {
+                                        return;
+                                    }
 
-                    <?php if ( $gallery_download_url ) : ?>
-                        <div class="hero-actions">
-                            <a class="btn btn--solid btn--blue" href="<?php echo esc_url( $gallery_download_url ); ?>">
-                                <?php echo esc_html__( 'Download gallery', 'hello-elementor-child' ); ?>
-                            </a>
-                        </div>
-                    <?php endif; ?>
-                </div>
-            </section>
+                                    echo '<div class="property-gallery-strip__row" role="list">';
+
+                                    foreach ( $row_ids as $image_id ) {
+                                        $image_id = absint( $image_id );
+                                        if ( ! $image_id ) {
+                                            continue;
+                                        }
+
+                                        if ( ! wp_get_attachment_image_url( $image_id, 'full' ) ) {
+                                            continue;
+                                        }
+
+                                        $alt_meta  = trim( (string) get_post_meta( $image_id, '_wp_attachment_image_alt', true ) );
+                                        $alt_label = $alt_meta !== '' ? $alt_meta : $display_title;
+
+                                        echo '<div class="property-gallery-strip__item" role="listitem" aria-label="' . esc_attr( $alt_label ) . '">';
+
+                                        echo wp_get_attachment_image(
+                                            $image_id,
+                                            'pera-card',
+                                            false,
+                                            array(
+                                                'loading'  => 'lazy',
+                                                'decoding' => 'async',
+                                                'alt'      => $alt_label,
+                                            )
+                                        );
+
+                                        echo '</div>';
+                                    }
+
+                                    echo '</div>';
+                                };
+
+                                $render_gallery_row( $row1 );
+                                $render_gallery_row( $row2 );
+                                ?>
+                            </div><!-- /.property-gallery-strip -->
+                        </div><!-- /.property-gallery-shell -->
+
+                        <?php if ( $gallery_download_url ) : ?>
+                            <div class="hero-actions">
+                                <a class="btn btn--solid btn--blue" href="<?php echo esc_url( $gallery_download_url ); ?>">
+                                    <?php echo esc_html__( 'Download gallery', 'hello-elementor-child' ); ?>
+                                </a>
+                            </div>
+                        <?php endif; ?>
+                    </div>
+                </section>
+            <?php endif; ?>
         <?php endif; ?>
 
         <?php
@@ -794,6 +879,44 @@ get_header();
 <?php endif; ?>
 
 </main>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const shell = document.querySelector('.single-bodrum-property .property-gallery-shell');
+    if (!shell) {
+        return;
+    }
+
+    const strip = shell.querySelector('.property-gallery-strip');
+    const btnPrev = shell.querySelector('.property-gallery-nav--prev');
+    const btnNext = shell.querySelector('.property-gallery-nav--next');
+
+    if (!strip) {
+        return;
+    }
+
+    function scrollByAmount(dir) {
+        const amount = Math.max(240, Math.round(strip.clientWidth * 0.8));
+        strip.scrollBy({ left: dir * amount, behavior: 'smooth' });
+    }
+
+    if (btnPrev) {
+        btnPrev.addEventListener('click', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            scrollByAmount(-1);
+        });
+    }
+
+    if (btnNext) {
+        btnNext.addEventListener('click', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            scrollByAmount(1);
+        });
+    }
+});
+</script>
 
 <?php
 get_footer();
