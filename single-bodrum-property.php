@@ -240,12 +240,23 @@ get_header();
 		   ACF: DUAL USE
 		===================================== */
 
-        $dual_use_heading   = function_exists( 'get_field' ) ? get_field( 'bp_dual_use_heading', $post_id ) : '';
-        $dual_use_text      = function_exists( 'get_field' ) ? get_field( 'bp_dual_use_text', $post_id ) : '';
-        $hospitality_assets = function_exists( 'get_field' )
-            ? pera_bp_collect_repeater_text( 'bp_hospitality_assets', array( 'bp_hospitality_asset', 'bp_text', 'text' ), $post_id )
-            : array();
-        $operations_note    = function_exists( 'get_field' ) ? get_field( 'bp_operations_note', $post_id ) : '';
+        $dual_use_heading = function_exists( 'get_field' ) ? get_field( 'bp_dual_use_heading', $post_id ) : '';
+        $dual_use_text    = function_exists( 'get_field' ) ? get_field( 'bp_dual_use_text', $post_id ) : '';
+        $operations_note  = function_exists( 'get_field' ) ? get_field( 'bp_operations_note', $post_id ) : '';
+
+        $hospitality_assets = array();
+        if ( function_exists( 'have_rows' ) && have_rows( 'bp_hospitality_assets', $post_id ) ) {
+            while ( have_rows( 'bp_hospitality_assets', $post_id ) ) {
+                the_row();
+                $asset_item = get_sub_field( 'bp_ha_item' );
+                if ( is_string( $asset_item ) ) {
+                    $asset_item = trim( $asset_item );
+                }
+                if ( ! empty( $asset_item ) ) {
+                    $hospitality_assets[] = $asset_item;
+                }
+            }
+        }
 		/* =====================================
 		   ACF: LOCATION / MAP
 		===================================== */
@@ -728,25 +739,25 @@ get_header();
                         <?php endif; ?>
                     </header>
 
+                    <?php if ( $dual_use_text ) : ?>
+                        <div class="content-panel-box">
+                            <?php echo wp_kses_post( $dual_use_text ); ?>
+                        </div>
+                    <?php endif; ?>
 
                     <?php if ( $hospitality_assets ) : ?>
-                        <ul class="checklist mb-md">
+                        <ul class="property-facilities__pills mb-md">
                             <?php foreach ( $hospitality_assets as $asset ) : ?>
                                 <li>
-                                    <svg class="icon icon-tick" aria-hidden="true">
-                                        <use href="<?php echo esc_url( get_stylesheet_directory_uri() . '/logos-icons/icons.svg#icon-check' ); ?>"></use>
-                                    </svg>
-                                    <?php echo esc_html( $asset ); ?>
+                                    <span class="pill pill--outline"><?php echo esc_html( $asset ); ?></span>
                                 </li>
                             <?php endforeach; ?>
                         </ul>
                     <?php endif; ?>
 
                     <?php if ( $operations_note ) : ?>
-                        <div class="content-panel-box">
-                            <p class="text-soft">
-                                <?php echo esc_html( $operations_note ); ?>
-                            </p>
+                        <div class="text-sm text-soft">
+                            <?php echo wpautop( esc_html( $operations_note ) ); ?>
                         </div>
                     <?php endif; ?>
 
