@@ -322,23 +322,21 @@ get_header();
                 <?php endif; ?>
 
                 <?php if ( $hero_highlights ) : ?>
-                    <ul class="hero-pills">
+                    <div class="hero-pills mb-md">
                         <?php foreach ( $hero_highlights as $highlight ) : ?>
-                            <li>
-                                <span class="pill pill--outline">
+                                <span class="pill pill--brand">
                                     <?php echo esc_html( $highlight ); ?>
                                 </span>
-                            </li>
                         <?php endforeach; ?>
-                    </ul>
+                    </div>
                 <?php endif; ?>
 
-                <a class="btn btn--solid btn--black hero-cta" href="#contact-form">
+                <a class="btn btn--solid btn--green mb-md" href="#contact-form">
                     <?php echo esc_html( $hero_cta_label ); ?>
                 </a>
 
                 <?php if ( $discretion_note ) : ?>
-                    <p class="text-light">
+                    <p class="text-light text-sm">
                         <?php echo esc_html__( 'Discreet marketing. Further details on request.', 'hello-elementor-child' ); ?>
                     </p>
                 <?php endif; ?>
@@ -420,130 +418,7 @@ get_header();
             </section>
         <?php endif; ?>
 
-		<!-- =====================================
-		   STORY BLOCKS (FLEXIBLE CONTENT)
-		===================================== -->
-
-        <?php if ( function_exists( 'have_rows' ) && have_rows( 'bp_story_blocks', $post_id ) ) : ?>
-            <section class="section">
-                <div class="container">
-                    <?php while ( have_rows( 'bp_story_blocks', $post_id ) ) : the_row(); ?>
-                        <?php
-                        $layout = get_row_layout();
-                        ?>
-                        <?php if ( 'bp_block_text' === $layout ) : ?>
-                            <?php
-                            $block_heading = get_sub_field( 'bp_block_heading' );
-                            $block_text    = get_sub_field( 'bp_block_text' );
-                            if ( $block_heading || $block_text ) :
-                                ?>
-                                <div class="content-panel-box mb-md">
-                                    <div class="section-header">
-                                        <?php if ( $block_heading ) : ?>
-                                            <h3><?php echo esc_html( $block_heading ); ?></h3>
-                                        <?php endif; ?>
-                                    </div>
-                                    <?php if ( $block_text ) : ?>
-                                        <div>
-                                            <?php echo wp_kses_post( $block_text ); ?>
-                                        </div>
-                                    <?php endif; ?>
-                                </div>
-                            <?php endif; ?>
-                        <?php elseif ( 'bp_block_image_text' === $layout ) : ?>
-                            <?php
-                            $block_image      = get_sub_field( 'bp_block_image' );
-                            $block_image_id   = 0;
-                            if ( is_array( $block_image ) && ! empty( $block_image['ID'] ) ) {
-                                $block_image_id = (int) $block_image['ID'];
-                            } elseif ( is_numeric( $block_image ) ) {
-                                $block_image_id = (int) $block_image;
-                            }
-                            $block_heading    = get_sub_field( 'bp_block_heading' );
-                            $block_text       = get_sub_field( 'bp_block_text' );
-                            $block_image_side = get_sub_field( 'bp_block_image_side' );
-
-                            $has_block_content = $block_image_id || $block_heading || $block_text;
-                            if ( $has_block_content ) :
-                                $image_first = ( 'left' === $block_image_side );
-                                ?>
-                                <div class="content-panel-box mb-md">
-                                    <div class="content-panel-grid">
-                                        <?php if ( $image_first ) : ?>
-                                            <?php if ( $block_image_id ) : ?>
-                                                <div class="media-frame media-frame--image-fill">
-                                                    <?php
-                                                    echo wp_get_attachment_image(
-                                                        $block_image_id,
-                                                        'full',
-                                                        false,
-                                                        array(
-                                                            'class'    => 'media-image',
-                                                            'loading'  => 'lazy',
-                                                            'decoding' => 'async',
-                                                        )
-                                                    );
-                                                    ?>
-                                                </div>
-                                            <?php endif; ?>
-                                        <?php endif; ?>
-
-                                        <div>
-                                            <?php if ( $block_heading ) : ?>
-                                                <h3><?php echo esc_html( $block_heading ); ?></h3>
-                                            <?php endif; ?>
-                                            <?php if ( $block_text ) : ?>
-                                                <div>
-                                                    <?php echo wp_kses_post( $block_text ); ?>
-                                                </div>
-                                            <?php endif; ?>
-                                        </div>
-
-                                        <?php if ( ! $image_first ) : ?>
-                                            <?php if ( $block_image_id ) : ?>
-                                                <div class="media-frame media-frame--image-fill">
-                                                    <?php
-                                                    echo wp_get_attachment_image(
-                                                        $block_image_id,
-                                                        'full',
-                                                        false,
-                                                        array(
-                                                            'class'    => 'media-image',
-                                                            'loading'  => 'lazy',
-                                                            'decoding' => 'async',
-                                                        )
-                                                    );
-                                                    ?>
-                                                </div>
-                                            <?php endif; ?>
-                                        <?php endif; ?>
-                                    </div>
-                                </div>
-                            <?php endif; ?>
-                        <?php elseif ( 'bp_block_quote' === $layout ) : ?>
-                            <?php
-                            $quote_text  = get_sub_field( 'bp_quote' );
-                            $quote_attrib = get_sub_field( 'bp_quote_attrib' );
-                            if ( $quote_text || $quote_attrib ) :
-                                ?>
-                                <div class="content-panel-box mb-md">
-                                    <?php if ( $quote_text ) : ?>
-                                        <blockquote>
-                                            <p><?php echo esc_html( $quote_text ); ?></p>
-                                        </blockquote>
-                                    <?php endif; ?>
-                                    <?php if ( $quote_attrib ) : ?>
-                                        <p class="text-soft"><?php echo esc_html( $quote_attrib ); ?></p>
-                                    <?php endif; ?>
-                                </div>
-                            <?php endif; ?>
-                        <?php endif; ?>
-                    <?php endwhile; ?>
-                </div>
-            </section>
-        <?php endif; ?>
-
-		<!-- =====================================
+        <!-- =====================================
 		   GALLERY (2-ROW HORIZONTAL STRIP)
 		===================================== -->
 
@@ -662,6 +537,131 @@ get_header();
                 </section>
             <?php endif; ?>
         <?php endif; ?>
+
+		<!-- =====================================
+		   STORY BLOCKS (FLEXIBLE CONTENT)
+		===================================== -->
+
+        <?php if ( function_exists( 'have_rows' ) && have_rows( 'bp_story_blocks', $post_id ) ) : ?>
+            <section class="section">
+                <div class="container">
+                    <?php while ( have_rows( 'bp_story_blocks', $post_id ) ) : the_row(); ?>
+                        <?php
+                        $layout = get_row_layout();
+                        ?>
+                        <?php if ( 'bp_block_text' === $layout ) : ?>
+                            <?php
+                            $block_heading = get_sub_field( 'bp_block_heading' );
+                            $block_text    = get_sub_field( 'bp_block_text' );
+                            if ( $block_heading || $block_text ) :
+                                ?>
+                                <div class="content-panel-box mb-md">
+                                    <div class="section-header">
+                                        <?php if ( $block_heading ) : ?>
+                                            <h3><?php echo esc_html( $block_heading ); ?></h3>
+                                        <?php endif; ?>
+                                    </div>
+                                    <?php if ( $block_text ) : ?>
+                                        <div>
+                                            <?php echo wp_kses_post( $block_text ); ?>
+                                        </div>
+                                    <?php endif; ?>
+                                </div>
+                            <?php endif; ?>
+                        <?php elseif ( 'bp_block_image_text' === $layout ) : ?>
+                            <?php
+                            $block_image      = get_sub_field( 'bp_block_image' );
+                            $block_image_id   = 0;
+                            if ( is_array( $block_image ) && ! empty( $block_image['ID'] ) ) {
+                                $block_image_id = (int) $block_image['ID'];
+                            } elseif ( is_numeric( $block_image ) ) {
+                                $block_image_id = (int) $block_image;
+                            }
+                            $block_heading    = get_sub_field( 'bp_block_heading' );
+                            $block_text       = get_sub_field( 'bp_block_text' );
+                            $block_image_side = get_sub_field( 'bp_block_image_side' );
+
+                            $has_block_content = $block_image_id || $block_heading || $block_text;
+                            if ( $has_block_content ) :
+                                $image_first = ( 'left' === $block_image_side );
+                                ?>
+                                <div class="content-panel-box mb-md">
+                                    <div class="content-panel-grid p-sm">
+                                        <?php if ( $image_first ) : ?>
+                                            <?php if ( $block_image_id ) : ?>
+                                                <div class="media-frame media-frame--image-fill">
+                                                    <?php
+                                                    echo wp_get_attachment_image(
+                                                        $block_image_id,
+                                                        'full',
+                                                        false,
+                                                        array(
+                                                            'class'    => 'media-image',
+                                                            'loading'  => 'lazy',
+                                                            'decoding' => 'async',
+                                                        )
+                                                    );
+                                                    ?>
+                                                </div>
+                                            <?php endif; ?>
+                                        <?php endif; ?>
+
+                                        <div>
+                                            <?php if ( $block_heading ) : ?>
+                                                <h3><?php echo esc_html( $block_heading ); ?></h3>
+                                            <?php endif; ?>
+                                            <?php if ( $block_text ) : ?>
+                                                <div>
+                                                    <?php echo wp_kses_post( $block_text ); ?>
+                                                </div>
+                                            <?php endif; ?>
+                                        </div>
+
+                                        <?php if ( ! $image_first ) : ?>
+                                            <?php if ( $block_image_id ) : ?>
+                                                <div class="media-frame media-frame--image-fill">
+                                                    <?php
+                                                    echo wp_get_attachment_image(
+                                                        $block_image_id,
+                                                        'full',
+                                                        false,
+                                                        array(
+                                                            'class'    => 'media-image',
+                                                            'loading'  => 'lazy',
+                                                            'decoding' => 'async',
+                                                        )
+                                                    );
+                                                    ?>
+                                                </div>
+                                            <?php endif; ?>
+                                        <?php endif; ?>
+                                    </div>
+                                </div>
+                            <?php endif; ?>
+                        <?php elseif ( 'bp_block_quote' === $layout ) : ?>
+                            <?php
+                            $quote_text  = get_sub_field( 'bp_quote' );
+                            $quote_attrib = get_sub_field( 'bp_quote_attrib' );
+                            if ( $quote_text || $quote_attrib ) :
+                                ?>
+                                <div class="content-panel-box mb-md">
+                                    <?php if ( $quote_text ) : ?>
+                                        <blockquote>
+                                            <p><?php echo esc_html( $quote_text ); ?></p>
+                                        </blockquote>
+                                    <?php endif; ?>
+                                    <?php if ( $quote_attrib ) : ?>
+                                        <p class="text-soft"><?php echo esc_html( $quote_attrib ); ?></p>
+                                    <?php endif; ?>
+                                </div>
+                            <?php endif; ?>
+                        <?php endif; ?>
+                    <?php endwhile; ?>
+                </div>
+            </section>
+        <?php endif; ?>
+
+		
         
 		<!-- =====================================
 		   FEATURES & AMENITIES
@@ -717,51 +717,7 @@ get_header();
             </section>
         <?php endif; ?>
 
-		<!-- =====================================
-		   DUAL-USE & HOSPITALITY CAPABILITY
-		===================================== -->
 
-        <?php
-        $has_dual_use_section = $dual_use_heading || $dual_use_text || $hospitality_assets || $operations_note;
-        if ( $has_dual_use_section ) :
-            ?>
-            <section class="section">
-                <div class="container">
-                    <header class="section-header">
-                        <?php if ( $dual_use_heading ) : ?>
-                            <h2><?php echo esc_html( $dual_use_heading ); ?></h2>
-                        <?php else : ?>
-                            <h2><?php echo esc_html__( 'Dual-use & hospitality capability', 'hello-elementor-child' ); ?></h2>
-                        <?php endif; ?>
-                    </header>
-
-                    <?php if ( $dual_use_text ) : ?>
-                        <p><?php echo wp_kses_post( $dual_use_text ); ?></p>
-                    <?php endif; ?>
-
-                    <?php if ( $hospitality_assets ) : ?>
-                        <ul class="checklist mb-md">
-                            <?php foreach ( $hospitality_assets as $asset ) : ?>
-                                <li>
-                                    <svg class="icon icon-tick" aria-hidden="true">
-                                        <use href="<?php echo esc_url( get_stylesheet_directory_uri() . '/logos-icons/icons.svg#icon-check' ); ?>"></use>
-                                    </svg>
-                                    <?php echo esc_html( $asset ); ?>
-                                </li>
-                            <?php endforeach; ?>
-                        </ul>
-                    <?php endif; ?>
-
-                    <?php if ( $operations_note ) : ?>
-                        <div class="content-panel-box">
-                            <p class="text-soft">
-                                <?php echo esc_html( $operations_note ); ?>
-                            </p>
-                        </div>
-                    <?php endif; ?>
-                </div>
-            </section>
-        <?php endif; ?>
 
 		<!-- =====================================
 		   FLOORPLANS
@@ -793,11 +749,11 @@ get_header();
                             ?>
                             <div class="content-panel-box">
                                 <?php if ( $fp_image_id ) : ?>
-                                    <div class="media-frame">
+                                    <div class="media-frame mb-md">
                                         <?php
                                         echo wp_get_attachment_image(
                                             $fp_image_id,
-                                            'large',
+                                            'pera-card',
                                             false,
                                             array(
                                                 'class'    => 'media-image',
@@ -817,6 +773,49 @@ get_header();
                             </div>
                         <?php endwhile; ?>
                     </div>
+                </div>
+            </section>
+        <?php endif; ?>
+
+		<!-- =====================================
+		   DUAL-USE & HOSPITALITY CAPABILITY
+		===================================== -->
+
+        <?php
+        $has_dual_use_section = $dual_use_heading || $dual_use_text || $hospitality_assets || $operations_note;
+        if ( $has_dual_use_section ) :
+            ?>
+            <section class="section">
+                <div class="container p-sm">
+                    <header class="section-header">
+                        <?php if ( $dual_use_heading ) : ?>
+                            <h2><?php echo esc_html( $dual_use_heading ); ?></h2>
+                        <?php else : ?>
+                            <h2><?php echo esc_html__( 'Dual-use & hospitality capability', 'hello-elementor-child' ); ?></h2>
+                        <?php endif; ?>
+                    </header>
+
+                    <?php if ( $dual_use_text ) : ?>
+                        <p><?php echo wp_kses_post( $dual_use_text ); ?></p>
+                    <?php endif; ?>
+
+                    <?php if ( $hospitality_assets ) : ?>
+                        <ul class="checklist mb-md">
+                            <?php foreach ( $hospitality_assets as $asset ) : ?>
+                                <li>
+                                    <svg class="icon icon-tick" aria-hidden="true">
+                                        <use href="<?php echo esc_url( get_stylesheet_directory_uri() . '/logos-icons/icons.svg#icon-check' ); ?>"></use>
+                                    </svg>
+                                    <?php echo esc_html( $asset ); ?>
+                                </li>
+                            <?php endforeach; ?>
+                        </ul>
+                        <?php if ( $operations_note ) : ?>
+                            <?php echo esc_html( $operations_note ); ?>
+                        <?php endif; ?>
+                    <?php endif; ?>
+
+ 
                 </div>
             </section>
         <?php endif; ?>
@@ -880,7 +879,7 @@ get_header();
                                     <?php
                                     echo wp_get_attachment_image(
                                         $map_image_id,
-                                        'large',
+                                        'pera-card',
                                         false,
                                         array(
                                             'class'    => 'media-image',
@@ -913,7 +912,7 @@ get_header();
                                 <?php
                                 echo wp_get_attachment_image(
                                     $map_image_id,
-                                    'large',
+                                    'pera-card',
                                     false,
                                     array(
                                         'class'    => 'media-image',
