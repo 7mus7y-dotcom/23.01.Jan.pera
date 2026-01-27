@@ -387,6 +387,33 @@ get_header();
                     <?php echo esc_html( $hero_cta_label ); ?>
                 </a>
 
+                <ul class="hero-pills">
+                    <li>
+                        <a class="pill pill--outline" href="#gallery">
+                            <svg class="icon" aria-hidden="true" width="16" height="16">
+                                <use href="<?php echo esc_url( get_stylesheet_directory_uri() . '/logos-icons/icons.svg#icon-gallery-stack' ); ?>"></use>
+                            </svg>
+                            <?php echo esc_html__( 'Gallery', 'hello-elementor-child' ); ?>
+                        </a>
+                    </li>
+                    <li>
+                        <a class="pill pill--outline" href="#location">
+                            <svg class="icon" aria-hidden="true" width="16" height="16">
+                                <use href="<?php echo esc_url( get_stylesheet_directory_uri() . '/logos-icons/icons.svg#icon-map' ); ?>"></use>
+                            </svg>
+                            <?php echo esc_html__( 'Map', 'hello-elementor-child' ); ?>
+                        </a>
+                    </li>
+                    <li>
+                        <a class="pill pill--outline" href="#floorplans">
+                            <svg class="icon" aria-hidden="true" width="16" height="16">
+                                <use href="<?php echo esc_url( get_stylesheet_directory_uri() . '/logos-icons/icons.svg#icon-floor-plan' ); ?>"></use>
+                            </svg>
+                            <?php echo esc_html__( 'Floorplans', 'hello-elementor-child' ); ?>
+                        </a>
+                    </li>
+                </ul>
+
                 <?php if ( $discretion_note ) : ?>
                     <p class="text-light text-sm">
                         <?php echo esc_html__( 'Discreet marketing. Further details on request.', 'hello-elementor-child' ); ?>
@@ -499,7 +526,7 @@ get_header();
             $has_rows = ( ! empty( $row1 ) || ! empty( $row2 ) );
             if ( $has_rows ) :
                 ?>
-                <section class="section property-gallery" id="property-gallery">
+                <section class="section property-gallery" id="gallery">
                     <div class="container">
                         <header class="section-header">
                             <h2><?php echo esc_html__( 'Gallery', 'hello-elementor-child' ); ?></h2>
@@ -831,7 +858,7 @@ get_header();
         ===================================== -->
 
         <?php if ( function_exists( 'have_rows' ) && have_rows( 'bp_floorplans', $post_id ) ) : ?>
-            <section class="section section-soft">
+            <section class="section section-soft" id="floorplans">
                 <div class="container">
                     <header class="section-header">
                         <h2><?php echo esc_html__( 'Floorplans', 'hello-elementor-child' ); ?></h2>
@@ -928,7 +955,7 @@ get_header();
         $has_location_section = $has_map_content || $location_notes;
         if ( $has_location_section ) :
             ?>
-            <section class="section">
+            <section class="section" id="location">
                 <div class="container">
                     <header class="section-header">
                         <h2><?php echo esc_html__( 'Location', 'hello-elementor-child' ); ?></h2>
