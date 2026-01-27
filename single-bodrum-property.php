@@ -4,9 +4,17 @@
  * Template for bodrum-property CPT.
  */
 
+/* =====================================
+   SECURITY GUARD
+===================================== */
+
 if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
+
+/* =====================================
+   HELPERS: NORMALIZE ATTACHMENT IDS
+===================================== */
 
 if ( ! function_exists( 'pera_bp_normalize_ids' ) ) {
     /**
@@ -60,6 +68,10 @@ if ( ! function_exists( 'pera_bp_normalize_ids' ) ) {
     }
 }
 
+/* =====================================
+   HELPERS: COLLECT REPEATER TEXT
+===================================== */
+
 if ( ! function_exists( 'pera_bp_collect_repeater_text' ) ) {
     /**
      * Collect text values from a repeater field.
@@ -100,14 +112,23 @@ if ( ! function_exists( 'pera_bp_collect_repeater_text' ) ) {
     }
 }
 
+/* =====================================
+   HEADER
+===================================== */
 get_header();
 ?>
 
 <main id="primary" class="site-main content-rail single-bodrum-property">
+<!-- =====================================
+   LOOP START
+===================================== -->
 
 <?php if ( have_posts() ) : ?>
     <?php while ( have_posts() ) : the_post(); ?>
         <?php
+        /* =====================================
+		   POST CONTEXT / TYPE GUARD
+		===================================== */
         $post_id = get_the_ID();
 
         if ( get_post_type( $post_id ) !== 'bodrum-property' ) {
@@ -120,7 +141,10 @@ get_header();
             <?php
             continue;
         }
-
+		/* =====================================
+		   ACF: HERO FIELDS
+		===================================== */
+		
         $display_title = function_exists( 'get_field' ) ? get_field( 'bp_display_title', $post_id ) : '';
         if ( empty( $display_title ) ) {
             $display_title = get_the_title( $post_id );
@@ -141,6 +165,11 @@ get_header();
         $hero_highlights  = function_exists( 'get_field' )
             ? pera_bp_collect_repeater_text( 'bp_hero_highlights', array( 'bp_hl_text' ), $post_id )
             : array();
+
+
+		/* =====================================
+		   HERO: STATUS BADGE MAPPING
+		===================================== */
 
         $status_label = '';
         $status_class = 'pill pill--outline';
@@ -163,6 +192,9 @@ get_header();
                 $status_class = 'pill pill--brand';
                 break;
         }
+		/* =====================================
+		   ACF: KEY FACTS
+		===================================== */
 
         $key_facts = function_exists( 'get_field' ) ? get_field( 'bp_key_facts', $post_id ) : array();
         $location_line     = is_array( $key_facts ) && ! empty( $key_facts['bp_location_line'] ) ? $key_facts['bp_location_line'] : ( function_exists( 'get_field' ) ? get_field( 'bp_location_line', $post_id ) : '' );
@@ -170,9 +202,15 @@ get_header();
         $internal_area     = is_array( $key_facts ) && ! empty( $key_facts['bp_internal_area_sqm'] ) ? $key_facts['bp_internal_area_sqm'] : ( function_exists( 'get_field' ) ? get_field( 'bp_internal_area_sqm', $post_id ) : '' );
         $total_units       = is_array( $key_facts ) && ! empty( $key_facts['bp_total_units'] ) ? $key_facts['bp_total_units'] : ( function_exists( 'get_field' ) ? get_field( 'bp_total_units', $post_id ) : '' );
         $config_summary    = is_array( $key_facts ) && ! empty( $key_facts['bp_config_summary'] ) ? $key_facts['bp_config_summary'] : ( function_exists( 'get_field' ) ? get_field( 'bp_config_summary', $post_id ) : '' );
+		/* =====================================
+		   ACF: INTRO
+		===================================== */
 
         $intro_heading = function_exists( 'get_field' ) ? get_field( 'bp_intro_heading', $post_id ) : '';
         $intro_text    = function_exists( 'get_field' ) ? get_field( 'bp_intro_text', $post_id ) : '';
+		/* =====================================
+		   ACF: GALLERY + DOWNLOAD
+		===================================== */
 
         $gallery_items = function_exists( 'get_field' ) ? get_field( 'bp_gallery', $post_id ) : array();
         $gallery_ids   = pera_bp_normalize_ids( $gallery_items );
@@ -188,11 +226,17 @@ get_header();
                 $gallery_download_url = wp_get_attachment_url( (int) $gallery_download_field );
             }
         }
+		/* =====================================
+		   ACF: FEATURES & AMENITIES
+		===================================== */
 
         $features  = function_exists( 'get_field' )
             ? pera_bp_collect_repeater_text( 'bp_features', array( 'bp_feature', 'feature', 'bp_text', 'text' ), $post_id )
             : array();
         $amenities = function_exists( 'get_field' ) ? get_field( 'bp_amenities', $post_id ) : '';
+		/* =====================================
+		   ACF: DUAL USE
+		===================================== */
 
         $dual_use_heading   = function_exists( 'get_field' ) ? get_field( 'bp_dual_use_heading', $post_id ) : '';
         $dual_use_text      = function_exists( 'get_field' ) ? get_field( 'bp_dual_use_text', $post_id ) : '';
@@ -200,6 +244,9 @@ get_header();
             ? pera_bp_collect_repeater_text( 'bp_hospitality_assets', array( 'bp_hospitality_asset', 'bp_text', 'text' ), $post_id )
             : array();
         $operations_note    = function_exists( 'get_field' ) ? get_field( 'bp_operations_note', $post_id ) : '';
+		/* =====================================
+		   ACF: LOCATION / MAP
+		===================================== */
 
         $map_mode        = function_exists( 'get_field' ) ? get_field( 'bp_map_mode', $post_id ) : '';
         $map_embed       = function_exists( 'get_field' ) ? get_field( 'bp_map_embed', $post_id ) : '';
@@ -207,6 +254,9 @@ get_header();
         $location_notes  = function_exists( 'get_field' )
             ? pera_bp_collect_repeater_text( 'bp_location_highlights', array( 'bp_location_highlight', 'bp_highlight', 'bp_text', 'text' ), $post_id )
             : array();
+		/* =====================================
+		   ACF: CTAS + ENQUIRY
+		===================================== */
 
         $primary_cta_label   = function_exists( 'get_field' ) ? get_field( 'bp_primary_cta_label', $post_id ) : '';
         $secondary_cta_label = function_exists( 'get_field' ) ? get_field( 'bp_secondary_cta_label', $post_id ) : '';
@@ -220,9 +270,9 @@ get_header();
         $secondary_cta_url   = '#enquiry';
         ?>
 
-        <!-- =====================================
-            HERO (BODRUM PROPERTY)
-        ===================================== -->
+		<!-- =====================================
+		   HERO (BODRUM PROPERTY)
+		===================================== -->
         <section class="hero hero--left" id="bodrum-hero">
             <?php if ( $has_hero_media ) : ?>
                 <div class="hero__media" aria-hidden="true">
@@ -295,6 +345,10 @@ get_header();
             </div>
         </section>
 
+		<!-- =====================================
+		   KEY FACTS
+		===================================== -->
+
         <?php
         $has_key_facts = $location_line || $plot_area || $internal_area || $total_units || $config_summary;
         if ( $has_key_facts ) :
@@ -345,6 +399,10 @@ get_header();
             </section>
         <?php endif; ?>
 
+		<!-- =====================================
+		   INTRO
+		===================================== -->
+
         <?php if ( $intro_heading || $intro_text ) : ?>
             <section class="section">
                 <div class="container">
@@ -361,6 +419,10 @@ get_header();
                 </div>
             </section>
         <?php endif; ?>
+
+		<!-- =====================================
+		   STORY BLOCKS (FLEXIBLE CONTENT)
+		===================================== -->
 
         <?php if ( function_exists( 'have_rows' ) && have_rows( 'bp_story_blocks', $post_id ) ) : ?>
             <section class="section">
@@ -481,6 +543,10 @@ get_header();
             </section>
         <?php endif; ?>
 
+		<!-- =====================================
+		   GALLERY (2-ROW HORIZONTAL STRIP)
+		===================================== -->
+
         <?php
         if ( ! empty( $gallery_ids ) ) :
             $row1 = array();
@@ -596,6 +662,10 @@ get_header();
                 </section>
             <?php endif; ?>
         <?php endif; ?>
+        
+		<!-- =====================================
+		   FEATURES & AMENITIES
+		===================================== -->
 
         <?php
         $has_features_section = ! empty( $features ) || $amenities;
@@ -647,6 +717,10 @@ get_header();
             </section>
         <?php endif; ?>
 
+		<!-- =====================================
+		   DUAL-USE & HOSPITALITY CAPABILITY
+		===================================== -->
+
         <?php
         $has_dual_use_section = $dual_use_heading || $dual_use_text || $hospitality_assets || $operations_note;
         if ( $has_dual_use_section ) :
@@ -688,6 +762,10 @@ get_header();
                 </div>
             </section>
         <?php endif; ?>
+
+		<!-- =====================================
+		   FLOORPLANS
+		===================================== -->
 
         <?php if ( function_exists( 'have_rows' ) && have_rows( 'bp_floorplans', $post_id ) ) : ?>
             <section class="section section-soft">
@@ -743,6 +821,10 @@ get_header();
             </section>
         <?php endif; ?>
 
+		<!-- =====================================
+		   MAP SANITIZATION (EMBED MODE)
+		===================================== -->
+
         <?php
         $safe_map_embed = '';
         if ( 'embed' === $map_mode && $map_embed ) {
@@ -774,6 +856,10 @@ get_header();
 
             $safe_map_embed = wp_kses( $map_embed, $allowed_tags );
         }
+
+		/* =====================================
+		   LOCATION SECTION
+		===================================== */
 
         $has_map_content = ( 'embed' === $map_mode && $safe_map_embed ) || ( 'image' === $map_mode && $map_image_id );
         $has_location_section = $has_map_content || $location_notes;
@@ -856,6 +942,11 @@ get_header();
             </section>
         <?php endif; ?>
 
+		<!-- =====================================
+		   ENQUIRY CTA
+		===================================== -->
+
+
         <section class="section section-soft" id="contact-form"<?php echo $enquiry_recipient ? ' data-recipient="' . esc_attr( $enquiry_recipient ) . '"' : ''; ?>>
             <div class="container">
                 <div class="content-panel-box" id="enquiry">
@@ -885,8 +976,16 @@ get_header();
     <?php endwhile; ?>
 <?php endif; ?>
 
+<!-- =====================================
+   LOOP END
+===================================== -->
+
 </main>
 
+
+<!-- =====================================
+   GALLERY NAV SCRIPT
+===================================== -->
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     const shell = document.querySelector('.single-bodrum-property .property-gallery-shell');
@@ -926,4 +1025,7 @@ document.addEventListener('DOMContentLoaded', function () {
 </script>
 
 <?php
+/* =====================================
+   FOOTER
+===================================== */
 get_footer();
