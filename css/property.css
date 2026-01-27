@@ -146,6 +146,15 @@ body.single-bodrum-property #bodrum-hero .hero-cta{
   margin-top: 22px;
 }
 
+body.single-bodrum-property .bp-dualuse-pills{
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 16px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
 
 /* =======================================================
    PROPERTY FILTERS – FACET STYLE

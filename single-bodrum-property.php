@@ -194,12 +194,23 @@ get_header();
             : array();
         $amenities = function_exists( 'get_field' ) ? get_field( 'bp_amenities', $post_id ) : '';
 
-        $dual_use_heading   = function_exists( 'get_field' ) ? get_field( 'bp_dual_use_heading', $post_id ) : '';
-        $dual_use_text      = function_exists( 'get_field' ) ? get_field( 'bp_dual_use_text', $post_id ) : '';
-        $hospitality_assets = function_exists( 'get_field' )
-            ? pera_bp_collect_repeater_text( 'bp_hospitality_assets', array( 'bp_hospitality_asset', 'bp_text', 'text' ), $post_id )
-            : array();
-        $operations_note    = function_exists( 'get_field' ) ? get_field( 'bp_operations_note', $post_id ) : '';
+        $dual_use_heading = function_exists( 'get_field' ) ? get_field( 'bp_dual_use_heading', $post_id ) : '';
+        $dual_use_text    = function_exists( 'get_field' ) ? get_field( 'bp_dual_use_text', $post_id ) : '';
+        $operations_note  = function_exists( 'get_field' ) ? get_field( 'bp_operations_note', $post_id ) : '';
+
+        $hospitality_assets = array();
+        if ( function_exists( 'have_rows' ) && have_rows( 'bp_hospitality_assets', $post_id ) ) {
+            while ( have_rows( 'bp_hospitality_assets', $post_id ) ) {
+                the_row();
+                $asset = get_sub_field( 'bp_ha_item' );
+                if ( is_string( $asset ) ) {
+                    $asset = trim( $asset );
+                }
+                if ( $asset ) {
+                    $hospitality_assets[] = $asset;
+                }
+            }
+        }
 
         $map_mode        = function_exists( 'get_field' ) ? get_field( 'bp_map_mode', $post_id ) : '';
         $map_embed       = function_exists( 'get_field' ) ? get_field( 'bp_map_embed', $post_id ) : '';
@@ -482,6 +493,45 @@ get_header();
         <?php endif; ?>
 
         <?php
+        $has_dual_use_section = $dual_use_heading || $dual_use_text || $hospitality_assets || $operations_note;
+        if ( $has_dual_use_section ) :
+            ?>
+            <section class="section" id="dual-use">
+                <div class="container">
+                    <?php if ( $dual_use_heading ) : ?>
+                        <header class="section-header">
+                            <h2><?php echo esc_html( $dual_use_heading ); ?></h2>
+                        </header>
+                    <?php endif; ?>
+
+                    <?php if ( $dual_use_text ) : ?>
+                        <div class="lead">
+                            <?php echo wp_kses_post( $dual_use_text ); ?>
+                        </div>
+                    <?php endif; ?>
+
+                    <?php if ( $hospitality_assets ) : ?>
+                        <ul class="bp-dualuse-pills">
+                            <?php foreach ( $hospitality_assets as $asset ) : ?>
+                                <li>
+                                    <span class="pill pill--outline">
+                                        <?php echo esc_html( $asset ); ?>
+                                    </span>
+                                </li>
+                            <?php endforeach; ?>
+                        </ul>
+                    <?php endif; ?>
+
+                    <?php if ( $operations_note ) : ?>
+                        <div class="text-sm text-soft">
+                            <?php echo wpautop( esc_html( $operations_note ) ); ?>
+                        </div>
+                    <?php endif; ?>
+                </div>
+            </section>
+        <?php endif; ?>
+
+        <?php
         if ( ! empty( $gallery_ids ) ) :
             $row1 = array();
             $row2 = array();
@@ -642,48 +692,6 @@ get_header();
                         <p class="text-soft">
                             <?php echo wp_kses_post( $amenities ); ?>
                         </p>
-                    <?php endif; ?>
-                </div>
-            </section>
-        <?php endif; ?>
-
-        <?php
-        $has_dual_use_section = $dual_use_heading || $dual_use_text || $hospitality_assets || $operations_note;
-        if ( $has_dual_use_section ) :
-            ?>
-            <section class="section">
-                <div class="container">
-                    <header class="section-header">
-                        <?php if ( $dual_use_heading ) : ?>
-                            <h2><?php echo esc_html( $dual_use_heading ); ?></h2>
-                        <?php else : ?>
-                            <h2><?php echo esc_html__( 'Dual-use & hospitality capability', 'hello-elementor-child' ); ?></h2>
-                        <?php endif; ?>
-                    </header>
-
-                    <?php if ( $dual_use_text ) : ?>
-                        <p><?php echo wp_kses_post( $dual_use_text ); ?></p>
-                    <?php endif; ?>
-
-                    <?php if ( $hospitality_assets ) : ?>
-                        <ul class="checklist mb-md">
-                            <?php foreach ( $hospitality_assets as $asset ) : ?>
-                                <li>
-                                    <svg class="icon icon-tick" aria-hidden="true">
-                                        <use href="<?php echo esc_url( get_stylesheet_directory_uri() . '/logos-icons/icons.svg#icon-check' ); ?>"></use>
-                                    </svg>
-                                    <?php echo esc_html( $asset ); ?>
-                                </li>
-                            <?php endforeach; ?>
-                        </ul>
-                    <?php endif; ?>
-
-                    <?php if ( $operations_note ) : ?>
-                        <div class="content-panel-box">
-                            <p class="text-soft">
-                                <?php echo esc_html( $operations_note ); ?>
-                            </p>
-                        </div>
                     <?php endif; ?>
                 </div>
             </section>
