@@ -155,7 +155,63 @@ $logo_path = get_stylesheet_directory() . '/logos-icons/pera-logo.svg';
       </div>
 
       <div class="offcanvas-contact-social footer-social">
-        <!-- keep your socials block here -->
+        <a href="https://wa.me/905320639978?text=Hello%20Pera%20Property%2C%20I%27d%20like%20to%20learn%20more%20about%20your%20Istanbul%20properties."
+           class="footer-social-link"
+           aria-label="WhatsApp Pera Property"
+           target="_blank"
+           rel="noopener">
+          <svg class="icon" aria-hidden="true">
+            <use href="<?php echo esc_url( get_stylesheet_directory_uri() . '/logos-icons/icons.svg#icon-whatsapp' ); ?>"></use>
+          </svg>
+        </a>
+
+        <a href="https://instagram.com/peraproperty"
+           class="footer-social-link"
+           aria-label="Pera Property on Instagram"
+           target="_blank"
+           rel="noopener">
+          <svg class="icon" aria-hidden="true">
+            <use href="<?php echo esc_url( get_stylesheet_directory_uri() . '/logos-icons/icons.svg#icon-instagram' ); ?>"></use>
+          </svg>
+        </a>
+
+        <a href="https://www.youtube.com/channel/UCCCiEx5X14mJizqXcsYh1fQ"
+           class="footer-social-link"
+           aria-label="Pera Property on YouTube"
+           target="_blank"
+           rel="noopener">
+          <svg class="icon" aria-hidden="true">
+            <use href="<?php echo esc_url( get_stylesheet_directory_uri() . '/logos-icons/icons.svg#icon-youtube' ); ?>"></use>
+          </svg>
+        </a>
+
+        <a href="https://facebook.com/perapropertycom"
+           class="footer-social-link"
+           aria-label="Pera Property on Facebook"
+           target="_blank"
+           rel="noopener">
+          <svg class="icon" aria-hidden="true">
+            <use href="<?php echo esc_url( get_stylesheet_directory_uri() . '/logos-icons/icons.svg#icon-facebook' ); ?>"></use>
+          </svg>
+        </a>
+
+        <a href="https://tr.linkedin.com/company/peraproperty"
+           class="footer-social-link"
+           aria-label="Pera Property on LinkedIn"
+           target="_blank"
+           rel="noopener">
+          <svg class="icon" aria-hidden="true">
+            <use href="<?php echo esc_url( get_stylesheet_directory_uri() . '/logos-icons/icons.svg#icon-linkedin' ); ?>"></use>
+          </svg>
+        </a>
+
+        <a href="mailto:info@peraproperty.com"
+           class="footer-social-link"
+           aria-label="Email Pera Property">
+          <svg class="icon" aria-hidden="true">
+            <use href="<?php echo esc_url( get_stylesheet_directory_uri() . '/logos-icons/icons.svg#icon-envelope' ); ?>"></use>
+          </svg>
+        </a>
       </div>
 
       <div class="offcanvas-contact-login">
