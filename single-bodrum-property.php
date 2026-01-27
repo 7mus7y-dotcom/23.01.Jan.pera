@@ -139,7 +139,7 @@ get_header();
         $use_image        = ( ! $use_video && $hero_image_id );
         $has_hero_media   = $use_video || $use_image;
         $hero_highlights  = function_exists( 'get_field' )
-            ? pera_bp_collect_repeater_text( 'bp_hero_highlights', array( 'bp_highlight', 'bp_hero_highlight', 'bp_text', 'text' ), $post_id )
+            ? pera_bp_collect_repeater_text( 'bp_hero_highlights', array( 'bp_hl_text' ), $post_id )
             : array();
 
         $status_label = '';
@@ -213,6 +213,7 @@ get_header();
         $enquiry_recipient   = function_exists( 'get_field' ) ? get_field( 'bp_enquiry_recipient', $post_id ) : '';
         $enquiry_gating_note = function_exists( 'get_field' ) ? get_field( 'bp_enquiry_gating_note', $post_id ) : '';
 
+        $hero_cta_label      = $primary_cta_label ? $primary_cta_label : __( 'Request full details', 'hello-elementor-child' );
         $primary_cta_label   = $primary_cta_label ? $primary_cta_label : __( 'Request details', 'hello-elementor-child' );
         $secondary_cta_label = $secondary_cta_label ? $secondary_cta_label : __( 'Arrange viewing', 'hello-elementor-child' );
         $primary_cta_url     = esc_url( site_url( '/book-a-consultancy/' ) );
@@ -271,14 +272,20 @@ get_header();
                 <?php endif; ?>
 
                 <?php if ( $hero_highlights ) : ?>
-                    <div class="hero-actions">
+                    <ul class="hero-pills">
                         <?php foreach ( $hero_highlights as $highlight ) : ?>
-                            <span class="pill pill--outline">
-                                <?php echo esc_html( $highlight ); ?>
-                            </span>
+                            <li>
+                                <span class="pill pill--outline">
+                                    <?php echo esc_html( $highlight ); ?>
+                                </span>
+                            </li>
                         <?php endforeach; ?>
-                    </div>
+                    </ul>
                 <?php endif; ?>
+
+                <a class="btn btn--solid btn--black hero-cta" href="#contact-form">
+                    <?php echo esc_html( $hero_cta_label ); ?>
+                </a>
 
                 <?php if ( $discretion_note ) : ?>
                     <p class="text-light">
@@ -849,9 +856,9 @@ get_header();
             </section>
         <?php endif; ?>
 
-        <section class="section section-soft" id="enquiry"<?php echo $enquiry_recipient ? ' data-recipient="' . esc_attr( $enquiry_recipient ) . '"' : ''; ?>>
+        <section class="section section-soft" id="contact-form"<?php echo $enquiry_recipient ? ' data-recipient="' . esc_attr( $enquiry_recipient ) . '"' : ''; ?>>
             <div class="container">
-                <div class="content-panel-box">
+                <div class="content-panel-box" id="enquiry">
                     <header class="section-header">
                         <h2><?php echo esc_html__( 'Start your Bodrum enquiry', 'hello-elementor-child' ); ?></h2>
                         <p><?php echo esc_html__( 'Speak with a consultant to receive full details, pricing, and availability.', 'hello-elementor-child' ); ?></p>
