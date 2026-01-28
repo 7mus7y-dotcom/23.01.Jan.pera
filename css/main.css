@@ -978,6 +978,29 @@ button.pill:focus-visible {
   justify-content: center;
 }
 
+/* Hero pills – row layout already handled by .hero-actions */
+.hero-pills {
+  align-items: center;
+}
+
+/* Mobile: icon-only pills */
+@media (max-width: 768px) {
+  .hero-pills .hero-pill__text {
+    display: none;
+  }
+
+  /* When text is hidden, remove the icon right margin so pills look centered */
+  .hero-pills .pill__icon {
+    margin-right: 0;
+  }
+
+  /* Make icon-only pills feel balanced */
+  .hero-pills .pill {
+    padding: 8px 10px;
+  }
+}
+
+
 /* Alignment modifiers */
 .hero--left       { text-align: left; }
 .hero--right      { text-align: right; }
@@ -1022,6 +1045,37 @@ button.pill:focus-visible {
   max-width: 100%;
   display: inline-flex;
 }
+
+/* Stack CTA above quick-link pills */
+.single-bodrum-property #bodrum-hero .hero-quicklinks{
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start; /* keeps button natural width */
+}
+
+/* Pills stay in one row */
+.single-bodrum-property #bodrum-hero .hero-quicklinks__row{
+  display: inline-flex;
+  gap: 8px;
+  flex-wrap: nowrap;
+}
+
+/* Mobile: icon-only pills */
+@media (max-width: 768px){
+  .single-bodrum-property #bodrum-hero .hero-pill__text{
+    display: none;
+  }
+
+  .single-bodrum-property #bodrum-hero .pill__icon{
+    margin-right: 0;
+  }
+
+  .single-bodrum-property #bodrum-hero .pill{
+    padding: 8px 10px;
+  }
+}
+
+
 
 /* ======================================================
    HERO SEARCH – GLASS CARD REFINEMENT

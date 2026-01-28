@@ -357,77 +357,78 @@ get_header();
             <?php endif; ?>
 
             <div class="hero-content">
-                <?php if ( $status_label ) : ?>
-                    <div class="hero-actions">
-                        <span class="<?php echo esc_attr( $status_class ); ?>">
-                            <?php echo esc_html( $status_label ); ?>
-                        </span>
-                    </div>
-                <?php endif; ?>
-
-                <?php if ( $display_title ) : ?>
-                    <h1><?php echo esc_html( $display_title ); ?></h1>
-                <?php endif; ?>
-
-                <?php if ( $tagline ) : ?>
-                    <p class="lead"><?php echo esc_html( $tagline ); ?></p>
-                <?php endif; ?>
-
-                <?php if ( $hero_highlights ) : ?>
-                    <div class="hero-pills mb-md">
-                        <?php foreach ( $hero_highlights as $highlight ) : ?>
-                                <span class="pill pill--brand">
-                                    <?php echo esc_html( $highlight ); ?>
-                                </span>
-                        <?php endforeach; ?>
-                    </div>
-                <?php endif; ?>
-
-                <a class="btn btn--solid btn--green mb-md" href="#contact-form">
-                    <?php echo esc_html( $hero_cta_label ); ?>
-                </a>
-
-                <div class="hero-pills">
-                        <a class="pill pill--green" href="#gallery">
-                            <svg class="icon" aria-hidden="true" width="16" height="16">
-                                <use href="<?php echo esc_url( get_stylesheet_directory_uri() . '/logos-icons/icons.svg#icon-gallery-stack' ); ?>"></use>
-                            </svg>
-                            <?php echo esc_html__( 'Gallery', 'hello-elementor-child' ); ?>
-                        </a>
-                       <a class="pill pill--green" href="#location">
-                            <svg class="icon" aria-hidden="true" width="16" height="16">
-                                <use href="<?php echo esc_url( get_stylesheet_directory_uri() . '/logos-icons/icons.svg#icon-map' ); ?>"></use>
-                            </svg>
-                            <?php echo esc_html__( 'Map', 'hello-elementor-child' ); ?>
-                        </a>
-                        
-                        <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true">
-  <path
-    fill="none"
-    stroke="currentColor"
-    stroke-linecap="round"
-    stroke-linejoin="round"
-    stroke-width="1.6"
-    d="m3 16 5-7 6 6.5m6.5 2.5L16 13l-4.286 6M14 10h.01M4 19h16a1 1 0 0 0 1-1V6a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1Z"
-  />
-</svg>
-
-                        
-                        <a class="pill pill--green" href="#floorplans">
-                            <svg class="icon" aria-hidden="true" width="16" height="16">
-                                <use href="<?php echo esc_url( get_stylesheet_directory_uri() . '/logos-icons/icons.svg#icon-floor-plan' ); ?>"></use>
-                            </svg>
-                            <?php echo esc_html__( 'Floorplans', 'hello-elementor-child' ); ?>
-                        </a>
-                    
+              <?php if ( $status_label ) : ?>
+                <div class="hero-actions">
+                  <span class="<?php echo esc_attr( $status_class ); ?>">
+                    <?php echo esc_html( $status_label ); ?>
+                  </span>
                 </div>
-
-                <?php if ( $discretion_note ) : ?>
-                    <p class="text-light text-sm">
-                        <?php echo esc_html__( 'Discreet marketing. Further details on request.', 'hello-elementor-child' ); ?>
-                    </p>
-                <?php endif; ?>
+              <?php endif; ?>
+            
+              <?php if ( $display_title ) : ?>
+                <h1><?php echo esc_html( $display_title ); ?></h1>
+              <?php endif; ?>
+            
+              <?php if ( $tagline ) : ?>
+                <p class="lead"><?php echo esc_html( $tagline ); ?></p>
+              <?php endif; ?>
+            
+              <?php if ( $hero_highlights ) : ?>
+                <div class="hero-pills mb-md">
+                  <?php foreach ( $hero_highlights as $highlight ) : ?>
+                    <span class="pill pill--brand">
+                      <?php echo esc_html( $highlight ); ?>
+                    </span>
+                  <?php endforeach; ?>
+                </div>
+              <?php endif; ?>
+            
+            
+            
+              <?php if ( $discretion_note ) : ?>
+                <p class="text-light text-sm mb-md">
+                  <?php echo esc_html__( 'Discreet marketing. Further details on request.', 'hello-elementor-child' ); ?>
+                </p>
+              <?php endif; ?>
+            
+            <div class="hero-actions hero-quicklinks">
+            
+              <!-- Primary CTA -->
+              <a class="btn btn--solid btn--green mb-sm" href="#contact-form">
+                Request full details
+              </a>
+            
+              <!-- Quick links row -->
+              <div class="hero-quicklinks__row">
+                <a class="pill pill--green pill--lg" href="#gallery">
+                  <svg class="icon pill__icon" aria-hidden="true" width="16" height="16">
+                    <use href="#icon-gallery-stack" xlink:href="#icon-gallery-stack"></use>
+                  </svg>
+                  <span class="hero-pill__text">Gallery</span>
+                </a>
+            
+                <a class="pill pill--green pill--lg" href="#location">
+                  <svg class="icon pill__icon" aria-hidden="true" width="16" height="16">
+                    <use href="#icon-map" xlink:href="#icon-map"></use>
+                  </svg>
+                  <span class="hero-pill__text">Map</span>
+                </a>
+            
+                <a class="pill pill--green pill--lg" href="#floorplans">
+                  <svg class="icon pill__icon" aria-hidden="true" width="16" height="16">
+                    <use href="#icon-floor-plan" xlink:href="#icon-floor-plan"></use>
+                  </svg>
+                  <span class="hero-pill__text">Floorplans</span>
+                </a>
+              </div>
+            
             </div>
+            
+
+            </div>
+
+            
+            
         </section>
 
 		<!-- =====================================
