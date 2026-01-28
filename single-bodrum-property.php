@@ -777,9 +777,7 @@ get_header();
                         </header>
 
                         <?php if ( $dual_use_text ) : ?>
-                            <div class="content-panel-box">
                                 <?php echo wp_kses_post( $dual_use_text ); ?>
-                            </div>
                         <?php endif; ?>
 
                         <?php if ( $hospitality_assets ) : ?>
@@ -796,6 +794,10 @@ get_header();
                             </div>
                         <?php endif; ?>
                     </div><!-- /.glass card -->
+
+      <!-- =====================================
+           INTERIOR GALLERY
+        ===================================== -->
 
                     <?php
                     $interior_row1 = array();
@@ -823,9 +825,9 @@ get_header();
                     $has_interior_rows = ( ! empty( $interior_row1 ) || ! empty( $interior_row2 ) );
                     if ( $has_interior_rows ) :
                         ?>
-                        <div class="property-gallery" id="property-interior-gallery">
+                        <div class="section" id="property-interior-gallery">
                             <header class="section-header">
-                                <h3><?php echo esc_html__( 'Interior gallery', 'hello-elementor-child' ); ?></h3>
+                                <h2><?php echo esc_html__( 'Interior gallery', 'hello-elementor-child' ); ?></h2>
                             </header>
 
                             <div class="property-gallery-shell" aria-label="<?php echo esc_attr__( 'Interior gallery photos', 'hello-elementor-child' ); ?>">
