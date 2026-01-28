@@ -109,6 +109,39 @@ function pera_is_property_archive() {
     ) );
 }
 
+/**
+ * Get the current taxonomy archive context (taxonomy + term ID).
+ *
+ * @param array $allowed_taxonomies Optional allowlist of taxonomies.
+ * @return array{taxonomy:string,term_id:int}|array
+ */
+function pera_get_taxonomy_archive_context( array $allowed_taxonomies = array() ): array {
+  if ( ! is_tax() ) {
+    return array();
+  }
+
+  $qo = get_queried_object();
+  if ( ! ( $qo instanceof WP_Term ) || is_wp_error( $qo ) ) {
+    return array();
+  }
+
+  $taxonomy = isset( $qo->taxonomy ) ? (string) $qo->taxonomy : '';
+  $term_id  = isset( $qo->term_id ) ? (int) $qo->term_id : 0;
+
+  if ( $taxonomy === '' || $term_id <= 0 ) {
+    return array();
+  }
+
+  if ( ! empty( $allowed_taxonomies ) && ! in_array( $taxonomy, $allowed_taxonomies, true ) ) {
+    return array();
+  }
+
+  return array(
+    'taxonomy' => $taxonomy,
+    'term_id'  => $term_id,
+  );
+}
+
 /* =======================================================
    TEMPLATE ROUTING
    ======================================================= */
