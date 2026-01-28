@@ -60,6 +60,7 @@ if ( ! $img_id && has_post_thumbnail( $property_id ) ) {
 /* Price + POA */
 $price_usd = function_exists('get_field') ? (int) get_field('price_usd', $property_id ) : 0;
 $poa       = function_exists('get_field') ? (bool) get_field('poa', $property_id ) : false;
+$project_summary = function_exists('get_field') ? (string) get_field('project_summary', $property_id ) : '';
 
 $price_label = '';
 if ( $poa ) {
@@ -168,6 +169,10 @@ $secondary_cta = isset($args['secondary_cta']) && is_array($args['secondary_cta'
             <div class="home-featured__price">
               <?php echo esc_html( $price_label ); ?>
             </div>
+          <?php endif; ?>
+
+          <?php if ( ! empty( $project_summary ) ) : ?>
+            <?php echo wp_kses_post( $project_summary ); ?>
           <?php endif; ?>
 
           <?php if ( ! empty( $points ) ) : ?>
