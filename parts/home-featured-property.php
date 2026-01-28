@@ -59,6 +59,32 @@ if ( ! $img_id && has_post_thumbnail( $property_id ) ) {
 
 /* Price */
 $project_summary = function_exists('get_field') ? (string) get_field('project_summary', $property_id ) : '';
+$project_summary_items = array();
+
+if ( ! empty( $project_summary ) ) {
+  $summary_html = wp_kses_post( $project_summary );
+  $summary_dom = new DOMDocument();
+  libxml_use_internal_errors( true );
+  $summary_dom->loadHTML(
+    '<?xml encoding="utf-8" ?>' . $summary_html,
+    LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD
+  );
+  libxml_clear_errors();
+
+  foreach ( $summary_dom->getElementsByTagName( 'li' ) as $summary_li ) {
+    $item_html = '';
+    foreach ( $summary_li->childNodes as $summary_child ) {
+      $item_html .= $summary_dom->saveHTML( $summary_child );
+    }
+    $item_html = trim( $item_html );
+    if ( $item_html !== '' ) {
+      $project_summary_items[] = $item_html;
+    }
+    if ( count( $project_summary_items ) >= 3 ) {
+      break;
+    }
+  }
+}
 
 $price_label = '';
 
@@ -193,8 +219,17 @@ $secondary_cta = isset($args['secondary_cta']) && is_array($args['secondary_cta'
             </div>
           <?php endif; ?>
 
-          <?php if ( ! empty( $project_summary ) ) : ?>
-            <?php echo wp_kses_post( $project_summary ); ?>
+          <?php if ( ! empty( $project_summary_items ) ) : ?>
+            <ul class="checklist">
+              <?php foreach ( $project_summary_items as $summary_item ) : ?>
+                <li>
+                  <svg class="icon-check checklist-icon" aria-hidden="true" focusable="false" width="18" height="18">
+                    <use href="<?php echo esc_url( get_stylesheet_directory_uri() . '/logos-icons/icons.svg#icon-check' ); ?>"></use>
+                  </svg>
+                  <span class="text-sm"><?php echo wp_kses_post( $summary_item ); ?></span>
+                </li>
+              <?php endforeach; ?>
+            </ul>
           <?php endif; ?>
 
           <?php if ( ! empty( $points ) ) : ?>
