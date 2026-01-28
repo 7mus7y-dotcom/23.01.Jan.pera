@@ -11,6 +11,67 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
+ * Auto-reply helpers.
+ */
+function pera_enquiry_autoreply_is_rate_limited( $context, $email ) {
+  $ip = '';
+  if ( ! empty( $_SERVER['HTTP_X_FORWARDED_FOR'] ) ) {
+    $parts = explode( ',', sanitize_text_field( wp_unslash( $_SERVER['HTTP_X_FORWARDED_FOR'] ) ) );
+    $ip    = trim( $parts[0] );
+  } elseif ( ! empty( $_SERVER['REMOTE_ADDR'] ) ) {
+    $ip = sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) );
+  }
+
+  $email = strtolower( sanitize_email( $email ) );
+  $key   = 'pera_autoreply_' . md5( $context . '|' . $email . '|' . $ip );
+
+  if ( get_transient( $key ) ) {
+    return true;
+  }
+
+  set_transient( $key, 1, 60 );
+  return false;
+}
+
+function pera_enquiry_autoreply_first_name( $name ) {
+  $name = trim( (string) $name );
+  if ( $name === '' ) {
+    return '';
+  }
+
+  $parts = preg_split( '/\s+/', $name );
+  return $parts ? $parts[0] : '';
+}
+
+function pera_send_enquiry_autoreply( $context, $to_email, $subject, array $lines ) {
+  if ( ! is_email( $to_email ) ) {
+    return false;
+  }
+
+  if ( pera_enquiry_autoreply_is_rate_limited( $context, $to_email ) ) {
+    return false;
+  }
+
+  $host = wp_parse_url( home_url(), PHP_URL_HOST );
+  $host = $host ? preg_replace( '/^www\./', '', $host ) : 'peraproperty.com';
+
+  $headers = array(
+    'From: Pera Property <no-reply@' . $host . '>',
+    'Reply-To: Pera Property <info@peraproperty.com>',
+    'Content-Type: text/plain; charset=UTF-8',
+  );
+
+  $body = implode( "\n", array_filter( $lines, 'strlen' ) );
+  $sent = wp_mail( $to_email, $subject, $body, $headers );
+
+  if ( ! $sent ) {
+    error_log( 'Auto-reply failed for ' . $context . ' enquiry.' );
+  }
+
+  return $sent;
+}
+
+/**
  * Master handler for both Citizenship and Sell/Rent/Property enquiries.
  */
 function pera_handle_citizenship_enquiry() {
@@ -133,6 +194,29 @@ function pera_handle_citizenship_enquiry() {
 
     $sent = wp_mail( $to, $subject, $body, $headers );
 
+    if ( $sent && $form_context === 'property' && is_email( $email ) ) {
+      $first_name = pera_enquiry_autoreply_first_name( $name );
+      $greeting   = $first_name ? 'Hello ' . $first_name . ',' : 'Hello,';
+      $ref        = $property_id ? (string) $property_id : 'N/A';
+
+      $auto_lines = array(
+        $greeting,
+        "We've received your enquiry and recorded the details below.",
+        'Name: ' . ( $name ?: 'Not provided' ),
+        'Listing title: ' . ( $property_title ?: 'Not provided' ),
+        'Listing ref: ' . $ref,
+        'Listing link: ' . ( $property_url ?: 'Not provided' ),
+        "If any of these details are incorrect, reply to this email and we'll update them.",
+        'A consultant will review and contact you via your preferred method.',
+        'If you need to add details, reply to this email.',
+        'Pera Property',
+        'info@peraproperty.com',
+      );
+
+      $auto_subject = 'We received your enquiry — ' . ( $property_title ?: 'Property listing' );
+      pera_send_enquiry_autoreply( 'property', $email, $auto_subject, $auto_lines );
+    }
+
     // Redirect: base (referer), add sr_success, then force the correct fragment by context.
     $redirect = ! empty( $_POST['_wp_http_referer'] )
       ? esc_url_raw( wp_unslash( $_POST['_wp_http_referer'] ) )
@@ -201,6 +285,28 @@ function pera_handle_citizenship_enquiry() {
     }
 
     $sent = wp_mail( $to, $subject, $body, $headers );
+
+    if ( $sent && is_email( $email ) ) {
+      $first_name = pera_enquiry_autoreply_first_name( $name );
+      $greeting   = $first_name ? 'Hello ' . $first_name . ',' : 'Hello,';
+
+      $auto_lines = array(
+        $greeting,
+        "We've received your enquiry and recorded the details below.",
+        'Name: ' . ( $name ?: 'Not provided' ),
+        'Enquiry type: ' . ( $enquiry_type ?: 'Not specified' ),
+        'Preferred contact methods: ' . ( ! empty( $contact_methods ) ? implode( ', ', $contact_methods ) : 'Not specified' ),
+        'Family members: ' . ( $family ?: 'Not specified' ),
+        "If any of these details are incorrect, reply to this email and we'll update them.",
+        'A consultant will review and contact you via your preferred method.',
+        'If you need to add details, reply to this email.',
+        'Pera Property',
+        'info@peraproperty.com',
+      );
+
+      $auto_subject = 'We received your citizenship enquiry';
+      pera_send_enquiry_autoreply( 'citizenship', $email, $auto_subject, $auto_lines );
+    }
 
     $status   = $sent ? 'ok' : 'mail-failed';
     $redirect = home_url( '/citizenship-by-investment/?enquiry=' . $status . '#citizenship-form' );
