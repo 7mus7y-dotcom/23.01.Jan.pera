@@ -124,7 +124,56 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 
   /* -----------------------------------------
-     3. COOKIE MONSTER – GOV.UK STYLE MINIMAL
+     3. SVG SPRITE SHIM (external <use> -> inline #id)
+     ----------------------------------------- */
+
+  function rewriteSvgUses(root) {
+    if (!root) return;
+
+    var uses = root.querySelectorAll ? root.querySelectorAll('use') : [];
+    if (!uses.length) return;
+
+    uses.forEach(function (useEl) {
+      var href = useEl.getAttribute('href') || useEl.getAttribute('xlink:href');
+      if (!href || href.indexOf('icons.svg#') === -1) {
+        return;
+      }
+
+      var parts = href.split('#');
+      var id = parts[parts.length - 1];
+      if (!id) return;
+
+      // Rewrite external sprite refs to local fragments once sprite is inlined.
+      useEl.setAttribute('href', '#' + id);
+      useEl.setAttribute('xlink:href', '#' + id);
+    });
+  }
+
+  rewriteSvgUses(document);
+
+  if (window.MutationObserver) {
+    var spriteObserver = new MutationObserver(function (mutations) {
+      mutations.forEach(function (mutation) {
+        mutation.addedNodes.forEach(function (node) {
+          if (node.nodeType !== 1) return;
+
+          if (node.tagName && node.tagName.toLowerCase() === 'use') {
+            rewriteSvgUses(node.parentNode || node);
+            return;
+          }
+
+          if (node.querySelectorAll) {
+            rewriteSvgUses(node);
+          }
+        });
+      });
+    });
+
+    spriteObserver.observe(document.body, { childList: true, subtree: true });
+  }
+
+  /* -----------------------------------------
+     4. COOKIE MONSTER – GOV.UK STYLE MINIMAL
      ----------------------------------------- */
 
   // Bump the version so old prefs don't hide the new banner
