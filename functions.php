@@ -142,6 +142,42 @@ function pera_get_taxonomy_archive_context( array $allowed_taxonomies = array() 
   );
 }
 
+/**
+ * Get taxonomy context for property tax term archives.
+ *
+ * @return array{taxonomy:string,term_id:int}|array
+ */
+function pera_get_property_tax_archive_context(): array {
+  if ( ! is_tax() ) {
+    return array();
+  }
+
+  $qo = get_queried_object();
+  if ( ! ( $qo instanceof WP_Term ) || is_wp_error( $qo ) ) {
+    return array();
+  }
+
+  $taxonomy = isset( $qo->taxonomy ) ? (string) $qo->taxonomy : '';
+  $term_id  = isset( $qo->term_id ) ? (int) $qo->term_id : 0;
+
+  if ( $taxonomy === '' || $term_id <= 0 ) {
+    return array();
+  }
+
+  if ( ! taxonomy_exists( $taxonomy ) ) {
+    return array();
+  }
+
+  if ( ! is_object_in_taxonomy( 'property', $taxonomy ) ) {
+    return array();
+  }
+
+  return array(
+    'taxonomy' => $taxonomy,
+    'term_id'  => $term_id,
+  );
+}
+
 /* =======================================================
    TEMPLATE ROUTING
    ======================================================= */

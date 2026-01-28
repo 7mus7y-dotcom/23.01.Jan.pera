@@ -222,20 +222,29 @@ if ( ! function_exists( 'pera_ajax_filter_properties_v2' ) ) {
           $keyword = sanitize_text_field( $keyword );
         }
 
-        // Taxonomy context (property_tags term archive)
-        $taxonomy_context = array();
-        if ( isset( $_POST['taxonomy_context'] ) && is_array( $_POST['taxonomy_context'] ) ) {
-          $raw_context = wp_unslash( $_POST['taxonomy_context'] );
-          $taxonomy    = isset( $raw_context['taxonomy'] ) ? sanitize_key( (string) $raw_context['taxonomy'] ) : '';
-          $term_id     = isset( $raw_context['term_id'] ) ? absint( $raw_context['term_id'] ) : 0;
-
-          if ( $taxonomy === 'property_tags' && $term_id > 0 ) {
-            $taxonomy_context = array(
-              'taxonomy' => $taxonomy,
-              'term_id'  => $term_id,
-            );
-          }
+        $archive_taxonomy = '';
+        $archive_term_id  = 0;
+        if ( isset( $_POST['archive_taxonomy'] ) ) {
+          $archive_taxonomy = sanitize_key( wp_unslash( (string) $_POST['archive_taxonomy'] ) );
         }
+        if ( isset( $_POST['archive_term_id'] ) ) {
+          $archive_term_id = absint( wp_unslash( (string) $_POST['archive_term_id'] ) );
+        }
+
+        $archive_context = array();
+        if (
+          $archive_taxonomy !== ''
+          && $archive_term_id > 0
+          && taxonomy_exists( $archive_taxonomy )
+          && is_object_in_taxonomy( 'property', $archive_taxonomy )
+        ) {
+          $archive_context = array(
+            'taxonomy' => $archive_taxonomy,
+            'term_id'  => $archive_term_id,
+          );
+        }
+
+        $debug_enabled = current_user_can( 'manage_options' ) && isset( $_POST['pera_debug'] ) && (string) $_POST['pera_debug'] === '1';
 
 
 
@@ -301,11 +310,11 @@ if ( ! function_exists( 'pera_ajax_filter_properties_v2' ) ) {
         );
       }
 
-      if ( ! empty( $taxonomy_context ) ) {
+      if ( ! empty( $archive_context ) ) {
         $tax_query[] = array(
-          'taxonomy' => $taxonomy_context['taxonomy'],
+          'taxonomy' => $archive_context['taxonomy'],
           'field'    => 'term_id',
-          'terms'    => array( (int) $taxonomy_context['term_id'] ),
+          'terms'    => array( (int) $archive_context['term_id'] ),
         );
       }
 
@@ -564,6 +573,15 @@ if ( ! function_exists( 'pera_ajax_filter_properties_v2' ) ) {
           'add_args'  => $add_args,
         ) );
 
+      $debug_html = '';
+      if ( $debug_enabled ) {
+        $debug_data = array(
+          'archive_taxonomy' => $archive_taxonomy,
+          'archive_term_id'  => $archive_term_id,
+          'query_args'       => $args,
+        );
+        $debug_html = '<pre class="pera-debug">' . esc_html( print_r( $debug_data, true ) ) . '</pre>';
+      }
 
       wp_send_json_success( array(
         'grid_html'            => $grid_html,
@@ -578,6 +596,7 @@ if ( ! function_exists( 'pera_ajax_filter_properties_v2' ) ) {
         'pagination_html' => $pagination_html ? $pagination_html : '',
         'max_pages'       => (int) $q->max_num_pages,
         'current_page'    => (int) $paged,
+        'debug_html'      => $debug_html,
 
 
         // Slider bounds + applied values (single source of truth)
