@@ -79,9 +79,9 @@ $current_keyword = isset( $_GET['s'] )
   ? sanitize_text_field( wp_unslash( (string) $_GET['s'] ) )
   : '';
 
-// Taxonomy archive context (for property_tags term archives).
-$taxonomy_context = function_exists( 'pera_get_taxonomy_archive_context' )
-  ? pera_get_taxonomy_archive_context( array( 'property_tags' ) )
+// Taxonomy archive context (property tax term archives).
+$taxonomy_context = function_exists( 'pera_get_property_tax_archive_context' )
+  ? pera_get_property_tax_archive_context()
   : array();
   
   // Sort (match V1: date_desc/date_asc/price_asc/price_desc)
@@ -177,7 +177,7 @@ $args = array(
 // ------------------------------------------------------------
 $tax_query = array();
 
-// Taxonomy context (property_tags term archive)
+// Taxonomy context (property term archives)
 if ( ! empty( $taxonomy_context['taxonomy'] ) && ! empty( $taxonomy_context['term_id'] ) ) {
   $tax_query[] = array(
     'taxonomy' => $taxonomy_context['taxonomy'],
@@ -313,6 +313,17 @@ $initial_count_text = sprintf(
   (int) $property_query->found_posts
 );
                             
+$debug_enabled = current_user_can( 'manage_options' ) && isset( $_GET['pera_debug'] ) && (string) $_GET['pera_debug'] === '1';
+$debug_html = '';
+if ( $debug_enabled ) {
+  $qo = get_queried_object();
+  $debug_data = array(
+    'queried_taxonomy' => ( $qo instanceof WP_Term ) ? (string) $qo->taxonomy : '',
+    'queried_term_id'  => ( $qo instanceof WP_Term ) ? (int) $qo->term_id : 0,
+    'query_args'       => $args,
+  );
+  $debug_html = '<pre class="pera-debug">' . esc_html( print_r( $debug_data, true ) ) . '</pre>';
+}
 
 ?>
 
@@ -556,6 +567,11 @@ if ( ! $is_filtered_search && ( $qo instanceof WP_Term ) && ! is_wp_error( $qo )
     
                     <?php echo esc_html( $initial_count_text ); ?>
                   </div>
+                <?php if ( $debug_enabled ) : ?>
+                  <div id="pera-debug-output"><?php echo $debug_html; ?></div>
+                <?php else : ?>
+                  <div id="pera-debug-output"></div>
+                <?php endif; ?>
 
                 <div
                   class="property-filter-dialog"
@@ -592,9 +608,6 @@ if ( ! $is_filtered_search && ( $qo instanceof WP_Term ) && ! is_wp_error( $qo )
                           class="property-filters"
                           method="get"
                           action="<?php echo esc_url( $archive_base_url ); ?>"
-                          <?php if ( ! empty( $taxonomy_context ) ) : ?>
-                            data-taxonomy-context="<?php echo esc_attr( wp_json_encode( $taxonomy_context ) ); ?>"
-                          <?php endif; ?>
                         >
 
                         <input
@@ -603,6 +616,10 @@ if ( ! $is_filtered_search && ( $qo instanceof WP_Term ) && ! is_wp_error( $qo )
                           value="<?php echo esc_attr( trailingslashit( wp_parse_url( get_permalink(), PHP_URL_PATH ) ?: '/' ) ); ?>"
                         >
                         <input type="hidden" name="sort" id="sort-input" value="<?php echo esc_attr( $sort ); ?>">
+                        <?php if ( ! empty( $taxonomy_context ) ) : ?>
+                          <input type="hidden" name="archive_taxonomy" value="<?php echo esc_attr( $taxonomy_context['taxonomy'] ); ?>">
+                          <input type="hidden" name="archive_term_id" value="<?php echo esc_attr( (int) $taxonomy_context['term_id'] ); ?>">
+                        <?php endif; ?>
 
                         <div class="filter-row">
                             <!-- PRICE RANGE (V2, based on v2_price_usd_min) -->
@@ -1084,16 +1101,7 @@ if ( ! empty( $sort ) && $sort !== 'date_desc' ) {
   if (!form || !grid) return;
 
   const ajaxUrl = "<?php echo esc_js( admin_url('admin-ajax.php') ); ?>";
-  const taxonomyContextRaw = form.dataset ? form.dataset.taxonomyContext : '';
-  let taxonomyContext = null;
-
-  if (taxonomyContextRaw) {
-    try {
-      taxonomyContext = JSON.parse(taxonomyContextRaw);
-    } catch (e) {
-      taxonomyContext = null;
-    }
-  }
+  const debugParam = new URLSearchParams(window.location.search).get('pera_debug');
 
   let activeController = null;
   let sliderDebounceT  = null;
@@ -1222,9 +1230,8 @@ if ( ! empty( $sort ) && $sort !== 'date_desc' ) {
     // Provide a stable base path for server-side pagination HTML
     fd.set('archive_base', window.location.pathname.replace(/\/page\/\d+\/?$/, '/'));
 
-    if (taxonomyContext && taxonomyContext.taxonomy && taxonomyContext.term_id) {
-      fd.set('taxonomy_context[taxonomy]', String(taxonomyContext.taxonomy));
-      fd.set('taxonomy_context[term_id]', String(taxonomyContext.term_id));
+    if (debugParam === '1') {
+      fd.set('pera_debug', '1');
     }
 
 
@@ -1282,6 +1289,10 @@ if ( ! empty( $sort ) && $sort !== 'date_desc' ) {
           if (minRaw !== '') params.set('min_price', minRaw);
           if (maxRaw !== '') params.set('max_price', maxRaw);
         
+          if (debugParam === '1') {
+            params.set('pera_debug', '1');
+          }
+
           const pageNum = parseInt(String(pagedForUrl || '1'), 10);
           const path = buildPagedPath(pageNum);
         
@@ -1325,6 +1336,10 @@ if ( ! empty( $sort ) && $sort !== 'date_desc' ) {
       } else {
         paginationNav.classList.add('is-hidden');
       }
+    }
+    if (d.debug_html) {
+      const debugEl = document.getElementById('pera-debug-output');
+      if (debugEl) debugEl.innerHTML = d.debug_html;
     }
 
 
