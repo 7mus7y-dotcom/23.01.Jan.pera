@@ -1070,6 +1070,33 @@ get_header();
                             <?php echo esc_html( $enquiry_gating_note ); ?>
                         </p>
                     <?php endif; ?>
+
+                    <hr class="content-panel-divider">
+
+                    <?php
+                    get_template_part(
+                        'parts/enquiry-form',
+                        null,
+                        array(
+                            'context'        => 'property',
+                            'heading'        => '',
+                            'intro'          => '',
+                            'submit_label'   => __( 'Send enquiry', 'hello-elementor-child' ),
+                            'form_context'   => 'property',
+                            'property_id'    => $post_id,
+                            'property_title' => $display_title,
+                            'property_url'   => get_permalink( $post_id ),
+                            'sr_context'     => 'bodrum_property',
+                            'show_header'    => false,
+                        )
+                    );
+                    ?>
+
+                    <?php if ( isset( $_GET['sr_success'] ) && $_GET['sr_success'] === '1' ) : ?>
+                        <div class="form-success">
+                            <?php echo esc_html__( 'Thank you – we have received your details. A Pera consultant will contact you shortly.', 'hello-elementor-child' ); ?>
+                        </div>
+                    <?php endif; ?>
                 </div>
             </div>
         </section>
