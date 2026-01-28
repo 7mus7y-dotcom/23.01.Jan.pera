@@ -222,6 +222,21 @@ if ( ! function_exists( 'pera_ajax_filter_properties_v2' ) ) {
           $keyword = sanitize_text_field( $keyword );
         }
 
+        // Taxonomy context (property_tags term archive)
+        $taxonomy_context = array();
+        if ( isset( $_POST['taxonomy_context'] ) && is_array( $_POST['taxonomy_context'] ) ) {
+          $raw_context = wp_unslash( $_POST['taxonomy_context'] );
+          $taxonomy    = isset( $raw_context['taxonomy'] ) ? sanitize_key( (string) $raw_context['taxonomy'] ) : '';
+          $term_id     = isset( $raw_context['term_id'] ) ? absint( $raw_context['term_id'] ) : 0;
+
+          if ( $taxonomy === 'property_tags' && $term_id > 0 ) {
+            $taxonomy_context = array(
+              'taxonomy' => $taxonomy,
+              'term_id'  => $term_id,
+            );
+          }
+        }
+
 
 
          // -----------------------------
@@ -283,6 +298,14 @@ if ( ! function_exists( 'pera_ajax_filter_properties_v2' ) ) {
           'taxonomy' => 'district',
           'field'    => 'slug',
           'terms'    => $district_slugs,
+        );
+      }
+
+      if ( ! empty( $taxonomy_context ) ) {
+        $tax_query[] = array(
+          'taxonomy' => $taxonomy_context['taxonomy'],
+          'field'    => 'term_id',
+          'terms'    => array( (int) $taxonomy_context['term_id'] ),
         );
       }
 

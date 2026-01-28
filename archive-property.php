@@ -78,6 +78,11 @@ $selected_beds = isset($_GET['v2_beds'])
 $current_keyword = isset( $_GET['s'] )
   ? sanitize_text_field( wp_unslash( (string) $_GET['s'] ) )
   : '';
+
+// Taxonomy archive context (for property_tags term archives).
+$taxonomy_context = function_exists( 'pera_get_taxonomy_archive_context' )
+  ? pera_get_taxonomy_archive_context( array( 'property_tags' ) )
+  : array();
   
   // Sort (match V1: date_desc/date_asc/price_asc/price_desc)
 $sort = isset( $_GET['sort'] ) ? sanitize_text_field( wp_unslash( (string) $_GET['sort'] ) ) : 'date_desc';
@@ -149,6 +154,7 @@ $current_tag      = isset($current_tag) && is_array($current_tag) ? $current_tag
 $current_type     = isset($current_type) ? (string) $current_type : '';
 $selected_beds    = isset($selected_beds) ? (string) $selected_beds : '';
 $current_keyword  = isset($current_keyword) ? (string) $current_keyword : '';
+$taxonomy_context = isset( $taxonomy_context ) && is_array( $taxonomy_context ) ? $taxonomy_context : array();
 
 $has_price_qs = isset($has_price_qs) ? (bool) $has_price_qs : false;
 $qs_min       = isset($qs_min) ? (int) $qs_min : 0;
@@ -170,6 +176,15 @@ $args = array(
 // TAX QUERY
 // ------------------------------------------------------------
 $tax_query = array();
+
+// Taxonomy context (property_tags term archive)
+if ( ! empty( $taxonomy_context['taxonomy'] ) && ! empty( $taxonomy_context['term_id'] ) ) {
+  $tax_query[] = array(
+    'taxonomy' => $taxonomy_context['taxonomy'],
+    'field'    => 'term_id',
+    'terms'    => array( (int) $taxonomy_context['term_id'] ),
+  );
+}
 
 // District (multi)
 if ( ! empty( $current_district ) ) {
@@ -574,8 +589,13 @@ if ( ! $is_filtered_search && ( $qo instanceof WP_Term ) && ! is_wp_error( $qo )
                              v2_beds[] checkboxes
                            ====================================== -->
                     <form id="property-filter-form" 
-                          class="property-filters" 
-                          method="get" action="<?php echo esc_url( $archive_base_url ); ?>">
+                          class="property-filters"
+                          method="get"
+                          action="<?php echo esc_url( $archive_base_url ); ?>"
+                          <?php if ( ! empty( $taxonomy_context ) ) : ?>
+                            data-taxonomy-context="<?php echo esc_attr( wp_json_encode( $taxonomy_context ) ); ?>"
+                          <?php endif; ?>
+                        >
 
                         <input
                           type="hidden"
@@ -1064,6 +1084,16 @@ if ( ! empty( $sort ) && $sort !== 'date_desc' ) {
   if (!form || !grid) return;
 
   const ajaxUrl = "<?php echo esc_js( admin_url('admin-ajax.php') ); ?>";
+  const taxonomyContextRaw = form.dataset ? form.dataset.taxonomyContext : '';
+  let taxonomyContext = null;
+
+  if (taxonomyContextRaw) {
+    try {
+      taxonomyContext = JSON.parse(taxonomyContextRaw);
+    } catch (e) {
+      taxonomyContext = null;
+    }
+  }
 
   let activeController = null;
   let sliderDebounceT  = null;
@@ -1191,6 +1221,11 @@ if ( ! empty( $sort ) && $sort !== 'date_desc' ) {
     
     // Provide a stable base path for server-side pagination HTML
     fd.set('archive_base', window.location.pathname.replace(/\/page\/\d+\/?$/, '/'));
+
+    if (taxonomyContext && taxonomyContext.taxonomy && taxonomyContext.term_id) {
+      fd.set('taxonomy_context[taxonomy]', String(taxonomyContext.taxonomy));
+      fd.set('taxonomy_context[term_id]', String(taxonomyContext.term_id));
+    }
 
 
     return fd;
