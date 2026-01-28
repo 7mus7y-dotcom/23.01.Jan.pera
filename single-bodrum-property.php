@@ -767,35 +767,35 @@ get_header();
             ?>
             <section class="section">
                 <div class="container">
-                    <header class="section-header">
-                        <?php if ( $dual_use_heading ) : ?>
-                            <h2><?php echo esc_html( $dual_use_heading ); ?></h2>
-                        <?php else : ?>
-                            <h2><?php echo esc_html__( 'Dual-use & hospitality capability', 'hello-elementor-child' ); ?></h2>
+                    <div class="glass glass--card p-sm">
+                        <header class="section-header">
+                            <?php if ( $dual_use_heading ) : ?>
+                                <h2><?php echo esc_html( $dual_use_heading ); ?></h2>
+                            <?php else : ?>
+                                <h2><?php echo esc_html__( 'Dual-use & hospitality capability', 'hello-elementor-child' ); ?></h2>
+                            <?php endif; ?>
+                        </header>
+
+                        <?php if ( $dual_use_text ) : ?>
+                            <div class="content-panel-box">
+                                <?php echo wp_kses_post( $dual_use_text ); ?>
+                            </div>
                         <?php endif; ?>
-                    </header>
 
-                    <?php if ( $dual_use_text ) : ?>
-                        <div class="content-panel-box">
-                            <?php echo wp_kses_post( $dual_use_text ); ?>
-                        </div>
-                    <?php endif; ?>
-
-                    <?php if ( $hospitality_assets ) : ?>
-                        <ul class="property-facilities__pills mb-md">
-                            <?php foreach ( $hospitality_assets as $asset ) : ?>
-                                <li>
+                        <?php if ( $hospitality_assets ) : ?>
+                            <div class="property-facilities__pills mb-md" aria-label="<?php echo esc_attr__( 'Hospitality-grade infrastructure', 'hello-elementor-child' ); ?>">
+                                <?php foreach ( $hospitality_assets as $asset ) : ?>
                                     <span class="pill pill--outline"><?php echo esc_html( $asset ); ?></span>
-                                </li>
-                            <?php endforeach; ?>
-                        </ul>
-                    <?php endif; ?>
+                                <?php endforeach; ?>
+                            </div>
+                        <?php endif; ?>
 
-                    <?php if ( $operations_note ) : ?>
-                        <div class="text-sm text-soft">
-                            <?php echo wpautop( esc_html( $operations_note ) ); ?>
-                        </div>
-                    <?php endif; ?>
+                        <?php if ( $operations_note ) : ?>
+                            <div class="text-sm text-soft">
+                                <p><?php echo esc_html( $operations_note ); ?></p>
+                            </div>
+                        <?php endif; ?>
+                    </div><!-- /.glass card -->
 
                     <?php
                     $interior_row1 = array();
