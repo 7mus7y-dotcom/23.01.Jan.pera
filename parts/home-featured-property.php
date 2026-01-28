@@ -63,7 +63,35 @@ $poa       = function_exists('get_field') ? (bool) get_field('poa', $property_id
 $project_summary = function_exists('get_field') ? (string) get_field('project_summary', $property_id ) : '';
 
 $price_label = '';
-if ( $poa ) {
+$v2_price_label = '';
+
+if ( ! function_exists( 'pera_v2_units_aggregate' ) || ! function_exists( 'pera_v2_units_format_price_text' ) ) {
+  $v2_helper_path = get_stylesheet_directory() . '/inc/v2-units-index.php';
+  if ( file_exists( $v2_helper_path ) ) {
+    require_once $v2_helper_path;
+  }
+}
+
+if ( function_exists( 'pera_v2_units_aggregate' ) && function_exists( 'pera_v2_units_format_price_text' ) ) {
+  $v2_units = function_exists( 'pera_v2_get_units_rows' )
+    ? pera_v2_get_units_rows( $property_id )
+    : ( function_exists( 'get_field' ) ? get_field( 'v2_units', $property_id ) : array() );
+
+  $v2_units = is_array( $v2_units ) ? $v2_units : array();
+
+  if ( ! empty( $v2_units ) ) {
+    $aggregate = pera_v2_units_aggregate( $v2_units );
+    $price_min = isset( $aggregate['price_min'] ) ? (int) $aggregate['price_min'] : 0;
+    $price_max = isset( $aggregate['price_max'] ) ? (int) $aggregate['price_max'] : 0;
+    $is_project = has_term( array( 'project', 'projects' ), 'special', $property_id );
+
+    $v2_price_label = pera_v2_units_format_price_text( $price_min, $price_max, $is_project );
+  }
+}
+
+if ( $v2_price_label ) {
+  $price_label = $v2_price_label;
+} elseif ( $poa ) {
   $price_label = 'Price on application';
 } elseif ( $price_usd > 0 ) {
   $price_label = '$' . number_format_i18n( $price_usd );
