@@ -103,8 +103,10 @@ function pera_handle_citizenship_enquiry() {
 
     // Context (whitelist)
     $raw_context  = isset( $_POST['form_context'] ) ? sanitize_text_field( wp_unslash( $_POST['form_context'] ) ) : 'general';
+    $sr_context   = isset( $_POST['sr_context'] ) ? sanitize_text_field( wp_unslash( $_POST['sr_context'] ) ) : '';
     $allowed_ctx  = array( 'sell-page', 'rent-page', 'property', 'general', 'general-contact', 'sell', 'rent' );
     $form_context = in_array( $raw_context, $allowed_ctx, true ) ? $raw_context : 'general';
+    $sr_context   = ( $sr_context === 'bodrum_property' ) ? $sr_context : '';
 
     // Core fields
     $name    = isset( $_POST['sr_name'] )  ? sanitize_text_field( wp_unslash( $_POST['sr_name'] ) )  : '';
@@ -133,7 +135,8 @@ function pera_handle_citizenship_enquiry() {
     if ( $form_context === 'property' ) {
 
       $ref     = $property_id ? (string) $property_id : 'N/A';
-      $subject = 'Property enquiry – ' . ( $property_title ?: 'Listing' ) . ' (Ref: ' . $ref . ')';
+      $subject_prefix = ( $sr_context === 'bodrum_property' ) ? 'Bodrum property enquiry' : 'Property enquiry';
+      $subject = $subject_prefix . ' – ' . ( $property_title ?: 'Listing' ) . ' (Ref: ' . $ref . ')';
 
       $body  = "New property enquiry submitted:\n\n";
       $body .= "Name: {$name}\n";
@@ -142,6 +145,7 @@ function pera_handle_citizenship_enquiry() {
       $body .= "Listing Ref: {$ref}\n";
       $body .= "Listing Title: " . ( $property_title ?: 'N/A' ) . "\n";
       $body .= "Listing URL: " . ( $property_url ?: 'N/A' ) . "\n\n";
+      $body .= "Enquiry context: " . ( $sr_context ?: $form_context ) . "\n";
 
       if ( $message !== '' ) {
         $body .= "Message:\n{$message}\n\n";
@@ -199,6 +203,7 @@ function pera_handle_citizenship_enquiry() {
       $greeting   = $first_name ? 'Hello ' . $first_name . ',' : 'Hello,';
       $ref        = $property_id ? (string) $property_id : 'N/A';
 
+      $auto_context_label = ( $sr_context === 'bodrum_property' ) ? 'Bodrum property' : 'Property';
       $auto_lines = array(
         $greeting,
         "We've received your enquiry and recorded the details below.",
@@ -206,6 +211,7 @@ function pera_handle_citizenship_enquiry() {
         'Listing title: ' . ( $property_title ?: 'Not provided' ),
         'Listing ref: ' . $ref,
         'Listing link: ' . ( $property_url ?: 'Not provided' ),
+        'Enquiry type: ' . $auto_context_label,
         "If any of these details are incorrect, reply to this email and we'll update them.",
         'A consultant will review and contact you via your preferred method.',
         'If you need to add details, reply to this email.',
@@ -213,8 +219,10 @@ function pera_handle_citizenship_enquiry() {
         'info@peraproperty.com',
       );
 
-      $auto_subject = 'We received your enquiry — ' . ( $property_title ?: 'Property listing' );
-      pera_send_enquiry_autoreply( 'property', $email, $auto_subject, $auto_lines );
+      $auto_subject_prefix = ( $sr_context === 'bodrum_property' ) ? 'We received your Bodrum property enquiry' : 'We received your enquiry';
+      $auto_subject = $auto_subject_prefix . ' — ' . ( $property_title ?: 'Property listing' );
+      $auto_context = ( $sr_context === 'bodrum_property' ) ? 'bodrum_property' : 'property';
+      pera_send_enquiry_autoreply( $auto_context, $email, $auto_subject, $auto_lines );
     }
 
     // Redirect: base (referer), add sr_success, then force the correct fragment by context.

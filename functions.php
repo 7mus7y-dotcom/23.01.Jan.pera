@@ -662,7 +662,7 @@ add_action( 'init', function () {
   }
 
   // Single property
-  if ( is_singular( 'property' ) ) {
+  if ( is_singular( 'property' ) || is_singular( 'bodrum-property' ) ) {
     require_once get_stylesheet_directory() . '/inc/enquiry.php';
     return;
   }

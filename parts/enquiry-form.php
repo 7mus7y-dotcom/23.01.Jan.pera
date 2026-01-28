@@ -12,6 +12,8 @@
  * - property_title (string)
  * - property_url   (string)
  * - form_context   (string)  optional (e.g. 'sell-page', 'rent-page')
+ * - sr_context     (string)  optional (e.g. 'bodrum_property')
+ * - show_header    (bool)    optional
  */
 
 if ( ! defined( 'ABSPATH' ) ) exit;
@@ -26,6 +28,8 @@ $submit_label = isset( $args['submit_label'] ) ? (string) $args['submit_label'] 
 $property_id    = isset( $args['property_id'] ) ? (int) $args['property_id'] : 0;
 $property_title = isset( $args['property_title'] ) ? (string) $args['property_title'] : '';
 $property_url   = isset( $args['property_url'] ) ? (string) $args['property_url'] : '';
+$sr_context     = isset( $args['sr_context'] ) ? (string) $args['sr_context'] : '';
+$show_header    = isset( $args['show_header'] ) ? (bool) $args['show_header'] : true;
 
 // For tracking/logging in email body (and your existing redirect logic)
 $form_context = ( $context === 'property' )
@@ -34,12 +38,14 @@ $form_context = ( $context === 'property' )
 ?>
 
 
-  <div class="enquiry-cta-header m-sm">
-    <h2><?php echo esc_html( $heading ); ?></h2>
-    <?php if ( $intro ) : ?>
-      <p><?php echo esc_html( $intro ); ?></p>
-    <?php endif; ?>
-  </div>
+  <?php if ( $show_header ) : ?>
+    <div class="enquiry-cta-header m-sm">
+      <h2><?php echo esc_html( $heading ); ?></h2>
+      <?php if ( $intro ) : ?>
+        <p><?php echo esc_html( $intro ); ?></p>
+      <?php endif; ?>
+    </div>
+  <?php endif; ?>
   
     <style>
       .sr-hp-field {
@@ -56,6 +62,9 @@ $form_context = ( $context === 'property' )
       
         <input type="hidden" name="sr_action" value="1">
         <input type="hidden" name="form_context" value="<?php echo esc_attr( $form_context ); ?>">
+        <?php if ( $sr_context ) : ?>
+          <input type="hidden" name="sr_context" value="<?php echo esc_attr( $sr_context ); ?>">
+        <?php endif; ?>
 
         <?php wp_nonce_field( 'pera_seller_landlord_enquiry', 'sr_nonce' ); ?>
         <!-- Honeypot field (spam bots only) -->
