@@ -319,9 +319,18 @@ $featured_query = new WP_Query( array(
 </section>
 
 
-<?php get_template_part( 'parts/featured-villa' ); ?>
-
-
+<section class="section featured-picks">
+  <div class="container">
+    <div class="cards-slider cards-slider--snap cards-slider--featured-picks" aria-label="Featured picks">
+      <div class="slider-card">
+        <?php get_template_part( 'parts/featured-villa' ); ?>
+      </div>
+      <div class="slider-card">
+        <?php get_template_part( 'parts/featured-apartment' ); ?>
+      </div>
+    </div>
+  </div>
+</section>
 
 
 <?php wp_reset_postdata(); ?>
@@ -425,9 +434,6 @@ $featured_query = new WP_Query( array(
 
   </div>
 </section>
-
-<?php get_template_part( 'parts/featured-apartment' ); ?>
-
 
 <!-- BUYER JOURNEY (INFO STEPS – 4 STEPS) -->
 <section class="section">
