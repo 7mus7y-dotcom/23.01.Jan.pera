@@ -790,7 +790,7 @@ get_header();
 
                         <?php if ( $operations_note ) : ?>
                             <div class="text-sm text-soft">
-                                <p><?php echo esc_html( $operations_note ); ?></p>
+                                <?php echo esc_html( $operations_note ); ?>
                             </div>
                         <?php endif; ?>
                     </div><!-- /.glass card -->
