@@ -155,6 +155,13 @@ if ( ! defined( 'ABSPATH' ) ) {
   </div>
 </div>
 
+<div id="fav-undo-toast" class="fav-undo-toast" role="status" aria-live="polite" hidden>
+  <div class="fav-undo-toast__inner">
+    <span class="fav-undo-toast__msg">Removed from favourites</span>
+    <button type="button" class="btn btn--ghost btn--black fav-undo-toast__btn" data-fav-undo>Undo</button>
+  </div>
+</div>
+
 <!-- COOKIE BANNER -->
 <div class="cookie-banner" id="cookie-banner">
   <div class="cookie-banner__inner">

@@ -8,6 +8,8 @@
   const favouritesHeroSubtext = document.getElementById('favourites-hero-subtext');
   const favouritesCountLabel = document.querySelector('[data-favourites-count]');
   const favouritesEmptyState = document.getElementById('favourites-empty');
+  const undoToast = document.getElementById('fav-undo-toast');
+  const undoButton = undoToast ? undoToast.querySelector('[data-fav-undo]') : null;
 
   const parseIds = (value) => {
     if (!Array.isArray(value)) {
@@ -40,6 +42,97 @@
   };
 
   let favourites = new Set(readLocal());
+  let undoTimer = null;
+  let lastRemoval = null;
+
+  const hideUndoToast = () => {
+    if (!undoToast) {
+      return;
+    }
+    undoToast.hidden = true;
+    if (undoTimer) {
+      window.clearTimeout(undoTimer);
+      undoTimer = null;
+    }
+  };
+
+  const showUndoToast = (payload) => {
+    if (!undoToast) {
+      return;
+    }
+    lastRemoval = payload;
+    undoToast.hidden = false;
+    if (undoTimer) {
+      window.clearTimeout(undoTimer);
+    }
+    undoTimer = window.setTimeout(() => {
+      hideUndoToast();
+      lastRemoval = null;
+    }, 6000);
+  };
+
+  const undoLastRemoval = () => {
+    if (!lastRemoval) {
+      return;
+    }
+
+    const {
+      postId,
+      removedCard,
+      removedNextSibling,
+      removedParent,
+      isFavouritesPage,
+    } = lastRemoval;
+
+    lastRemoval = null;
+    hideUndoToast();
+
+    if (favourites.has(postId)) {
+      return;
+    }
+
+    favourites.add(postId);
+    writeLocal(favourites);
+    updateButtonsForId(postId);
+
+    if (isFavouritesPage) {
+      if (removedCard && removedParent) {
+        if (removedNextSibling && removedNextSibling.parentElement === removedParent) {
+          removedParent.insertBefore(removedCard, removedNextSibling);
+        } else {
+          removedParent.appendChild(removedCard);
+        }
+      }
+      updateFavouritesHero(favourites.size);
+    }
+
+    persistServerToggle(postId, true).then((result) => {
+      if (result.ok) {
+        if (isFavouritesPage) {
+          updateFavouritesHero(favourites.size);
+        }
+        return;
+      }
+
+      favourites.delete(postId);
+      writeLocal(favourites);
+      updateButtonsForId(postId);
+
+      if (isFavouritesPage) {
+        if (removedCard && removedParent && removedCard.parentElement === removedParent) {
+          removedParent.removeChild(removedCard);
+        }
+        updateFavouritesHero(favourites.size);
+      }
+    });
+  };
+
+  if (undoButton) {
+    undoButton.addEventListener('click', (event) => {
+      event.preventDefault();
+      undoLastRemoval();
+    });
+  }
 
   const updateButton = (button, isFav) => {
     button.classList.toggle('is-fav', isFav);
@@ -226,6 +319,10 @@
 
     if (nextIsFav) {
       favourites.add(postId);
+      if (lastRemoval && lastRemoval.postId === postId) {
+        lastRemoval = null;
+        hideUndoToast();
+      }
     } else {
       favourites.delete(postId);
 
@@ -238,6 +335,14 @@
           removedParent.removeChild(card);
         }
       }
+
+      showUndoToast({
+        postId,
+        removedCard,
+        removedNextSibling,
+        removedParent,
+        isFavouritesPage,
+      });
     }
 
     writeLocal(favourites);
@@ -266,6 +371,8 @@
             removedParent.appendChild(removedCard);
           }
         }
+        hideUndoToast();
+        lastRemoval = null;
       }
 
       writeLocal(favourites);
