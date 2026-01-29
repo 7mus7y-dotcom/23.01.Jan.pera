@@ -313,13 +313,33 @@ document.addEventListener('DOMContentLoaded', function () {
       banner.classList.toggle('manage-open');
     });
   }
-  
-    const header = document.getElementById('site-header');
-    if (header) {
-      const SCROLL_TRIGGER = 40;
+
+  const header = document.getElementById('site-header');
+  if (header) {
+    const SCROLL_TRIGGER = 40;
+
+    if ('IntersectionObserver' in window) {
+      let last = false;
+      header.classList.remove('is-scrolled');
+      const sentinel = document.createElement('span');
+      sentinel.setAttribute('aria-hidden', 'true');
+      sentinel.style.cssText = 'display:block;width:1px;height:1px;overflow:hidden;pointer-events:none;';
+      document.body.insertBefore(sentinel, document.body.firstChild);
+
+      const observer = new IntersectionObserver(function (entries) {
+        const entry = entries[0];
+        const isScrolled = !entry.isIntersecting;
+        if (isScrolled !== last) {
+          header.classList.toggle('is-scrolled', isScrolled);
+          last = isScrolled;
+        }
+      }, { rootMargin: '-' + SCROLL_TRIGGER + 'px 0px 0px 0px', threshold: 0 });
+
+      observer.observe(sentinel);
+    } else {
       let last = null;
       let ticking = false;
-    
+
       function update() {
         const isScrolled = window.scrollY > SCROLL_TRIGGER;
         if (isScrolled !== last) {
@@ -328,16 +348,17 @@ document.addEventListener('DOMContentLoaded', function () {
         }
         ticking = false;
       }
-    
+
       function onScroll() {
         if (!ticking) {
           ticking = true;
           requestAnimationFrame(update);
         }
       }
-    
+
       update();
       window.addEventListener('scroll', onScroll, { passive: true });
     }
+  }
 
 });
