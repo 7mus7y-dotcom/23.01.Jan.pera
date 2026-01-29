@@ -22,6 +22,7 @@ $extra_classes = isset( $card_args['card_classes'] ) ? sanitize_text_field( $car
 $card_classes  = trim( $extra_classes . ' property-card property-card--' . $variant );
 
 $post_id = get_the_ID();
+$title   = get_the_title( $post_id );
 
 /* ============================================================
    DATA
@@ -142,7 +143,11 @@ $image_id = ( is_array( $main_image ) && ! empty( $main_image['ID'] ) ) ? (int) 
       <?php endif; ?>
 
       <!-- IMAGE LINKS TO LISTING -->
-      <a href="<?php the_permalink(); ?>" class="property-card__media-link">
+      <a
+        href="<?php the_permalink(); ?>"
+        class="property-card__media-link"
+        aria-label="<?php echo esc_attr( sprintf( 'View property: %s', $title ) ); ?>"
+      >
         <?php if ( $image_id ) : ?>
 
           <?php
@@ -151,6 +156,7 @@ $image_id = ( is_array( $main_image ) && ! empty( $main_image['ID'] ) ) ? (int) 
               $image_size,
               false,
               array(
+                'alt'      => esc_attr( $title ),
                 'loading'  => 'lazy',
                 'decoding' => 'async',
               )

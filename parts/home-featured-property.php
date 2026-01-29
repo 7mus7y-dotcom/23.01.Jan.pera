@@ -164,7 +164,7 @@ $secondary_cta = isset($args['secondary_cta']) && is_array($args['secondary_cta'
           <a
             href="<?php echo esc_url( $permalink ); ?>"
             class="property-card__media-link"
-            aria-label="<?php echo esc_attr( $title ); ?>"
+            aria-label="<?php echo esc_attr( sprintf( 'View property: %s', $title ) ); ?>"
           >
             <?php
               echo wp_get_attachment_image(
