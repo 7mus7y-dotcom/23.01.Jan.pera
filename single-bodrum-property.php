@@ -1065,19 +1065,8 @@ get_header();
                         <p><?php echo esc_html__( 'Speak with a consultant to receive full details, pricing, and availability.', 'hello-elementor-child' ); ?></p>
                     </header>
 
-                    <div class="hero-actions">
-                        <a class="btn btn--solid btn--blue" href="<?php echo esc_url( $primary_cta_url ); ?>">
-                            <?php echo esc_html( $primary_cta_label ); ?>
-                        </a>
-                        <a class="btn btn--solid btn--green" href="<?php echo esc_url( $secondary_cta_url ); ?>">
-                            <?php echo esc_html( $secondary_cta_label ); ?>
-                        </a>
-                    </div>
-
                     <?php if ( $enquiry_gating_note ) : ?>
-                        <p class="text-soft">
-                            <?php echo esc_html( $enquiry_gating_note ); ?>
-                        </p>
+                            <p class="pt-md"><?php echo esc_html( $enquiry_gating_note ); ?></p>
                     <?php endif; ?>
 
                     <hr class="content-panel-divider">
