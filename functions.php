@@ -591,6 +591,26 @@ add_filter( 'login_headertext', function () {
   return 'Pera Property – Client Login';
 } );
 
+add_filter( 'login_redirect', function ( $redirect_to, $requested_redirect_to, $user ) {
+  if ( ! $user || is_wp_error( $user ) ) {
+    return $redirect_to;
+  }
+
+  if ( user_can( $user, 'manage_options' ) ) {
+    if ( ! empty( $redirect_to ) ) {
+      return $redirect_to;
+    }
+
+    if ( ! empty( $requested_redirect_to ) ) {
+      return $requested_redirect_to;
+    }
+
+    return admin_url();
+  }
+
+  return home_url( '/my-favourites/' );
+}, 10, 3 );
+
 
 add_action('login_enqueue_scripts', function () {
 
