@@ -404,7 +404,7 @@ function pera_handle_citizenship_enquiry() {
 
     $redirect = ! empty( $_POST['_wp_http_referer'] )
       ? esc_url_raw( wp_unslash( $_POST['_wp_http_referer'] ) )
-      : home_url( '/favourites/' );
+      : home_url( '/my-favourites/' );
     $redirect = preg_replace( '/#.*$/', '', $redirect );
     $redirect = add_query_arg( 'enquiry', $sent ? 'sent' : 'failed', $redirect );
     $redirect .= '#favourites-enquiry';

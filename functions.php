@@ -809,7 +809,7 @@ add_action( 'init', function () {
   }
 
   // Safety fallback: if your pages are not using those exact filenames, load by slug as well
-  if ( is_page( array( 'citizenship-by-investment', 'rent-with-pera', 'sell-with-pera', 'favourites' ) ) ) {
+  if ( is_page( array( 'citizenship-by-investment', 'rent-with-pera', 'sell-with-pera', 'my-favourites' ) ) ) {
     require_once get_stylesheet_directory() . '/inc/enquiry.php';
     return;
   }
