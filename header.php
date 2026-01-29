@@ -134,7 +134,7 @@ $logo_path = get_stylesheet_directory() . '/logos-icons/pera-logo.svg';
         <?php
         $favourites_page = get_page_by_path( 'favourites' );
         $favourites_url = $favourites_page ? get_permalink( $favourites_page ) : home_url( '/favourites/' );
-        $login_url = wp_login_url();
+        $login_url = wp_login_url( home_url( '/my-favourites/' ) );
         $logout_url = wp_logout_url( home_url( '/' ) );
         $recent_favourite_ids = array();
 
@@ -176,12 +176,16 @@ $logo_path = get_stylesheet_directory() . '/logos-icons/pera-logo.svg';
                 );
                 ?>
                 <?php if ( $recent_query->have_posts() ) : ?>
-                  <?php while ( $recent_query->have_posts() ) : ?>
-                    <?php $recent_query->the_post(); ?>
-                    <h3 class="offcanvas-director-title">
-                      <a href="<?php the_permalink(); ?>" class="offcanvas-director-title"><?php the_title(); ?></a>
-                    </h3>
-                  <?php endwhile; ?>
+                  <ul class="offcanvas-menu">
+                    <?php while ( $recent_query->have_posts() ) : ?>
+                      <?php $recent_query->the_post(); ?>
+                      <li>
+                        <span>
+                          <a href="<?php the_permalink(); ?>" class="offcanvas-favourites-link text-sm"><?php the_title(); ?></a>
+                        </span>
+                      </li>
+                    <?php endwhile; ?>
+                  </ul>
                 <?php else : ?>
                   <p class="offcanvas-director-text">You haven’t saved any properties yet.</p>
                 <?php endif; ?>

@@ -1762,6 +1762,15 @@ body.is-nav-open .offcanvas-backdrop {
   padding: 12px 14px;
 }
 
+.offcanvas-favourites-link {
+  text-decoration: none;
+}
+
+.offcanvas-favourites-link:hover,
+.offcanvas-favourites-link:focus {
+  text-decoration: none;
+}
+
 /* Stack on mobile */
 @media (max-width: 900px) {
   .offcanvas-main {
