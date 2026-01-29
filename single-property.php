@@ -1026,7 +1026,7 @@ $custom_video_text = $custom_video_text ? wp_kses_post( wpautop( $custom_video_t
                       <svg class="icon" aria-hidden="true" width="16" height="16">
                         <use href="<?php echo esc_url( get_stylesheet_directory_uri() . '/logos-icons/icons.svg#icon-whatsapp' ); ?>"></use>
                       </svg>
-                      Contact on WhatsApp
+                      Contact
                     </a>
                   <?php endif; ?>
                 </div>
