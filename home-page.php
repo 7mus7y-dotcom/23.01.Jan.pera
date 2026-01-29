@@ -328,7 +328,7 @@ $featured_query = new WP_Query( array(
 
 <section class="section featured-picks">
   <div class="container">
-    <div class="cards-slider cards-slider--features cards-slider--snap cards-slider--grid-lg" aria-label="Featured picks">
+    <div class="cards-slider cards-slider--features cards-slider--snap cards-slider--grid-lg cards-slider--featured-picks" aria-label="Featured picks">
       <div class="slider-card">
         <?php get_template_part( 'parts/featured-villa' ); ?>
       </div>

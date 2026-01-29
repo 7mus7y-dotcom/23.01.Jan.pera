@@ -150,19 +150,17 @@ $secondary_cta = isset($args['secondary_cta']) && is_array($args['secondary_cta'
     <div class="content-panel-box border-dm">
       <div class="content-panel-grid">
 
-          <div class="p-sm">
-              <p class="home-featured__kicker text-upper text-xs">
-                <?php echo esc_html( $kicker ); ?>
-              </p>
-            
-              <h2 class="home-featured__title">
-                <a href="<?php echo esc_url( $permalink ); ?>">
-                  <?php echo esc_html( $title ); ?>
-                </a>
-              </h2>
-            </div>
+          <p class="home-featured__kicker text-upper text-xs">
+            <?php echo esc_html( $kicker ); ?>
+          </p>
+        
+          <h2 class="home-featured__title">
+            <a href="<?php echo esc_url( $permalink ); ?>">
+              <?php echo esc_html( $title ); ?>
+            </a>
+          </h2>
 
-        </div>
+      </div>
 
       <div class="content-panel-grid home-featured__inner">
 
