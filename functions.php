@@ -291,7 +291,7 @@ if ( $needs_slider ) {
      Rule: property archive OR single property OR home
   ========================= */
 
-  if ( $is_property_archive || $is_single_property || $is_home ) {
+  if ( $is_property_archive || $is_single_property || $is_single_bodrum_property || $is_home ) {
     wp_enqueue_style(
       'pera-property-css',
       get_stylesheet_directory_uri() . '/css/property.css',
