@@ -1365,6 +1365,14 @@ button.pill:focus-visible {
   gap: 16px;
 }
 
+.advisor-panel{
+  display: block;
+}
+
+.advisor-panel__heading{
+  border: 1px solid var(--border-muted, #d1d5db);
+}
+
 .advisor-row{
   display: flex;
   gap: 12px;
