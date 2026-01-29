@@ -895,18 +895,25 @@ get_header();
                             <div class="content-panel-box">
                                 <?php if ( $fp_image_id ) : ?>
                                     <div class="media-frame mb-md">
-                                        <?php
-                                        echo wp_get_attachment_image(
-                                            $fp_image_id,
-                                            'pera-card',
-                                            false,
-                                            array(
-                                                'class'    => 'media-image',
-                                                'loading'  => 'lazy',
-                                                'decoding' => 'async',
-                                            )
-                                        );
-                                        ?>
+                                        <a
+                                            href="<?php echo esc_url( get_attachment_link( $fp_image_id ) ); ?>"
+                                            target="_blank"
+                                            rel="noopener"
+                                            aria-label="<?php echo esc_attr( $fp_label ? $fp_label : get_the_title( $fp_image_id ) ); ?>"
+                                        >
+                                            <?php
+                                            echo wp_get_attachment_image(
+                                                $fp_image_id,
+                                                'pera-card',
+                                                false,
+                                                array(
+                                                    'class'    => 'media-image',
+                                                    'loading'  => 'lazy',
+                                                    'decoding' => 'async',
+                                                )
+                                            );
+                                            ?>
+                                        </a>
                                     </div>
                                 <?php endif; ?>
                                 <?php if ( $fp_label ) : ?>
