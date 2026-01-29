@@ -6,14 +6,10 @@
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 /**
- * Load taxonomy term meta (needed for term excerpt + featured image)
- * Safe to load globally.
+ * Load taxonomy term meta (term excerpt + featured image).
+ * Used by inc/seo-all.php for term meta descriptions + social images.
  */
 require_once get_stylesheet_directory() . '/inc/taxonomy-meta.php';
-/**
- * Published term counts helper (publish-only counts for property CPT)
- */
-require_once get_stylesheet_directory() . '/inc/published-term-counts.php';
 /**
  * Favourites (property)
  */
@@ -67,6 +63,20 @@ define('PERA_V2_IS_LIVE_ON_PROPERTY_ARCHIVE', false);
 /* =======================================================
    HELPERS
    ======================================================= */
+
+/**
+ * Get a cache-busting asset version based on file modification time.
+ * Falls back to theme version when the file is missing.
+ */
+function pera_get_asset_version( string $relative_path ): string {
+  $path = get_stylesheet_directory() . '/' . ltrim( $relative_path, '/' );
+
+  if ( file_exists( $path ) ) {
+    return (string) filemtime( $path );
+  }
+
+  return wp_get_theme()->get( 'Version' );
+}
 
 /**
  * Helper: are we on a BLOG archive (not property archives)?
@@ -222,7 +232,8 @@ add_action( 'wp_enqueue_scripts', function () {
   wp_enqueue_style(
     'pera-main-css',
     get_stylesheet_directory_uri() . '/css/main.css',
-    filemtime( get_stylesheet_directory() . '/css/main.css' )
+    array(),
+    pera_get_asset_version( '/css/main.css' )
   );
 
   // main.js everywhere
@@ -230,7 +241,7 @@ add_action( 'wp_enqueue_scripts', function () {
     'pera-main-js',
     get_stylesheet_directory_uri() . '/js/main.js',
     array(),
-    filemtime( get_stylesheet_directory() . '/js/main.js' ),
+    pera_get_asset_version( '/js/main.js' ),
     true
   );
 
@@ -281,7 +292,7 @@ if ( $needs_slider ) {
     'pera-slider-css',
     get_stylesheet_directory_uri() . '/css/slider.css',
     array( 'pera-main-css' ),
-    filemtime( get_stylesheet_directory() . '/css/slider.css' )
+    pera_get_asset_version( '/css/slider.css' )
   );
 }
 
@@ -296,7 +307,7 @@ if ( $needs_slider ) {
       'pera-property-css',
       get_stylesheet_directory_uri() . '/css/property.css',
       array( 'pera-main-css' ),
-      filemtime( get_stylesheet_directory() . '/css/property.css' )
+      pera_get_asset_version( '/css/property.css' )
     );
   }
 
@@ -316,7 +327,7 @@ if ( $needs_slider ) {
       'pera-property-card',
       get_stylesheet_directory_uri() . '/css/property-card.css',
       $deps,
-      filemtime( get_stylesheet_directory() . '/css/property-card.css' )
+      pera_get_asset_version( '/css/property-card.css' )
     );
   }
 
@@ -336,7 +347,7 @@ if ( $needs_slider ) {
       'pera-blog-css',
       get_stylesheet_directory_uri() . '/css/blog.css',
       $deps,
-      filemtime( get_stylesheet_directory() . '/css/blog.css' )
+      pera_get_asset_version( '/css/blog.css' )
     );
   }
 
@@ -356,7 +367,7 @@ if ( $needs_slider ) {
       'pera-posts-css',
       get_stylesheet_directory_uri() . '/css/posts.css',
       $deps,
-      filemtime( get_stylesheet_directory() . '/css/posts.css' )
+      pera_get_asset_version( '/css/posts.css' )
     );
   }
 
@@ -370,7 +381,7 @@ if ( $needs_slider ) {
       'pera-favourites',
       get_stylesheet_directory_uri() . '/js/favourites.js',
       array(),
-      filemtime( get_stylesheet_directory() . '/js/favourites.js' ),
+      pera_get_asset_version( '/js/favourites.js' ),
       true
     );
 
@@ -515,11 +526,10 @@ add_action( 'wp_head', function () {
 add_action( 'login_enqueue_scripts', function () {
 
   $css_rel  = '/css/login.css';
-  $css_path = get_stylesheet_directory() . $css_rel;
   $css_url  = get_stylesheet_directory_uri() . $css_rel;
 
   // Cache-bust using file modified time (falls back to theme version)
-  $ver = file_exists( $css_path ) ? (string) filemtime( $css_path ) : wp_get_theme()->get( 'Version' );
+  $ver = pera_get_asset_version( $css_rel );
 
   wp_enqueue_style( 'pera-login', $css_url, array(), $ver );
 
@@ -719,7 +729,7 @@ add_action( 'after_switch_theme', 'pera_register_forgot_password_page' );
     'pera-home-hero-search',
     get_stylesheet_directory_uri() . '/js/home-hero-search.js',
     array(),
-    filemtime( get_stylesheet_directory() . '/js/home-hero-search.js' ),
+    pera_get_asset_version( '/js/home-hero-search.js' ),
     true
   );
 
