@@ -902,11 +902,110 @@ $custom_video_text = $custom_video_text ? wp_kses_post( wpautop( $custom_video_t
   <?php endif; ?>
 
 </section>
-<?php
-if ( function_exists( 'pera_v2_render_units_price_table' ) ) {
-  pera_v2_render_units_price_table( $property_id );
-}
-?>
+
+<section class="section section-soft">
+  <div class="container">
+    <div class="property-pricing-advisors">
+      <div class="property-pricing-advisors__pricing">
+        <?php
+        if ( function_exists( 'pera_v2_render_units_price_table' ) ) {
+          pera_v2_render_units_price_table( $property_id );
+        }
+        ?>
+      </div>
+
+      <aside class="property-pricing-advisors__advisors" aria-label="Contact an agent">
+        <?php
+        $advisors = function_exists( 'get_field' ) ? get_field( 'advisors', $property_id ) : array();
+        if ( ! is_array( $advisors ) ) {
+          $advisors = array();
+        }
+        $advisors = array_slice( $advisors, 0, 2 );
+
+        if ( empty( $advisors ) ) {
+          $advisors_query = new WP_Query(
+            array(
+              'post_type'      => 'team',
+              'posts_per_page' => 2,
+              'orderby'        => 'rand',
+              'post_status'    => 'publish',
+            )
+          );
+
+          if ( $advisors_query->have_posts() ) {
+            $advisors = $advisors_query->posts;
+          }
+
+          wp_reset_postdata();
+        }
+
+        if ( ! empty( $advisors ) ) :
+        ?>
+          <div class="property-pricing-advisors__heading">Contact an agent</div>
+          <div class="property-pricing-advisors__list">
+            <?php foreach ( $advisors as $advisor ) : ?>
+              <?php
+              $advisor_id = is_object( $advisor ) ? $advisor->ID : (int) $advisor;
+              if ( ! $advisor_id ) {
+                continue;
+              }
+              $name_field = function_exists( 'get_field' ) ? get_field( 'name', $advisor_id ) : '';
+              $name       = $name_field ? $name_field : get_the_title( $advisor_id );
+              $position   = function_exists( 'get_field' ) ? get_field( 'position', $advisor_id ) : '';
+              $photo      = function_exists( 'get_field' ) ? get_field( 'photo', $advisor_id ) : '';
+              $number     = function_exists( 'get_field' ) ? get_field( 'number', $advisor_id ) : '';
+              $number_raw = is_string( $number ) ? trim( $number ) : '';
+              $number_digits = $number_raw ? preg_replace( '/\D+/', '', $number_raw ) : '';
+              $wa_url     = $number_digits ? 'https://wa.me/' . $number_digits : '';
+              $photo_id   = '';
+
+              if ( is_array( $photo ) && ! empty( $photo['ID'] ) ) {
+                $photo_id = (int) $photo['ID'];
+              } elseif ( is_numeric( $photo ) ) {
+                $photo_id = (int) $photo;
+              }
+              ?>
+
+              <div class="advisor-card card-shell">
+                <div class="advisor-card__media">
+                  <?php
+                  if ( $photo_id ) {
+                    echo wp_get_attachment_image(
+                      $photo_id,
+                      'thumbnail',
+                      false,
+                      array(
+                        'class'   => 'advisor-card__image',
+                        'loading' => 'lazy',
+                        'alt'     => esc_attr( $name ),
+                      )
+                    );
+                  } else {
+                    ?>
+                    <div class="advisor-card__image advisor-card__image--placeholder"></div>
+                    <?php
+                  }
+                  ?>
+                </div>
+                <div class="advisor-card__body">
+                  <div class="advisor-card__name"><?php echo esc_html( $name ); ?></div>
+                  <?php if ( $position ) : ?>
+                    <div class="advisor-card__position"><?php echo esc_html( $position ); ?></div>
+                  <?php endif; ?>
+                  <?php if ( $wa_url ) : ?>
+                    <a class="advisor-card__cta" href="<?php echo esc_url( $wa_url ); ?>" target="_blank" rel="noopener">
+                      <?php echo esc_html( $number_raw ); ?>
+                    </a>
+                  <?php endif; ?>
+                </div>
+              </div>
+            <?php endforeach; ?>
+          </div>
+        <?php endif; ?>
+      </aside>
+    </div>
+  </div>
+</section>
 
 <!-- =====================================
    GALLERY (ANCHOR TARGET)
