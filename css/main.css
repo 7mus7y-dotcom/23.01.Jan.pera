@@ -1091,22 +1091,31 @@ button.pill:focus-visible {
   align-items: center;
 }
 
-/* Mobile: icon-only pills */
+
 @media (max-width: 768px) {
+
+  /* Hide pill text on mobile */
   .hero-pills .hero-pill__text {
     display: none;
   }
 
-  /* When text is hidden, remove the icon right margin so pills look centered */
+  /* Remove icon margin when text is hidden */
   .hero-pills .pill__icon {
     margin-right: 0;
+    width: 25px;
+    height: 25px;
   }
 
-  /* Make icon-only pills feel balanced */
-  .hero-pills .pill {
-    padding: 8px 10px;
+  /* Icon-only hero pills (structural match) */
+  .hero-pills a.pill:has(.pill__icon) {
+    padding: 10px 12px;
+    border-radius: 25px;
   }
+  
 }
+
+
+
 
 
 /* Alignment modifiers */
@@ -1153,6 +1162,34 @@ button.pill:focus-visible {
   max-width: 100%;
   display: inline-flex;
 }
+
+/* Stack CTA above quick-link pills */
+.single-bodrum-property #bodrum-hero .hero-quicklinks{
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start; /* keeps button natural width */
+}
+
+/* Pills stay in one row */
+.single-bodrum-property #bodrum-hero .hero-quicklinks__row{
+  display: inline-flex;
+  gap: 8px;
+  flex-wrap: nowrap;
+}
+
+/* Mobile: icon-only pills */
+@media (max-width: 768px){
+  .single-bodrum-property #bodrum-hero .hero-pill__text{
+    display: none;
+  }
+
+  .single-bodrum-property #bodrum-hero .pill__icon{
+    margin-right: 0;
+  }
+
+
+}
+
 
 
 /* ======================================================

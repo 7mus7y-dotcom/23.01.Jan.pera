@@ -276,7 +276,7 @@ get_header();
         $enquiry_recipient   = function_exists( 'get_field' ) ? get_field( 'bp_enquiry_recipient', $post_id ) : '';
         $enquiry_gating_note = function_exists( 'get_field' ) ? get_field( 'bp_enquiry_gating_note', $post_id ) : '';
 
-        $hero_cta_label      = $primary_cta_label ? $primary_cta_label : __( 'Request full details', 'hello-elementor-child' );
+        $hero_cta_label      = $primary_cta_label ? $primary_cta_label : __( 'Request details', 'hello-elementor-child' );
         $primary_cta_label   = $primary_cta_label ? $primary_cta_label : __( 'Request details', 'hello-elementor-child' );
         $secondary_cta_label = $secondary_cta_label ? $secondary_cta_label : __( 'Arrange viewing', 'hello-elementor-child' );
         $primary_cta_url     = esc_url( site_url( '/book-a-consultancy/' ) );
@@ -355,69 +355,77 @@ get_header();
                     <div class="hero-overlay" aria-hidden="true"></div>
                 </div>
             <?php endif; ?>
-
+                    <!-- =====================================
+                    		   HERO CONTENT WITH ACTIONS
+                    		===================================== -->
             <div class="hero-content property-hero__content">
-              <?php if ( $status_label || $hero_highlights ) : ?>
+            
+              <?php if ( $status_label ) : ?>
                 <div class="property-hero__pills hero-pills">
-                  <?php if ( $status_label ) : ?>
-                    <span class="<?php echo esc_attr( $status_class ); ?>">
-                      <?php echo esc_html( $status_label ); ?>
-                    </span>
-                  <?php endif; ?>
-                  <?php foreach ( $hero_highlights as $highlight ) : ?>
-                    <span class="pill pill--brand">
-                      <?php echo esc_html( $highlight ); ?>
-                    </span>
-                  <?php endforeach; ?>
+                  <span class="<?php echo esc_attr( $status_class ); ?>">
+                    <?php echo esc_html( $status_label ); ?>
+                  </span>
                 </div>
               <?php endif; ?>
-
+            
               <?php if ( $display_title ) : ?>
                 <h1 class="property-hero__title"><?php echo esc_html( $display_title ); ?></h1>
               <?php endif; ?>
-
+            
               <?php if ( $tagline ) : ?>
                 <p class="property-hero__excerpt text-light"><?php echo esc_html( $tagline ); ?></p>
               <?php endif; ?>
-
+            
               <?php if ( $discretion_note ) : ?>
                 <p class="text-light text-sm mb-md">
                   <?php echo esc_html__( 'Discreet marketing. Further details on request.', 'hello-elementor-child' ); ?>
                 </p>
               <?php endif; ?>
-
+            
               <div class="property-hero__meta">
+            
                 <div class="property-hero__cta">
                   <a class="btn btn--solid btn--blue" href="#contact-form">
-                    <?php echo esc_html( $hero_cta_label ); ?>
+                    <?php echo esc_html( $primary_cta_label ); ?>
                   </a>
                   <a class="btn btn--solid btn--green" href="<?php echo esc_url( $secondary_cta_url ); ?>">
                     <?php echo esc_html( $secondary_cta_label ); ?>
                   </a>
                 </div>
-
+            
+                <?php if ( ! empty( $hero_highlights ) ) : ?>
+                  <div class="property-hero__pills hero-pills mb-md">
+                    <?php foreach ( $hero_highlights as $highlight ) : ?>
+                      <span class="pill pill--brand">
+                        <?php echo esc_html( $highlight ); ?>
+                      </span>
+                    <?php endforeach; ?>
+                  </div>
+                <?php endif; ?>
+            
                 <div class="hero-actions hero-pills">
-                  <a class="pill pill--green pill--lg" href="#gallery">
+                  <a class="pill pill--green" href="#gallery">
                     <svg class="icon pill__icon" aria-hidden="true" width="16" height="16">
                       <use href="#icon-gallery-stack" xlink:href="#icon-gallery-stack"></use>
                     </svg>
                     <span class="hero-pill__text">Gallery</span>
                   </a>
-
-                  <a class="pill pill--green pill--lg" href="#location">
+            
+                  <a class="pill pill--green" href="#location">
                     <svg class="icon pill__icon" aria-hidden="true" width="16" height="16">
                       <use href="#icon-map" xlink:href="#icon-map"></use>
                     </svg>
                     <span class="hero-pill__text">Map</span>
                   </a>
-
-                  <a class="pill pill--green pill--lg" href="#floorplans">
+            
+                  <a class="pill pill--green" href="#floorplans">
                     <svg class="icon pill__icon" aria-hidden="true" width="16" height="16">
                       <use href="#icon-floor-plan" xlink:href="#icon-floor-plan"></use>
                     </svg>
                     <span class="hero-pill__text">Floorplans</span>
                   </a>
                 </div>
+            
               </div>
             </div>
 
