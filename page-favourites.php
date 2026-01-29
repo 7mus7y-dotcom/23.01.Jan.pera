@@ -46,6 +46,35 @@ if ( $logged_in ) {
   $hero_subtext = $hero_subtext_guest_empty;
 }
 
+$first_name = '';
+$last_name = '';
+$email = '';
+$phone = '';
+$favourites_ids_csv = $logged_in && $favourites ? implode( ',', $favourites ) : '';
+
+if ( $logged_in ) {
+  $current_user = wp_get_current_user();
+  $first_name = get_user_meta( $current_user->ID, 'first_name', true );
+  $last_name  = get_user_meta( $current_user->ID, 'last_name', true );
+  $email      = $current_user->user_email;
+
+  $phone_keys = array( 'phone', 'mobile', 'billing_phone' );
+  foreach ( $phone_keys as $phone_key ) {
+    $candidate = get_user_meta( $current_user->ID, $phone_key, true );
+    if ( $candidate ) {
+      $phone = $candidate;
+      break;
+    }
+  }
+}
+
+$first_name = trim( (string) $first_name );
+$last_name  = trim( (string) $last_name );
+$email      = trim( (string) $email );
+$phone      = trim( (string) $phone );
+
+$favourites_success = isset( $_GET['enquiry'] ) && $_GET['enquiry'] === 'sent';
+
 get_header();
 ?>
 
@@ -108,6 +137,98 @@ get_header();
       </p>
     </div>
 
+  </section>
+
+  <section class="section" id="favourites-enquiry">
+    <div class="container">
+      <header class="section-header">
+        <h2>Enquire on your saved properties</h2>
+        <?php if ( $logged_in ) : ?>
+          <p>Your details are prefilled from your account. Send one message and we’ll come back with availability, pricing, and options.</p>
+        <?php else : ?>
+          <p>Send one message for all saved properties. Your shortlist is saved on this device.</p>
+        <?php endif; ?>
+      </header>
+
+      <a class="btn btn--solid btn--blue" href="#favourites-enquiry">Make an enquiry on all favourites</a>
+
+      <?php if ( $favourites_success ) : ?>
+        <div class="form-success">
+          Thank you – we have received your favourites enquiry. A Pera consultant will contact you shortly.
+        </div>
+      <?php endif; ?>
+
+      <style>
+        .fav-hp-field {
+          position: absolute;
+          left: -9999px;
+          width: 1px;
+          height: 1px;
+          overflow: hidden;
+        }
+      </style>
+
+      <form class="enquiry-cta-form m-sm" action="" method="post">
+        <input type="hidden" name="fav_enquiry_action" value="1">
+        <?php wp_nonce_field( 'pera_favourites_enquiry', 'fav_nonce' ); ?>
+
+        <div class="fav-hp-field" aria-hidden="true">
+          <label for="fav_company">Company</label>
+          <input type="text" name="fav_company" id="fav_company" value="" autocomplete="off" tabindex="-1">
+        </div>
+
+        <input type="hidden" name="fav_post_ids" id="fav_post_ids" value="<?php echo esc_attr( $favourites_ids_csv ); ?>">
+
+        <div class="cta-fieldset">
+          <?php if ( ! $first_name ) : ?>
+            <div class="cta-field">
+              <label class="cta-label" for="fav_first_name">First name</label>
+              <input type="text" name="fav_first_name" id="fav_first_name" class="cta-control" required placeholder="Your first name">
+            </div>
+          <?php else : ?>
+            <input type="hidden" name="fav_first_name" value="<?php echo esc_attr( $first_name ); ?>">
+          <?php endif; ?>
+
+          <?php if ( ! $last_name ) : ?>
+            <div class="cta-field">
+              <label class="cta-label" for="fav_last_name">Last name</label>
+              <input type="text" name="fav_last_name" id="fav_last_name" class="cta-control" required placeholder="Your last name">
+            </div>
+          <?php else : ?>
+            <input type="hidden" name="fav_last_name" value="<?php echo esc_attr( $last_name ); ?>">
+          <?php endif; ?>
+
+          <?php if ( ! $email ) : ?>
+            <div class="cta-field">
+              <label class="cta-label" for="fav_email">Email</label>
+              <input type="email" name="fav_email" id="fav_email" class="cta-control" required placeholder="name@example.com">
+            </div>
+          <?php else : ?>
+            <input type="hidden" name="fav_email" value="<?php echo esc_attr( $email ); ?>">
+          <?php endif; ?>
+
+          <?php if ( ! $phone ) : ?>
+            <div class="cta-field">
+              <label class="cta-label" for="fav_phone">Mobile</label>
+              <input type="text" name="fav_phone" id="fav_phone" class="cta-control" required placeholder="+90 … or your international number">
+            </div>
+          <?php else : ?>
+            <input type="hidden" name="fav_phone" value="<?php echo esc_attr( $phone ); ?>">
+          <?php endif; ?>
+
+          <div class="cta-field">
+            <label class="cta-label" for="fav_message">Message (optional)</label>
+            <textarea name="fav_message" id="fav_message" rows="4" class="cta-control" placeholder="Tell us what you need (availability, brochure request, viewing, questions, etc.)."></textarea>
+          </div>
+
+          <div class="enquiry-cta-footer">
+            <button type="submit" class="btn btn--solid btn--green">
+              Send enquiry
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
   </section>
 
   <section class="section">
