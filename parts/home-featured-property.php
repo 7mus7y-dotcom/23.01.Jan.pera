@@ -147,117 +147,118 @@ $secondary_cta = isset($args['secondary_cta']) && is_array($args['secondary_cta'
 
 
 <section class="section home-featured">
-    <div class="content-panel-box border-dm">
-      <div class="content-panel-grid">
+  <article class="property-card property-card--archive">
+    <div class="property-card__inner">
+      <p class="home-featured__kicker text-upper text-xs">
+        <?php echo esc_html( $kicker ); ?>
+      </p>
 
-          <p class="home-featured__kicker text-upper text-xs">
-            <?php echo esc_html( $kicker ); ?>
-          </p>
-        
-          <h2 class="home-featured__title">
-            <a href="<?php echo esc_url( $permalink ); ?>">
-              <?php echo esc_html( $title ); ?>
-            </a>
-          </h2>
+      <h2 class="property-card__title">
+        <a href="<?php echo esc_url( $permalink ); ?>" class="property-card__title-link">
+          <?php echo esc_html( $title ); ?>
+        </a>
+      </h2>
 
-      </div>
+      <?php if ( $img_id ) : ?>
+        <div class="property-card__media">
+          <a
+            href="<?php echo esc_url( $permalink ); ?>"
+            class="property-card__media-link"
+            aria-label="<?php echo esc_attr( $title ); ?>"
+          >
+            <?php
+              echo wp_get_attachment_image(
+                $img_id,
+                'pera-card',
+                false,
+                [
+                  'alt'      => esc_attr( $img_alt ),
+                  'loading'  => 'lazy',
+                  'decoding' => 'async',
+                  'sizes'    => '(max-width: 768px) 92vw, 520px',
+                ]
+              );
+            ?>
+          </a>
+        </div>
+      <?php endif; ?>
 
-      <div class="content-panel-grid home-featured__inner">
+      <div class="home-featured__content property-card__body">
 
-        <?php if ( $img_id ) : ?>
-          <div class="home-featured__media media-frame media-frame--image-fill">
-            <a href="<?php echo esc_url( $permalink ); ?>" aria-label="<?php echo esc_attr( $title ); ?>">
-              <?php
-                echo wp_get_attachment_image(
-                  $img_id,
-                  'pera-card', // use your existing image size
-                  false,
-                  [
-                    'class'    => 'media-image',
-                    'alt'      => esc_attr( $img_alt ),
-                    'loading'  => 'lazy',
-                    'decoding' => 'async',
-                    // Optional, but helps WP pick the right file in srcset:
-                    'sizes'    => '(max-width: 768px) 92vw, 520px',
-                  ]
-                );
-              ?>
-            </a>
+        <?php if ( $district || $region ) : ?>
+          <div class="property-card__location">
+            <?php if ( $district ) : ?>
+              <a href="<?php echo esc_url( get_term_link( $district ) ); ?>" class="property-card__location-link">
+                <?php echo esc_html( $district->name ); ?>
+              </a>
+            <?php endif; ?>
+
+            <?php if ( $region ) : ?>
+              <a href="<?php echo esc_url( get_term_link( $region ) ); ?>" class="property-card__location-link">
+                <?php echo esc_html( $region->name ); ?>
+              </a>
+            <?php endif; ?>
           </div>
         <?php endif; ?>
 
+        <?php if ( $excerpt ) : ?>
+          <p class="property-card__excerpt">
+            <?php echo esc_html( $excerpt ); ?>
+          </p>
+        <?php endif; ?>
 
-        <div class="home-featured__content">
+      </div><!-- /.home-featured__content -->
 
-          <?php if ( $district || $region ) : ?>
-            <div class="home-featured__meta pb-md">
-              <?php if ( $district ) : ?>
-                <a class="pill pill--outline" href="<?php echo esc_url( get_term_link( $district ) ); ?>">
-                  <?php echo esc_html( $district->name ); ?>
-                </a>
-              <?php endif; ?>
+      <div class="property-card__footer">
 
-              <?php if ( $region ) : ?>
-                <a class="pill pill--outline" href="<?php echo esc_url( get_term_link( $region ) ); ?>">
-                  <?php echo esc_html( $region->name ); ?>
-                </a>
-              <?php endif; ?>
-            </div>
-          <?php endif; ?>
-
-          <?php if ( $excerpt ) : ?>
-            <p class="home-featured__excerpt">
-              <?php echo esc_html( $excerpt ); ?>
-            </p>
-          <?php endif; ?>
-
-          <?php if ( $price_label ) : ?>
-            <div class="home-featured__price">
+        <?php if ( $price_label ) : ?>
+          <div class="property-card__footer-row property-card__footer-row--top">
+            <span class="property-card__price">
               <?php echo esc_html( $price_label ); ?>
-            </div>
-          <?php endif; ?>
-
-          <?php if ( ! empty( $project_summary_items ) ) : ?>
-            <ul class="checklist">
-              <?php foreach ( $project_summary_items as $summary_item ) : ?>
-                <li>
-                  <svg class="icon-check checklist-icon" aria-hidden="true" focusable="false" width="18" height="18">
-                    <use href="<?php echo esc_url( get_stylesheet_directory_uri() . '/logos-icons/icons.svg#icon-check' ); ?>"></use>
-                  </svg>
-                  <span class="text-sm"><?php echo wp_kses_post( $summary_item ); ?></span>
-                </li>
-              <?php endforeach; ?>
-            </ul>
-          <?php endif; ?>
-
-          <?php if ( ! empty( $points ) ) : ?>
-            <ul class="home-featured__points text-sm">
-              <?php foreach ( $points as $pt ) : ?>
-                <li><?php echo esc_html( $pt ); ?></li>
-              <?php endforeach; ?>
-            </ul>
-          <?php endif; ?>
-
-          <?php if ( $guide_url ) : ?>
-            <p class="home-featured__guide">
-              <a href="<?php echo esc_url( $guide_url ); ?>" target="_blank" rel="noopener">
-                <?php echo esc_html( $guide_label ); ?>
-              </a>
-            </p>
-          <?php endif; ?>
-
-          <div class="home-featured__actions">
-            <a class="btn btn--solid btn--blue" href="<?php echo esc_url( $primary_cta['url'] ); ?>">
-              <?php echo esc_html( $primary_cta['label'] ); ?>
-            </a>
-
-            <a class="btn btn--ghost btn--green" href="<?php echo esc_url( $secondary_cta['url'] ); ?>">
-              <?php echo esc_html( $secondary_cta['label'] ); ?>
-            </a>
+            </span>
           </div>
+        <?php endif; ?>
 
-        </div><!-- /.home-featured__content -->
-      </div><!-- /.content-panel-grid -->
+        <?php if ( ! empty( $project_summary_items ) ) : ?>
+          <ul class="checklist">
+            <?php foreach ( $project_summary_items as $summary_item ) : ?>
+              <li>
+                <svg class="icon-check checklist-icon" aria-hidden="true" focusable="false" width="18" height="18">
+                  <use href="<?php echo esc_url( get_stylesheet_directory_uri() . '/logos-icons/icons.svg#icon-check' ); ?>"></use>
+                </svg>
+                <span class="text-sm"><?php echo wp_kses_post( $summary_item ); ?></span>
+              </li>
+            <?php endforeach; ?>
+          </ul>
+        <?php endif; ?>
 
-    </div><!-- /.content-panel-box -->
+        <?php if ( ! empty( $points ) ) : ?>
+          <ul class="home-featured__points text-sm">
+            <?php foreach ( $points as $pt ) : ?>
+              <li><?php echo esc_html( $pt ); ?></li>
+            <?php endforeach; ?>
+          </ul>
+        <?php endif; ?>
+
+        <?php if ( $guide_url ) : ?>
+          <p class="home-featured__guide">
+            <a href="<?php echo esc_url( $guide_url ); ?>" target="_blank" rel="noopener">
+              <?php echo esc_html( $guide_label ); ?>
+            </a>
+          </p>
+        <?php endif; ?>
+
+        <div class="home-featured__actions">
+          <a class="btn btn--solid btn--blue" href="<?php echo esc_url( $primary_cta['url'] ); ?>">
+            <?php echo esc_html( $primary_cta['label'] ); ?>
+          </a>
+
+          <a class="btn btn--ghost btn--green" href="<?php echo esc_url( $secondary_cta['url'] ); ?>">
+            <?php echo esc_html( $secondary_cta['label'] ); ?>
+          </a>
+        </div>
+
+      </div><!-- /.property-card__footer -->
+    </div><!-- /.property-card__inner -->
+  </article>
 </section>
