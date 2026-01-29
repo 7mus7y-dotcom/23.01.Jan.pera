@@ -156,7 +156,7 @@ $logo_path = get_stylesheet_directory() . '/logos-icons/pera-logo.svg';
               <a href="<?php echo esc_url( $logout_url ); ?>" class="btn btn--solid btn--green" rel="nofollow">
                 Log out
               </a>
-              <a href="<?php echo esc_url( $favourites_url ); ?>" class="btn btn--ghost btn--white">
+              <a href="<?php echo esc_url( $favourites_url ); ?>" class="btn btn--solid btn--black">
                 Favourites
               </a>
             </div>
@@ -178,8 +178,8 @@ $logo_path = get_stylesheet_directory() . '/logos-icons/pera-logo.svg';
                 <?php if ( $recent_query->have_posts() ) : ?>
                   <?php while ( $recent_query->have_posts() ) : ?>
                     <?php $recent_query->the_post(); ?>
-                    <h3 class="offcanvas-director-text">
-                      <a href="<?php the_permalink(); ?>"><?php the_title(); ?></a>
+                    <h3 class="offcanvas-director-title">
+                      <a href="<?php the_permalink(); ?>" class="offcanvas-director-title"><?php the_title(); ?></a>
                     </h3>
                   <?php endwhile; ?>
                 <?php else : ?>
