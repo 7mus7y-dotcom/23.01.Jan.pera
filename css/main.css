@@ -3632,6 +3632,11 @@ body:not(.single-post) tr:nth-child(even) {
   grid-template-columns: 1fr;
 }
 
+/* Home Featured: keep kicker + title stacked on desktop */
+.home-featured > .content-panel-box > .content-panel-grid {
+  grid-template-columns: 1fr;
+}
+
 
 .home-featured__title {
   margin: 0 0 6px;
