@@ -475,6 +475,23 @@ add_filter( 'style_loader_tag', function ( $html, $handle ) {
 
 }, 10, 2 );
 
+add_filter( 'script_loader_tag', function ( $tag, $handle ) {
+  $defer_scripts = array(
+    'pera-favourites',
+    'pera-home-hero-search',
+  );
+
+  if ( ! in_array( $handle, $defer_scripts, true ) ) {
+    return $tag;
+  }
+
+  if ( false !== strpos( $tag, ' defer' ) ) {
+    return $tag;
+  }
+
+  return str_replace( ' src=', ' defer src=', $tag );
+}, 10, 2 );
+
 
 /* =======================================================
    6. REGISTER 450px card size
@@ -651,13 +668,21 @@ add_action('login_init', function () {
    PRELOAD MONTSERRAT (ALL PAGES)
    ======================================================= */
 function pera_preload_fonts() {
-  $base = get_stylesheet_directory_uri() . '/fonts/';
+  $base_uri  = get_stylesheet_directory_uri() . '/fonts/';
+  $base_path = get_stylesheet_directory() . '/fonts/';
+  $fonts     = array(
+    'Montserrat-Regular.woff2',
+    'Montserrat-Bold.woff2',
+    'Montserrat-ExtraBold.woff2',
+  );
 
-  echo '<link rel="preload" as="font" href="' . esc_url( $base . 'Montserrat-Regular.woff2' ) . '" type="font/woff2" crossorigin>' . "\n";
-  // Optional (recommended if you actually use these weights site-wide):
-  // echo '<link rel="preload" as="font" href="' . esc_url( $base . 'Montserrat-Medium.woff2' )  . '" type="font/woff2" crossorigin>' . "\n";
-  // echo '<link rel="preload" as="font" href="' . esc_url( $base . 'Montserrat-SemiBold.woff2' ) . '" type="font/woff2" crossorigin>' . "\n";
-  // echo '<link rel="preload" as="font" href="' . esc_url( $base . 'Montserrat-Bold.woff2' ) . '" type="font/woff2" crossorigin>' . "\n";
+  foreach ( $fonts as $font ) {
+    if ( ! file_exists( $base_path . $font ) ) {
+      continue;
+    }
+
+    echo '<link rel="preload" as="font" href="' . esc_url( $base_uri . $font ) . '" type="font/woff2" crossorigin>' . "\n";
+  }
 }
 add_action( 'wp_head', 'pera_preload_fonts', 1 );
 
