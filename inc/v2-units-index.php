@@ -779,7 +779,7 @@ if ( ! function_exists( 'pera_v2_render_units_price_table' ) ) {
       <section class="section section-soft property-price-range">
     <?php endif; ?>
 
-      <div class="content-panel-box">
+      <div>
 
         <header class="section-header p-sm">
           <h2>Price range</h2>
