@@ -1316,6 +1316,19 @@ body.is-lightbox-open{ overflow: hidden; }
     border: 1px solid rgba(255,255,255,0.18);
   }
 
+  .property-filter-dialog__close{
+    color: #ffffff;
+    border-color: #ffffff;
+  }
+
+  .property-filter-dialog__close:hover,
+  .property-filter-dialog__close:focus,
+  .property-filter-dialog__close:focus-visible{
+    color: #ffffff;
+    border-color: #ffffff;
+    background-color: transparent;
+  }
+
   /* Slider track in dark mode */
   .filter-price__slider input[type="range"]::-webkit-slider-runnable-track{
     background: #1f2937;
