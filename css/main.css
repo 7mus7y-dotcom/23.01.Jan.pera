@@ -3628,6 +3628,11 @@ body:not(.single-post) tr:nth-child(even) {
   color: var(--text-soft);
 }
 
+.home-featured__inner {
+  grid-template-columns: 1fr;
+}
+
+
 .home-featured__title {
   margin: 0 0 6px;
 }

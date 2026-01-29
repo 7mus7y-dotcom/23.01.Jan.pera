@@ -254,12 +254,10 @@ $beds_options = array( 1, 2, 3, 4, 5, 6 );
     </div>
   </div>
 </section>
-
-
 <?php
 /* ======================================================
    FEATURED OPPORTUNITIES (HOME)
-   Uses existing parts/property-card
+   Uses existing parts/property-card-v2
    ====================================================== */
 $featured_count = 6;
 
@@ -318,10 +316,19 @@ $featured_query = new WP_Query( array(
   </div>
 </section>
 
+<?php wp_reset_postdata(); ?>
+
+<?php
+/* ======================================================
+   FEATURED PICKS (HOME)
+   Uses existing parts/featured-villa + parts/featured-apartment
+   IMPORTANT: reuse existing slider class stack (slider.css expects these)
+   ====================================================== */
+?>
 
 <section class="section featured-picks">
   <div class="container">
-    <div class="cards-slider cards-slider--snap cards-slider--featured-picks" aria-label="Featured picks">
+    <div class="cards-slider cards-slider--features cards-slider--snap cards-slider--grid-lg" aria-label="Featured picks">
       <div class="slider-card">
         <?php get_template_part( 'parts/featured-villa' ); ?>
       </div>
@@ -332,8 +339,6 @@ $featured_query = new WP_Query( array(
   </div>
 </section>
 
-
-<?php wp_reset_postdata(); ?>
 
 
 <!-- ======================================================
