@@ -131,6 +131,75 @@ $logo_path = get_stylesheet_directory() . '/logos-icons/pera-logo.svg';
       </div>
 
       <aside class="offcanvas-main-right">
+        <?php
+        $favourites_page = get_page_by_path( 'favourites' );
+        $favourites_url = $favourites_page ? get_permalink( $favourites_page ) : home_url( '/favourites/' );
+        $login_url = wp_login_url();
+        $logout_url = wp_logout_url( home_url( '/' ) );
+        $latest_favourite_id = 0;
+
+        if ( is_user_logged_in() && function_exists( 'pera_get_user_favourites' ) ) {
+          $favourites = pera_get_user_favourites( get_current_user_id() );
+          if ( ! empty( $favourites ) ) {
+            $latest_favourite_id = absint( end( $favourites ) );
+          }
+        }
+        ?>
+
+        <section id="offcanvas-user-panel" class="offcanvas-user-panel">
+          <?php if ( is_user_logged_in() ) : ?>
+            <h2 class="offcanvas-director-title">Welcome back</h2>
+            <div class="offcanvas-contact-details">
+              <a href="<?php echo esc_url( $logout_url ); ?>" class="btn btn--solid btn--green" rel="nofollow">
+                Log out
+              </a>
+              <a href="<?php echo esc_url( $favourites_url ); ?>" class="btn btn--ghost btn--white">
+                Favourites
+              </a>
+            </div>
+
+            <?php if ( $latest_favourite_id && function_exists( 'pera_is_valid_property_post' ) && pera_is_valid_property_post( $latest_favourite_id ) ) : ?>
+              <?php
+              $latest_query = new WP_Query(
+                array(
+                  'post_type'      => 'property',
+                  'post_status'    => 'publish',
+                  'p'              => $latest_favourite_id,
+                  'posts_per_page' => 1,
+                )
+              );
+              ?>
+              <?php if ( $latest_query->have_posts() ) : ?>
+                <?php $latest_query->the_post(); ?>
+                <?php set_query_var( 'pera_property_card_args', array( 'variant' => 'archive' ) ); ?>
+                <?php get_template_part( 'parts/property-card-v2' ); ?>
+                <?php set_query_var( 'pera_property_card_args', array() ); ?>
+              <?php endif; ?>
+              <?php wp_reset_postdata(); ?>
+              <div class="offcanvas-contact-details">
+                <a href="<?php echo esc_url( $favourites_url ); ?>" class="btn btn--ghost btn--white">
+                  See favourites
+                </a>
+              </div>
+            <?php else : ?>
+              <p class="offcanvas-director-text">You haven’t saved any properties yet.</p>
+              <div class="offcanvas-contact-details">
+                <a href="<?php echo esc_url( $favourites_url ); ?>" class="btn btn--ghost btn--white">
+                  See favourites
+                </a>
+              </div>
+            <?php endif; ?>
+          <?php else : ?>
+            <h2 class="offcanvas-director-title">Client area</h2>
+            <p class="offcanvas-director-text">Log in to keep your favourites synced across devices.</p>
+            <div class="offcanvas-contact-details">
+              <a href="<?php echo esc_url( $login_url ); ?>" class="btn btn--solid btn--green">
+                Client login
+              </a>
+            </div>
+          <?php endif; ?>
+        </section>
+
         <h2 class="offcanvas-director-title">Message from our Director</h2>
         <p class="offcanvas-director-text">
           Istanbul real estate is a long-term, relationship-based business.
@@ -212,18 +281,6 @@ $logo_path = get_stylesheet_directory() . '/logos-icons/pera-logo.svg';
             <use href="<?php echo esc_url( get_stylesheet_directory_uri() . '/logos-icons/icons.svg#icon-envelope' ); ?>"></use>
           </svg>
         </a>
-      </div>
-
-      <div class="offcanvas-contact-login">
-        <?php if ( is_user_logged_in() ) : ?>
-          <a href="<?php echo esc_url( wp_logout_url( home_url( '/' ) ) ); ?>" class="btn btn--solid btn--green" rel="nofollow">
-            Log out
-          </a>
-        <?php else : ?>
-          <a href="<?php echo esc_url( wp_login_url() ); ?>" class="btn btn--solid btn--green">
-            Client login
-          </a>
-        <?php endif; ?>
       </div>
 
     </div>

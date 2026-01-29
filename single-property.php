@@ -546,7 +546,7 @@ $has_further_reading = ! empty( $post_ids );
       <!-- CTA -->
       <div class="property-hero__cta">
         <button
-          class="fav-toggle property-hero__fav"
+          class="fav-toggle"
           type="button"
           aria-pressed="false"
           aria-label="Add to favourites"
