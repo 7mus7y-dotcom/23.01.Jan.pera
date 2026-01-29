@@ -325,7 +325,7 @@ get_header();
 		<!-- =====================================
 		   HERO (BODRUM PROPERTY)
 		===================================== -->
-        <section class="hero hero--left" id="bodrum-hero">
+        <section class="hero hero--left property-hero" id="bodrum-hero">
             <?php if ( $has_hero_media ) : ?>
                 <div class="hero__media" aria-hidden="true">
                     <?php if ( $use_video ) : ?>
