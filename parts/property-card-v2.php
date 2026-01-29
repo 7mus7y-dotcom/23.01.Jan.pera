@@ -255,52 +255,54 @@ if ( $size_min > 0 ) {
         </div>
       <?php endif; ?>
 
-      <?php if ( $show_admin && current_user_can( 'edit_post', $post_id ) ) : ?>
-        <div class="property-card__admin-pills">
+      <div class="property-card__topright">
+        <button
+          class="fav-toggle"
+          type="button"
+          aria-pressed="false"
+          aria-label="Add to favourites"
+          data-post-id="<?php echo esc_attr( $post_id ); ?>"
+        >
+          <span class="fav-toggle__icon" aria-hidden="true">
+            <svg class="icon icon-heart icon-heart--outline" aria-hidden="true" focusable="false">
+              <use href="<?php echo esc_url( get_stylesheet_directory_uri() . '/logos-icons/icons.svg#icon-heart' ); ?>"></use>
+            </svg>
+            <svg class="icon icon-heart icon-heart--filled" aria-hidden="true" focusable="false">
+              <use
+                href="<?php echo esc_url( get_stylesheet_directory_uri() . '/logos-icons/icons.svg#icon-heart' ); ?>"
+                fill="currentColor"
+                stroke="none"
+              ></use>
+            </svg>
+          </span>
+          <span class="fav-minus" aria-hidden="true">
+            <svg class="icon icon-minus" aria-hidden="true" focusable="false">
+              <use href="<?php echo esc_url( get_stylesheet_directory_uri() . '/logos-icons/icons.svg#icon-heart-remove' ); ?>"></use>
+            </svg>
+          </span>
+        </button>
 
-          <?php if ( $project_name !== '' ) : ?>
-            <div class="pill pill--brand pill--sm">
-              <?php echo esc_html( $project_name ); ?>
-            </div>
-          <?php endif; ?>
+        <?php if ( $show_admin && current_user_can( 'edit_post', $post_id ) ) : ?>
+          <div class="property-card__admin-pills">
 
-          <a
-            href="<?php echo esc_url( get_edit_post_link( $post_id ) ); ?>"
-            class="pill pill--brand text-xs"
-            target="_blank"
-            rel="noopener"
-          >
-            Edit
-          </a>
+            <?php if ( $project_name !== '' ) : ?>
+              <div class="pill pill--brand pill--sm">
+                <?php echo esc_html( $project_name ); ?>
+              </div>
+            <?php endif; ?>
 
-        </div>
-      <?php endif; ?>
+            <a
+              href="<?php echo esc_url( get_edit_post_link( $post_id ) ); ?>"
+              class="pill pill--brand text-xs"
+              target="_blank"
+              rel="noopener"
+            >
+              Edit
+            </a>
 
-      <button
-        class="fav-toggle"
-        type="button"
-        aria-pressed="false"
-        aria-label="Add to favourites"
-        data-post-id="<?php echo esc_attr( $post_id ); ?>"
-      >
-        <span class="fav-toggle__icon" aria-hidden="true">
-          <svg class="icon icon-heart icon-heart--outline" aria-hidden="true" focusable="false">
-            <use href="<?php echo esc_url( get_stylesheet_directory_uri() . '/logos-icons/icons.svg#icon-heart' ); ?>"></use>
-          </svg>
-          <svg class="icon icon-heart icon-heart--filled" aria-hidden="true" focusable="false">
-            <use
-              href="<?php echo esc_url( get_stylesheet_directory_uri() . '/logos-icons/icons.svg#icon-heart' ); ?>"
-              fill="currentColor"
-              stroke="none"
-            ></use>
-          </svg>
-        </span>
-        <span class="fav-minus" aria-hidden="true">
-          <svg class="icon icon-minus" aria-hidden="true" focusable="false">
-            <use href="<?php echo esc_url( get_stylesheet_directory_uri() . '/logos-icons/icons.svg#icon-heart-remove' ); ?>"></use>
-          </svg>
-        </span>
-      </button>
+          </div>
+        <?php endif; ?>
+      </div>
 
       <a href="<?php echo esc_url( $card_url ); ?>" class="property-card__media-link">
         <?php if ( $image_id ) : ?>
