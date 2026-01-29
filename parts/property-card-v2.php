@@ -28,6 +28,7 @@ $card_classes  = trim( $extra_classes . ' property-card property-card--' . $vari
 
 $post_id          = get_the_ID();
 $v2_beds_selected = isset( $card_args['v2_beds'] ) ? (int) $card_args['v2_beds'] : 0;
+$title            = get_the_title( $post_id );
 
 /* ============================================================
    URL (Option A)
@@ -304,7 +305,11 @@ if ( $size_min > 0 ) {
         <?php endif; ?>
       </div>
 
-      <a href="<?php echo esc_url( $card_url ); ?>" class="property-card__media-link">
+      <a
+        href="<?php echo esc_url( $card_url ); ?>"
+        class="property-card__media-link"
+        aria-label="<?php echo esc_attr( sprintf( 'View property: %s', $title ) ); ?>"
+      >
         <?php if ( $image_id ) : ?>
           <?php
             echo wp_get_attachment_image(
@@ -312,6 +317,7 @@ if ( $size_min > 0 ) {
               $image_size,
               false,
               array(
+                'alt'      => esc_attr( $title ),
                 'loading'  => 'lazy',
                 'decoding' => 'async',
               )
