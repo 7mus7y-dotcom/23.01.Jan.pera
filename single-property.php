@@ -969,9 +969,9 @@ $custom_video_text = $custom_video_text ? wp_kses_post( wpautop( $custom_video_t
 
         if ( ! empty( $selected_advisors ) ) :
         ?>
-          <div class="content-panel-box">
+          <div class="card-shell">
             <header class="section-header p-sm">
-              <h2>Contact an agent</h2>
+              <h3>Contact an agent</h3>
               <p>Message us on WhatsApp for availability, pricing, and floor plans.</p>
             </header>
 
