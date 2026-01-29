@@ -4,6 +4,10 @@
   const nonce = data.nonce || '';
   const isLoggedIn = Boolean(data.is_logged_in);
   const storageKey = 'pera_favourites';
+  const favouritesGrid = document.getElementById('favourites-grid');
+  const favouritesHeroSubtext = document.getElementById('favourites-hero-subtext');
+  const favouritesCountLabel = document.querySelector('[data-favourites-count]');
+  const favouritesEmptyState = document.getElementById('favourites-empty');
 
   const parseIds = (value) => {
     if (!Array.isArray(value)) {
@@ -61,6 +65,73 @@
       }
       updateButton(button, favourites.has(postId));
     });
+  };
+
+  const updateFavouritesHero = (count) => {
+    if (favouritesCountLabel) {
+      favouritesCountLabel.textContent = String(count);
+    }
+
+    if (favouritesHeroSubtext) {
+      const text = isLoggedIn
+        ? count > 0
+          ? favouritesHeroSubtext.dataset.loggedHas
+          : favouritesHeroSubtext.dataset.loggedEmpty
+        : count > 0
+          ? favouritesHeroSubtext.dataset.guestHas
+          : favouritesHeroSubtext.dataset.guestEmpty;
+
+      if (text) {
+        favouritesHeroSubtext.textContent = text;
+      }
+    }
+
+    if (favouritesEmptyState) {
+      favouritesEmptyState.hidden = count > 0;
+    }
+  };
+
+  const renderFavouritesGrid = async (ids) => {
+    if (!ajaxUrl || !favouritesGrid) {
+      return;
+    }
+
+    if (!ids.length) {
+      favouritesGrid.innerHTML = '';
+      updateFavouritesHero(0);
+      return;
+    }
+
+    const body = new URLSearchParams();
+    body.set('action', 'pera_render_favourites');
+    body.set('nonce', nonce);
+    ids.forEach((id) => body.append('ids[]', String(id)));
+
+    try {
+      const response = await fetch(ajaxUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+        },
+        body,
+        credentials: 'same-origin',
+      });
+
+      const payload = await response.json();
+      if (!payload || !payload.success) {
+        throw new Error('Bad response');
+      }
+
+      const html = payload.data && payload.data.html ? payload.data.html : '';
+      const count = parseInt(payload.data && payload.data.count, 10) || 0;
+
+      favouritesGrid.innerHTML = html;
+      updateAllButtons();
+      updateFavouritesHero(count);
+    } catch (err) {
+      favouritesGrid.innerHTML = '<p class="text-soft">Unable to load favourites.</p>';
+      updateFavouritesHero(0);
+    }
   };
 
   const fetchServerFavourites = async () => {
@@ -148,18 +219,38 @@
 
     const wasFav = favourites.has(postId);
     const nextIsFav = !wasFav;
+    const isFavouritesPage = Boolean(favouritesGrid);
+    let removedCard = null;
+    let removedNextSibling = null;
+    let removedParent = null;
 
     if (nextIsFav) {
       favourites.add(postId);
     } else {
       favourites.delete(postId);
+
+      if (isFavouritesPage) {
+        const card = button.closest('article');
+        if (card && card.parentElement) {
+          removedCard = card;
+          removedNextSibling = card.nextSibling;
+          removedParent = card.parentElement;
+          removedParent.removeChild(card);
+        }
+      }
     }
 
     writeLocal(favourites);
     updateButtonsForId(postId);
+    if (isFavouritesPage) {
+      updateFavouritesHero(favourites.size);
+    }
 
     persistServerToggle(postId, nextIsFav).then((result) => {
       if (result.ok) {
+        if (isFavouritesPage) {
+          updateFavouritesHero(favourites.size);
+        }
         return;
       }
 
@@ -167,13 +258,29 @@
         favourites.delete(postId);
       } else {
         favourites.add(postId);
+
+        if (removedCard && removedParent) {
+          if (removedNextSibling) {
+            removedParent.insertBefore(removedCard, removedNextSibling);
+          } else {
+            removedParent.appendChild(removedCard);
+          }
+        }
       }
 
       writeLocal(favourites);
       updateButtonsForId(postId);
+      if (isFavouritesPage) {
+        updateFavouritesHero(favourites.size);
+      }
     });
   });
 
   updateAllButtons();
   fetchServerFavourites();
+
+  if (favouritesGrid && !isLoggedIn) {
+    const localIds = readLocal();
+    renderFavouritesGrid(localIds);
+  }
 })();
