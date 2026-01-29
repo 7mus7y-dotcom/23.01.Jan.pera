@@ -63,6 +63,59 @@ function pera_is_valid_property_post( int $post_id ): bool {
   return true;
 }
 
+/**
+ * Render property cards for favourites.
+ *
+ * @param int[] $ids
+ * @return array{html:string,count:int}
+ */
+function pera_render_favourite_cards( array $ids ): array {
+  $ids = array_map( 'absint', $ids );
+  $ids = array_filter( $ids );
+  $ids = array_values( array_unique( $ids ) );
+
+  if ( empty( $ids ) ) {
+    return array(
+      'html'  => '',
+      'count' => 0,
+    );
+  }
+
+  $query = new WP_Query(
+    array(
+      'post_type'      => 'property',
+      'post_status'    => 'publish',
+      'post__in'       => $ids,
+      'orderby'        => 'post__in',
+      'posts_per_page' => min( 48, count( $ids ) ),
+    )
+  );
+
+  ob_start();
+
+  if ( $query->have_posts() ) {
+    while ( $query->have_posts() ) {
+      $query->the_post();
+
+      set_query_var( 'pera_property_card_args', array(
+        'variant' => 'archive',
+      ) );
+
+      get_template_part( 'parts/property-card-v2' );
+
+      set_query_var( 'pera_property_card_args', array() );
+    }
+  }
+
+  $html = ob_get_clean();
+  wp_reset_postdata();
+
+  return array(
+    'html'  => $html,
+    'count' => (int) $query->post_count,
+  );
+}
+
 add_action( 'wp_ajax_pera_get_favourites', function () {
   check_ajax_referer( 'pera_favourites', 'nonce' );
 
@@ -74,6 +127,58 @@ add_action( 'wp_ajax_pera_get_favourites', function () {
   $favs = pera_get_user_favourites( $user_id );
 
   wp_send_json_success( array( 'favourites' => $favs ) );
+} );
+
+add_action( 'wp_ajax_pera_render_favourites', function () {
+  check_ajax_referer( 'pera_favourites', 'nonce' );
+
+  $raw_ids = isset( $_POST['ids'] ) ? $_POST['ids'] : array();
+
+  if ( is_string( $raw_ids ) ) {
+    $decoded = json_decode( $raw_ids, true );
+    if ( is_array( $decoded ) ) {
+      $raw_ids = $decoded;
+    } else {
+      $raw_ids = preg_split( '/[\\s,]+/', $raw_ids );
+    }
+  }
+
+  if ( ! is_array( $raw_ids ) ) {
+    $raw_ids = array();
+  }
+
+  $raw_ids = array_slice( $raw_ids, 0, 100 );
+  $ids = array_map( 'absint', $raw_ids );
+
+  $rendered = pera_render_favourite_cards( $ids );
+
+  wp_send_json_success( $rendered );
+} );
+
+add_action( 'wp_ajax_nopriv_pera_render_favourites', function () {
+  check_ajax_referer( 'pera_favourites', 'nonce' );
+
+  $raw_ids = isset( $_POST['ids'] ) ? $_POST['ids'] : array();
+
+  if ( is_string( $raw_ids ) ) {
+    $decoded = json_decode( $raw_ids, true );
+    if ( is_array( $decoded ) ) {
+      $raw_ids = $decoded;
+    } else {
+      $raw_ids = preg_split( '/[\\s,]+/', $raw_ids );
+    }
+  }
+
+  if ( ! is_array( $raw_ids ) ) {
+    $raw_ids = array();
+  }
+
+  $raw_ids = array_slice( $raw_ids, 0, 100 );
+  $ids = array_map( 'absint', $raw_ids );
+
+  $rendered = pera_render_favourite_cards( $ids );
+
+  wp_send_json_success( $rendered );
 } );
 
 add_action( 'wp_ajax_pera_toggle_favourite', function () {
