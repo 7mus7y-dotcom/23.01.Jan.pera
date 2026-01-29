@@ -10,6 +10,7 @@
   const favouritesEmptyState = document.getElementById('favourites-empty');
   const undoToast = document.getElementById('fav-undo-toast');
   const undoButton = undoToast ? undoToast.querySelector('[data-fav-undo]') : null;
+  const favouritesIdsInput = document.getElementById('fav_post_ids');
 
   const parseIds = (value) => {
     if (!Array.isArray(value)) {
@@ -39,6 +40,13 @@
     } catch (err) {
       // ignore storage errors
     }
+  };
+
+  const updateFavouritesIdsInput = () => {
+    if (!favouritesIdsInput) {
+      return;
+    }
+    favouritesIdsInput.value = Array.from(favourites).join(',');
   };
 
   let favourites = new Set(readLocal());
@@ -93,6 +101,7 @@
 
     favourites.add(postId);
     writeLocal(favourites);
+    updateFavouritesIdsInput();
     updateButtonsForId(postId);
 
     if (isFavouritesPage) {
@@ -116,6 +125,7 @@
 
       favourites.delete(postId);
       writeLocal(favourites);
+      updateFavouritesIdsInput();
       updateButtonsForId(postId);
 
       if (isFavouritesPage) {
@@ -221,9 +231,11 @@
       favouritesGrid.innerHTML = html;
       updateAllButtons();
       updateFavouritesHero(count);
+      updateFavouritesIdsInput();
     } catch (err) {
       favouritesGrid.innerHTML = '<p class="text-soft">Unable to load favourites.</p>';
       updateFavouritesHero(0);
+      updateFavouritesIdsInput();
     }
   };
 
@@ -254,6 +266,7 @@
       const serverFavs = parseIds(payload.data && payload.data.favourites);
       serverFavs.forEach((id) => favourites.add(id));
       writeLocal(favourites);
+      updateFavouritesIdsInput();
       updateAllButtons();
     } catch (err) {
       // ignore fetch errors
@@ -289,6 +302,7 @@
       const serverFavs = parseIds(payload.data && payload.data.favourites);
       favourites = new Set(serverFavs);
       writeLocal(favourites);
+      updateFavouritesIdsInput();
       updateAllButtons();
 
       return { ok: true };
@@ -346,6 +360,7 @@
     }
 
     writeLocal(favourites);
+    updateFavouritesIdsInput();
     updateButtonsForId(postId);
     if (isFavouritesPage) {
       updateFavouritesHero(favourites.size);
@@ -376,6 +391,7 @@
       }
 
       writeLocal(favourites);
+      updateFavouritesIdsInput();
       updateButtonsForId(postId);
       if (isFavouritesPage) {
         updateFavouritesHero(favourites.size);
@@ -385,6 +401,7 @@
 
   updateAllButtons();
   fetchServerFavourites();
+  updateFavouritesIdsInput();
 
   if (favouritesGrid && !isLoggedIn) {
     const localIds = readLocal();

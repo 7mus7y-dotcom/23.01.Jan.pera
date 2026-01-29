@@ -249,6 +249,171 @@ function pera_handle_citizenship_enquiry() {
   }
 
   /* ==============================
+   * C) FAVOURITES ENQUIRY BRANCH
+   * Trigger: <input type="hidden" name="fav_enquiry_action" value="1">
+   * ============================== */
+  if ( isset( $_POST['fav_enquiry_action'] ) ) {
+
+    if (
+      ! isset( $_POST['fav_nonce'] ) ||
+      ! wp_verify_nonce( $_POST['fav_nonce'], 'pera_favourites_enquiry' )
+    ) {
+      wp_die( 'Security check failed', 'Error', array( 'response' => 403 ) );
+    }
+
+    if ( ! empty( $_POST['fav_company'] ?? '' ) ) {
+      wp_die( 'Spam detected', 403 );
+    }
+
+    $raw_ids = $_POST['fav_post_ids'] ?? '';
+    $ids = array();
+
+    if ( is_array( $raw_ids ) ) {
+      $ids = array_map( 'absint', wp_unslash( $raw_ids ) );
+    } else {
+      $raw_ids = sanitize_text_field( wp_unslash( $raw_ids ) );
+      $parts = preg_split( '/[,\s]+/', $raw_ids );
+      $ids = array_map( 'absint', $parts ? $parts : array() );
+    }
+
+    $ids = array_values( array_unique( array_filter( $ids ) ) );
+    $ids = array_slice( $ids, 0, 100 );
+
+    $valid_posts = array();
+    if ( ! empty( $ids ) ) {
+      $valid_posts = get_posts(
+        array(
+          'post_type'      => 'property',
+          'post_status'    => 'publish',
+          'post__in'       => $ids,
+          'orderby'        => 'post__in',
+          'posts_per_page' => 100,
+        )
+      );
+    }
+
+    $first_name = '';
+    $last_name  = '';
+    $email      = '';
+    $phone      = '';
+
+    if ( is_user_logged_in() ) {
+      $current_user = wp_get_current_user();
+      $first_name = get_user_meta( $current_user->ID, 'first_name', true );
+      $last_name  = get_user_meta( $current_user->ID, 'last_name', true );
+      $email      = $current_user->user_email;
+
+      $phone_keys = array( 'phone', 'mobile', 'billing_phone' );
+      foreach ( $phone_keys as $phone_key ) {
+        $candidate = get_user_meta( $current_user->ID, $phone_key, true );
+        if ( $candidate ) {
+          $phone = $candidate;
+          break;
+        }
+      }
+    }
+
+    $first_name = $first_name ? $first_name : ( isset( $_POST['fav_first_name'] ) ? sanitize_text_field( wp_unslash( $_POST['fav_first_name'] ) ) : '' );
+    $last_name  = $last_name ? $last_name : ( isset( $_POST['fav_last_name'] ) ? sanitize_text_field( wp_unslash( $_POST['fav_last_name'] ) ) : '' );
+    $email      = $email ? $email : ( isset( $_POST['fav_email'] ) ? sanitize_email( wp_unslash( $_POST['fav_email'] ) ) : '' );
+    $phone      = $phone ? $phone : ( isset( $_POST['fav_phone'] ) ? sanitize_text_field( wp_unslash( $_POST['fav_phone'] ) ) : '' );
+
+    $message = isset( $_POST['fav_message'] )
+      ? sanitize_textarea_field( wp_unslash( $_POST['fav_message'] ) )
+      : '';
+
+    if ( ! $first_name || ! $last_name || ! $phone || ! is_email( $email ) ) {
+      wp_die( 'Required fields missing', 'Error', array( 'response' => 400 ) );
+    }
+
+    $full_name = trim( $first_name . ' ' . $last_name );
+    $to = 'info@peraproperty.com';
+    $subject = 'Favourites Enquiry — ' . ( $full_name ?: 'Website user' );
+
+    $body  = "User enquired on all favourites.\n\n";
+    $body .= "Name: {$full_name}\n";
+    $body .= "Email: {$email}\n";
+    $body .= "Mobile: {$phone}\n\n";
+
+    if ( $message !== '' ) {
+      $body .= "Message:\n{$message}\n\n";
+    }
+
+    $body .= "Favourites:\n";
+    $auto_favourites_lines = array();
+
+    if ( ! empty( $valid_posts ) ) {
+      foreach ( $valid_posts as $post ) {
+        $post_id = $post->ID;
+        $title = get_the_title( $post_id );
+        $link = get_permalink( $post_id );
+        $body .= '#' . $post_id . ' — ' . ( $title ?: 'Untitled' ) . "\n";
+        $body .= $link . "\n\n";
+        $auto_favourites_lines[] = ( $title ?: 'Untitled' ) . ' — ' . $link;
+      }
+    } else {
+      $body .= "No valid favourites were submitted.\n";
+    }
+
+    $headers = array(
+      'From: ' . ( $full_name ?: 'Website Enquiry' ) . ' <info@peraproperty.com>',
+      'Content-Type: text/plain; charset=UTF-8',
+    );
+
+    if ( is_email( $email ) ) {
+      $headers[] = 'Reply-To: ' . $full_name . ' <' . $email . '>';
+    }
+
+    $sent = wp_mail( $to, $subject, $body, $headers );
+
+    if ( $sent && is_email( $email ) ) {
+      $first = pera_enquiry_autoreply_first_name( $full_name );
+      $greeting = $first ? 'Hello ' . $first . ',' : 'Hello,';
+      $auto_lines = array(
+        $greeting,
+        "Thanks for your favourites enquiry. We'll respond shortly with details on the properties below.",
+        'Requested properties:',
+      );
+
+      if ( ! empty( $auto_favourites_lines ) ) {
+        foreach ( $auto_favourites_lines as $line ) {
+          $auto_lines[] = '- ' . $line;
+        }
+      } else {
+        $auto_lines[] = '- No properties were received.';
+      }
+
+      $auto_lines[] = 'If you need to add or update your list, reply to this email.';
+      $auto_lines[] = 'Pera Property';
+      $auto_lines[] = 'info@peraproperty.com';
+
+      $auto_subject = 'We received your favourites enquiry';
+      pera_send_enquiry_autoreply( 'favourites', $email, $auto_subject, $auto_lines );
+    }
+
+    if ( $sent && is_user_logged_in() && ! empty( $ids ) ) {
+      update_user_meta(
+        get_current_user_id(),
+        'pera_last_fav_enquiry',
+        array(
+          'timestamp' => current_time( 'mysql' ),
+          'ids'       => array_values( array_unique( array_map( 'absint', $ids ) ) ),
+        )
+      );
+    }
+
+    $redirect = ! empty( $_POST['_wp_http_referer'] )
+      ? esc_url_raw( wp_unslash( $_POST['_wp_http_referer'] ) )
+      : home_url( '/favourites/' );
+    $redirect = preg_replace( '/#.*$/', '', $redirect );
+    $redirect = add_query_arg( 'enquiry', $sent ? 'sent' : 'failed', $redirect );
+    $redirect .= '#favourites-enquiry';
+
+    wp_safe_redirect( $redirect );
+    exit;
+  }
+
+  /* ==============================
    * B) CITIZENSHIP ENQUIRY BRANCH
    * Trigger: <input type="hidden" name="pera_citizenship_action" value="1">
    * ============================== */
@@ -336,7 +501,7 @@ function pera_maybe_handle_citizenship_enquiry() {
     return;
   }
 
-  if ( isset( $_POST['sr_action'] ) || isset( $_POST['pera_citizenship_action'] ) ) {
+  if ( isset( $_POST['sr_action'] ) || isset( $_POST['pera_citizenship_action'] ) || isset( $_POST['fav_enquiry_action'] ) ) {
     pera_handle_citizenship_enquiry();
   }
 }
