@@ -29,6 +29,13 @@
   pointer-events: auto;
 }
 
+.property-card__media .fav-toggle {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 6;
+}
+
 /* Admin pills (top-right) */
 .property-card__admin-pills {
   top: 12px;

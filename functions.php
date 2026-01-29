@@ -14,6 +14,10 @@ require_once get_stylesheet_directory() . '/inc/taxonomy-meta.php';
  * Published term counts helper (publish-only counts for property CPT)
  */
 require_once get_stylesheet_directory() . '/inc/published-term-counts.php';
+/**
+ * Favourites (property)
+ */
+require_once get_stylesheet_directory() . '/inc/favourites.php';
 
 
 /**
@@ -352,6 +356,31 @@ if ( $needs_slider ) {
       get_stylesheet_directory_uri() . '/css/posts.css',
       $deps,
       filemtime( get_stylesheet_directory() . '/css/posts.css' )
+    );
+  }
+
+  /* =========================
+     7) favourites.js
+     Rule: home OR property archive OR single property
+  ========================= */
+
+  if ( $is_home || $is_property_archive || $is_single_property ) {
+    wp_enqueue_script(
+      'pera-favourites',
+      get_stylesheet_directory_uri() . '/js/favourites.js',
+      array(),
+      filemtime( get_stylesheet_directory() . '/js/favourites.js' ),
+      true
+    );
+
+    wp_localize_script(
+      'pera-favourites',
+      'peraFavourites',
+      array(
+        'ajax_url'     => admin_url( 'admin-ajax.php' ),
+        'nonce'        => wp_create_nonce( 'pera_favourites' ),
+        'is_logged_in' => is_user_logged_in(),
+      )
     );
   }
 

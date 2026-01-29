@@ -276,6 +276,28 @@ if ( $size_min > 0 ) {
         </div>
       <?php endif; ?>
 
+      <button
+        class="fav-toggle"
+        type="button"
+        aria-pressed="false"
+        aria-label="Add to favourites"
+        data-post-id="<?php echo esc_attr( $post_id ); ?>"
+      >
+        <span class="fav-toggle__icon" aria-hidden="true">
+          <svg class="icon icon-heart icon-heart--outline" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 6 4 4 6.5 4 8.24 4 9.91 5 12 7.09 14.09 5 15.76 4 17.5 4 20 4 22 6 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="none" stroke="currentColor" stroke-width="1.5"/>
+          </svg>
+          <svg class="icon icon-heart icon-heart--filled" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 6 4 4 6.5 4 8.24 4 9.91 5 12 7.09 14.09 5 15.76 4 17.5 4 20 4 22 6 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="currentColor"/>
+          </svg>
+        </span>
+        <span class="fav-minus" aria-hidden="true">
+          <svg class="icon icon-minus" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <rect x="5" y="11" width="14" height="2" rx="1" fill="currentColor"/>
+          </svg>
+        </span>
+      </button>
+
       <a href="<?php echo esc_url( $card_url ); ?>" class="property-card__media-link">
         <?php if ( $image_id ) : ?>
           <?php

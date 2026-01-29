@@ -673,6 +673,82 @@ section,
   flex-shrink: 0;
 }
 
+/* Favourite toggle (icon-only heart) */
+.fav-toggle {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  background: rgba(0, 0, 0, 0.35);
+  color: #ffffff;
+  cursor: pointer;
+  transition: background-color 160ms ease, border-color 160ms ease, color 160ms ease;
+}
+
+.fav-toggle:focus-visible {
+  outline: 0;
+  box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.2);
+}
+
+.fav-toggle__icon {
+  position: relative;
+  width: 20px;
+  height: 20px;
+}
+
+.fav-toggle__icon .icon {
+  position: absolute;
+  inset: 0;
+  width: 20px;
+  height: 20px;
+}
+
+.fav-toggle .icon-heart--filled {
+  opacity: 0;
+}
+
+.fav-toggle.is-fav {
+  color: var(--brand);
+  background: #ffffff;
+  border-color: var(--brand);
+}
+
+.fav-toggle.is-fav .icon-heart--filled {
+  opacity: 1;
+}
+
+.fav-toggle.is-fav .icon-heart--outline {
+  opacity: 0;
+}
+
+.fav-toggle .fav-minus {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 18px;
+  height: 18px;
+  transform: translate(-50%, -50%) scale(0.85);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 140ms ease, transform 140ms ease;
+  color: #ffffff;
+  background: var(--brand);
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.fav-toggle.is-fav:hover .fav-minus,
+.fav-toggle.is-fav:focus-visible .fav-minus {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+}
+
 
 /* Whatsapp style: green background, white glyph (when used as a filled button) */
 .btn-whatsapp {
