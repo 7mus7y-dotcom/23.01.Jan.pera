@@ -744,7 +744,15 @@ if ( ! function_exists( 'pera_v2_get_selected_unit' ) ) {
    Uses existing classes: content-panel-box, table, table--striped
    ============================================================ */
 if ( ! function_exists( 'pera_v2_render_units_price_table' ) ) {
-  function pera_v2_render_units_price_table( int $post_id ): void {
+  function pera_v2_render_units_price_table( int $post_id, array $args = array() ): void {
+
+    $args = wp_parse_args(
+      $args,
+      array(
+        'wrap_section' => true,
+      )
+    );
+    $wrap_section = (bool) $args['wrap_section'];
 
     // Prefer the shared aggregator (Step 1) so this renderer stays thin
     $out = function_exists( 'pera_v2_units_aggregate_by_beds' )
@@ -767,7 +775,10 @@ if ( ! function_exists( 'pera_v2_render_units_price_table' ) ) {
     $custom_text = trim( $custom_text );
 
     ?>
-    <section class="section section-soft property-price-range">
+    <?php if ( $wrap_section ) : ?>
+      <section class="section section-soft property-price-range">
+    <?php endif; ?>
+
       <div class="content-panel-box">
 
         <header class="section-header p-sm">
@@ -854,7 +865,10 @@ if ( ! function_exists( 'pera_v2_render_units_price_table' ) ) {
             <?php endif; ?>
 
       </div>
-    </section>
+
+    <?php if ( $wrap_section ) : ?>
+      </section>
+    <?php endif; ?>
     <?php
   }
 }

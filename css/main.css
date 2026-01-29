@@ -1348,7 +1348,7 @@ button.pill:focus-visible {
 .property-pricing-advisors{
   display: flex;
   gap: 24px;
-  align-items: flex-start;
+  align-items: stretch;
 }
 
 .property-pricing-advisors__pricing{
@@ -1359,24 +1359,19 @@ button.pill:focus-visible {
   flex: 0 0 33%;
 }
 
-.property-pricing-advisors__heading{
-  font-weight: 600;
-  margin-bottom: 12px;
-}
-
 .property-pricing-advisors__list{
   display: flex;
   flex-direction: column;
   gap: 16px;
 }
 
-.advisor-card{
+.advisor-row{
+  display: flex;
   gap: 12px;
-  flex-direction: row;
   align-items: center;
 }
 
-.advisor-card__media{
+.advisor-row__media{
   width: 64px;
   height: 64px;
   flex: 0 0 64px;
@@ -1385,29 +1380,32 @@ button.pill:focus-visible {
   background: var(--bg-soft);
 }
 
-.advisor-card__image{
+.advisor-row__image{
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
 
-.advisor-card__image--placeholder{
+.advisor-row__image--placeholder{
   width: 100%;
   height: 100%;
 }
 
-.advisor-card__name{
+.advisor-row__name{
   font-weight: 600;
 }
 
-.advisor-card__position{
+.advisor-row__position{
   color: var(--text-soft, #6b7280);
   font-size: 0.9rem;
 }
 
-.advisor-card__cta{
+.advisor-row__wa{
   color: inherit;
   font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
 }
 
 @media (max-width: 768px){

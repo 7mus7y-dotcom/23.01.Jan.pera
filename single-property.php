@@ -909,7 +909,12 @@ $custom_video_text = $custom_video_text ? wp_kses_post( wpautop( $custom_video_t
       <div class="property-pricing-advisors__pricing">
         <?php
         if ( function_exists( 'pera_v2_render_units_price_table' ) ) {
-          pera_v2_render_units_price_table( $property_id );
+          pera_v2_render_units_price_table(
+            $property_id,
+            array(
+              'wrap_section' => false,
+            )
+          );
         }
         ?>
       </div>
@@ -920,35 +925,59 @@ $custom_video_text = $custom_video_text ? wp_kses_post( wpautop( $custom_video_t
         if ( ! is_array( $advisors ) ) {
           $advisors = array();
         }
-        $advisors = array_slice( $advisors, 0, 2 );
+        $selected_advisors = array();
 
-        if ( empty( $advisors ) ) {
+        foreach ( $advisors as $advisor ) {
+          $advisor_id = is_object( $advisor ) ? $advisor->ID : (int) $advisor;
+          if ( ! $advisor_id ) {
+            continue;
+          }
+
+          $is_advisor = function_exists( 'get_field' ) ? (bool) get_field( 'advisor', $advisor_id ) : false;
+          if ( ! $is_advisor ) {
+            continue;
+          }
+
+          $selected_advisors[] = $advisor_id;
+        }
+
+        $selected_advisors = array_values( array_unique( $selected_advisors ) );
+        $selected_advisors = array_slice( $selected_advisors, 0, 2 );
+
+        if ( empty( $selected_advisors ) ) {
           $advisors_query = new WP_Query(
             array(
               'post_type'      => 'team',
               'posts_per_page' => 2,
               'orderby'        => 'rand',
               'post_status'    => 'publish',
+              'meta_query'     => array(
+                array(
+                  'key'   => 'advisor',
+                  'value' => '1',
+                ),
+              ),
             )
           );
 
           if ( $advisors_query->have_posts() ) {
-            $advisors = $advisors_query->posts;
+            $selected_advisors = wp_list_pluck( $advisors_query->posts, 'ID' );
           }
 
           wp_reset_postdata();
         }
 
-        if ( ! empty( $advisors ) ) :
+        if ( ! empty( $selected_advisors ) ) :
         ?>
-          <div class="property-pricing-advisors__heading">Contact an agent</div>
-          <div class="property-pricing-advisors__list">
-            <?php foreach ( $advisors as $advisor ) : ?>
+          <div class="content-panel-box">
+            <header class="section-header p-sm">
+              <h2>Contact an agent</h2>
+              <p>Message us on WhatsApp for availability, pricing, and floor plans.</p>
+            </header>
+
+            <div class="property-pricing-advisors__list p-sm">
+              <?php foreach ( $selected_advisors as $advisor_id ) : ?>
               <?php
-              $advisor_id = is_object( $advisor ) ? $advisor->ID : (int) $advisor;
-              if ( ! $advisor_id ) {
-                continue;
-              }
               $name_field = function_exists( 'get_field' ) ? get_field( 'name', $advisor_id ) : '';
               $name       = $name_field ? $name_field : get_the_title( $advisor_id );
               $position   = function_exists( 'get_field' ) ? get_field( 'position', $advisor_id ) : '';
@@ -966,8 +995,8 @@ $custom_video_text = $custom_video_text ? wp_kses_post( wpautop( $custom_video_t
               }
               ?>
 
-              <div class="advisor-card card-shell">
-                <div class="advisor-card__media">
+              <div class="advisor-row">
+                <div class="advisor-row__media">
                   <?php
                   if ( $photo_id ) {
                     echo wp_get_attachment_image(
@@ -975,31 +1004,35 @@ $custom_video_text = $custom_video_text ? wp_kses_post( wpautop( $custom_video_t
                       'thumbnail',
                       false,
                       array(
-                        'class'   => 'advisor-card__image',
+                        'class'   => 'advisor-row__image',
                         'loading' => 'lazy',
                         'alt'     => esc_attr( $name ),
                       )
                     );
                   } else {
                     ?>
-                    <div class="advisor-card__image advisor-card__image--placeholder"></div>
+                    <div class="advisor-row__image advisor-row__image--placeholder"></div>
                     <?php
                   }
                   ?>
                 </div>
-                <div class="advisor-card__body">
-                  <div class="advisor-card__name"><?php echo esc_html( $name ); ?></div>
+                <div class="advisor-row__body">
+                  <div class="advisor-row__name"><?php echo esc_html( $name ); ?></div>
                   <?php if ( $position ) : ?>
-                    <div class="advisor-card__position"><?php echo esc_html( $position ); ?></div>
+                    <div class="advisor-row__position"><?php echo esc_html( $position ); ?></div>
                   <?php endif; ?>
                   <?php if ( $wa_url ) : ?>
-                    <a class="advisor-card__cta" href="<?php echo esc_url( $wa_url ); ?>" target="_blank" rel="noopener">
-                      <?php echo esc_html( $number_raw ); ?>
+                    <a class="advisor-row__wa" href="<?php echo esc_url( $wa_url ); ?>" target="_blank" rel="noopener">
+                      <svg class="icon" aria-hidden="true" width="16" height="16">
+                        <use href="<?php echo esc_url( get_stylesheet_directory_uri() . '/logos-icons/icons.svg#icon-whatsapp' ); ?>"></use>
+                      </svg>
+                      Contact on WhatsApp
                     </a>
                   <?php endif; ?>
                 </div>
               </div>
             <?php endforeach; ?>
+            </div>
           </div>
         <?php endif; ?>
       </aside>
