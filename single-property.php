@@ -970,12 +970,12 @@ $custom_video_text = $custom_video_text ? wp_kses_post( wpautop( $custom_video_t
         if ( ! empty( $selected_advisors ) ) :
         ?>
           <div class="card-shell">
-            <header class="section-header p-sm">
+            <header class="section-header">
               <h3>Contact an agent</h3>
               <p>Message us on WhatsApp for availability, pricing, and floor plans.</p>
             </header>
 
-            <div class="property-pricing-advisors__list p-sm">
+            <div class="property-pricing-advisors__list">
               <?php foreach ( $selected_advisors as $advisor_id ) : ?>
               <?php
               $name_field = function_exists( 'get_field' ) ? get_field( 'name', $advisor_id ) : '';
