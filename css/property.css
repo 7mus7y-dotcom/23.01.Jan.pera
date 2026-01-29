@@ -118,36 +118,6 @@
 }
 
 /* =======================================================
-   BODRUM PROPERTY – HERO SPACING + PILLS
-   ======================================================= */
-
-body.single-bodrum-property #bodrum-hero .hero-content{
-  padding-block: clamp(28px, 6vw, 90px);
-}
-
-body.single-bodrum-property #bodrum-hero .hero-content h1{
-  max-width: 20ch;
-}
-
-body.single-bodrum-property #bodrum-hero .hero-content .lead{
-  max-width: 55ch;
-}
-
-body.single-bodrum-property #bodrum-hero .hero-pills{
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin: 16px 0 0;
-  padding: 0;
-  list-style: none;
-}
-
-body.single-bodrum-property #bodrum-hero .hero-cta{
-  margin-top: 22px;
-}
-
-
-/* =======================================================
    PROPERTY FILTERS – FACET STYLE
    ======================================================= */
 

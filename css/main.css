@@ -1154,34 +1154,6 @@ button.pill:focus-visible {
   display: inline-flex;
 }
 
-/* Stack CTA above quick-link pills */
-.single-bodrum-property #bodrum-hero .hero-quicklinks{
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start; /* keeps button natural width */
-}
-
-/* Pills stay in one row */
-.single-bodrum-property #bodrum-hero .hero-quicklinks__row{
-  display: inline-flex;
-  gap: 8px;
-  flex-wrap: nowrap;
-}
-
-/* Mobile: icon-only pills */
-@media (max-width: 768px){
-  .single-bodrum-property #bodrum-hero .hero-pill__text{
-    display: none;
-  }
-
-  .single-bodrum-property #bodrum-hero .pill__icon{
-    margin-right: 0;
-  }
-
-
-}
-
-
 
 /* ======================================================
    HERO SEARCH – GLASS CARD REFINEMENT

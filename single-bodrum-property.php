@@ -356,25 +356,14 @@ get_header();
                 </div>
             <?php endif; ?>
 
-            <div class="hero-content">
-              <?php if ( $status_label ) : ?>
-                <div class="hero-actions">
-                  <span class="<?php echo esc_attr( $status_class ); ?>">
-                    <?php echo esc_html( $status_label ); ?>
-                  </span>
-                </div>
-              <?php endif; ?>
-            
-              <?php if ( $display_title ) : ?>
-                <h1><?php echo esc_html( $display_title ); ?></h1>
-              <?php endif; ?>
-            
-              <?php if ( $tagline ) : ?>
-                <p class="lead"><?php echo esc_html( $tagline ); ?></p>
-              <?php endif; ?>
-            
-              <?php if ( $hero_highlights ) : ?>
-                <div class="hero-pills mb-md">
+            <div class="hero-content property-hero__content">
+              <?php if ( $status_label || $hero_highlights ) : ?>
+                <div class="property-hero__pills hero-pills">
+                  <?php if ( $status_label ) : ?>
+                    <span class="<?php echo esc_attr( $status_class ); ?>">
+                      <?php echo esc_html( $status_label ); ?>
+                    </span>
+                  <?php endif; ?>
                   <?php foreach ( $hero_highlights as $highlight ) : ?>
                     <span class="pill pill--brand">
                       <?php echo esc_html( $highlight ); ?>
@@ -382,49 +371,54 @@ get_header();
                   <?php endforeach; ?>
                 </div>
               <?php endif; ?>
-            
-            
-            
+
+              <?php if ( $display_title ) : ?>
+                <h1 class="property-hero__title"><?php echo esc_html( $display_title ); ?></h1>
+              <?php endif; ?>
+
+              <?php if ( $tagline ) : ?>
+                <p class="property-hero__excerpt text-light"><?php echo esc_html( $tagline ); ?></p>
+              <?php endif; ?>
+
               <?php if ( $discretion_note ) : ?>
                 <p class="text-light text-sm mb-md">
                   <?php echo esc_html__( 'Discreet marketing. Further details on request.', 'hello-elementor-child' ); ?>
                 </p>
               <?php endif; ?>
-            
-            <div class="hero-actions hero-quicklinks">
-            
-              <!-- Primary CTA -->
-              <a class="btn btn--solid btn--green mb-sm" href="#contact-form">
-                Request full details
-              </a>
-            
-              <!-- Quick links row -->
-              <div class="hero-quicklinks__row">
-                <a class="pill pill--green pill--lg" href="#gallery">
-                  <svg class="icon pill__icon" aria-hidden="true" width="16" height="16">
-                    <use href="#icon-gallery-stack" xlink:href="#icon-gallery-stack"></use>
-                  </svg>
-                  <span class="hero-pill__text">Gallery</span>
-                </a>
-            
-                <a class="pill pill--green pill--lg" href="#location">
-                  <svg class="icon pill__icon" aria-hidden="true" width="16" height="16">
-                    <use href="#icon-map" xlink:href="#icon-map"></use>
-                  </svg>
-                  <span class="hero-pill__text">Map</span>
-                </a>
-            
-                <a class="pill pill--green pill--lg" href="#floorplans">
-                  <svg class="icon pill__icon" aria-hidden="true" width="16" height="16">
-                    <use href="#icon-floor-plan" xlink:href="#icon-floor-plan"></use>
-                  </svg>
-                  <span class="hero-pill__text">Floorplans</span>
-                </a>
-              </div>
-            
-            </div>
-            
 
+              <div class="property-hero__meta">
+                <div class="property-hero__cta">
+                  <a class="btn btn--solid btn--blue" href="#contact-form">
+                    <?php echo esc_html( $hero_cta_label ); ?>
+                  </a>
+                  <a class="btn btn--solid btn--green" href="<?php echo esc_url( $secondary_cta_url ); ?>">
+                    <?php echo esc_html( $secondary_cta_label ); ?>
+                  </a>
+                </div>
+
+                <div class="hero-actions hero-pills">
+                  <a class="pill pill--green pill--lg" href="#gallery">
+                    <svg class="icon pill__icon" aria-hidden="true" width="16" height="16">
+                      <use href="#icon-gallery-stack" xlink:href="#icon-gallery-stack"></use>
+                    </svg>
+                    <span class="hero-pill__text">Gallery</span>
+                  </a>
+
+                  <a class="pill pill--green pill--lg" href="#location">
+                    <svg class="icon pill__icon" aria-hidden="true" width="16" height="16">
+                      <use href="#icon-map" xlink:href="#icon-map"></use>
+                    </svg>
+                    <span class="hero-pill__text">Map</span>
+                  </a>
+
+                  <a class="pill pill--green pill--lg" href="#floorplans">
+                    <svg class="icon pill__icon" aria-hidden="true" width="16" height="16">
+                      <use href="#icon-floor-plan" xlink:href="#icon-floor-plan"></use>
+                    </svg>
+                    <span class="hero-pill__text">Floorplans</span>
+                  </a>
+                </div>
+              </div>
             </div>
 
             
