@@ -136,12 +136,15 @@ $logo_path = get_stylesheet_directory() . '/logos-icons/pera-logo.svg';
         $favourites_url = $favourites_page ? get_permalink( $favourites_page ) : home_url( '/favourites/' );
         $login_url = wp_login_url();
         $logout_url = wp_logout_url( home_url( '/' ) );
-        $latest_favourite_id = 0;
+        $recent_favourite_ids = array();
 
         if ( is_user_logged_in() && function_exists( 'pera_get_user_favourites' ) ) {
           $favourites = pera_get_user_favourites( get_current_user_id() );
           if ( ! empty( $favourites ) ) {
-            $latest_favourite_id = absint( end( $favourites ) );
+            $recent_favourite_ids = array_slice( array_reverse( $favourites ), 0, 3 );
+            if ( function_exists( 'pera_is_valid_property_post' ) ) {
+              $recent_favourite_ids = array_values( array_filter( $recent_favourite_ids, 'pera_is_valid_property_post' ) );
+            }
           }
         }
         ?>
@@ -158,37 +161,35 @@ $logo_path = get_stylesheet_directory() . '/logos-icons/pera-logo.svg';
               </a>
             </div>
 
-            <?php if ( $latest_favourite_id && function_exists( 'pera_is_valid_property_post' ) && pera_is_valid_property_post( $latest_favourite_id ) ) : ?>
-              <?php
-              $latest_query = new WP_Query(
-                array(
-                  'post_type'      => 'property',
-                  'post_status'    => 'publish',
-                  'p'              => $latest_favourite_id,
-                  'posts_per_page' => 1,
-                )
-              );
-              ?>
-              <?php if ( $latest_query->have_posts() ) : ?>
-                <?php $latest_query->the_post(); ?>
-                <?php set_query_var( 'pera_property_card_args', array( 'variant' => 'archive' ) ); ?>
-                <?php get_template_part( 'parts/property-card-v2' ); ?>
-                <?php set_query_var( 'pera_property_card_args', array() ); ?>
+            <h3 class="offcanvas-director-title offcanvas-user-heading">Your latest favourites</h3>
+            <div class="offcanvas-favourites-summary">
+              <?php if ( ! empty( $recent_favourite_ids ) ) : ?>
+                <?php
+                $recent_query = new WP_Query(
+                  array(
+                    'post_type'      => 'property',
+                    'post_status'    => 'publish',
+                    'post__in'       => $recent_favourite_ids,
+                    'orderby'        => 'post__in',
+                    'posts_per_page' => 3,
+                  )
+                );
+                ?>
+                <?php if ( $recent_query->have_posts() ) : ?>
+                  <?php while ( $recent_query->have_posts() ) : ?>
+                    <?php $recent_query->the_post(); ?>
+                    <h3 class="offcanvas-director-text">
+                      <a href="<?php the_permalink(); ?>"><?php the_title(); ?></a>
+                    </h3>
+                  <?php endwhile; ?>
+                <?php else : ?>
+                  <p class="offcanvas-director-text">You haven’t saved any properties yet.</p>
+                <?php endif; ?>
+                <?php wp_reset_postdata(); ?>
+              <?php else : ?>
+                <p class="offcanvas-director-text">You haven’t saved any properties yet.</p>
               <?php endif; ?>
-              <?php wp_reset_postdata(); ?>
-              <div class="offcanvas-contact-details">
-                <a href="<?php echo esc_url( $favourites_url ); ?>" class="btn btn--ghost btn--white">
-                  See favourites
-                </a>
-              </div>
-            <?php else : ?>
-              <p class="offcanvas-director-text">You haven’t saved any properties yet.</p>
-              <div class="offcanvas-contact-details">
-                <a href="<?php echo esc_url( $favourites_url ); ?>" class="btn btn--ghost btn--white">
-                  See favourites
-                </a>
-              </div>
-            <?php endif; ?>
+            </div>
           <?php else : ?>
             <h2 class="offcanvas-director-title">Client area</h2>
             <p class="offcanvas-director-text">Log in to keep your favourites synced across devices.</p>

@@ -1756,6 +1756,12 @@ body.is-nav-open .offcanvas-backdrop {
   color: rgba(255,255,255,0.9);
 }
 
+.offcanvas-favourites-summary {
+  border: 1px solid #ffffff;
+  border-radius: var(--radius-lg, 20px);
+  padding: 12px 14px;
+}
+
 /* Stack on mobile */
 @media (max-width: 900px) {
   .offcanvas-main {
