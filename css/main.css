@@ -3663,6 +3663,46 @@ body:not(.single-post) tr:nth-child(even) {
 }
 
 /* ============================================================
+   FEATURED PICKS (home)
+   - Desktop: 2-up grid, no phantom 3rd column
+   - Mobile (<800px): horizontal snap slider
+   Scoped to Featured Picks only.
+   ============================================================ */
+
+.featured-picks .cards-slider--featured-picks {
+  /* Mobile-first slider baseline (ensures slider activates) */
+  display: flex;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scroll-snap-type: x mandatory;
+  gap: var(--space-md);
+  padding-bottom: var(--space-xs);
+}
+
+.featured-picks .cards-slider--featured-picks > .slider-card {
+  flex: 0 0 92%;
+  scroll-snap-align: start;
+  min-width: 0;
+}
+
+/* Desktop: switch to 2-column grid and fill width */
+@media (min-width: 800px) {
+  .featured-picks .cards-slider--featured-picks {
+    display: grid;
+    overflow: visible;
+    scroll-snap-type: none;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-md);
+    padding-bottom: 0;
+  }
+
+  .featured-picks .cards-slider--featured-picks > .slider-card {
+    flex: initial;
+    scroll-snap-align: unset;
+  }
+}
+
+/* ============================================================
    Attachment page
    ============================================================ */
    
