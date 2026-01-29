@@ -58,6 +58,234 @@ add_action( 'wp', function () {
 
 define('PERA_V2_IS_LIVE_ON_PROPERTY_ARCHIVE', false);
 
+/**
+ * HTTP/2 diagnostic instrumentation (theme-only, toggleable).
+ *
+ * Enable via:
+ * - Define PERA_HTTP2_DEBUG true in wp-config.php, OR
+ * - Add ?http2debug=1 to a URL (admins only).
+ *
+ * What to capture:
+ * - Request path (no query string) and request id.
+ * - Chrome net-export / waterfall with matching X-Pera-Req header.
+ *
+ * Disable:
+ * - Remove the query flag and/or set PERA_HTTP2_DEBUG to false.
+ */
+if ( ! defined( 'PERA_HTTP2_DEBUG' ) ) {
+  define( 'PERA_HTTP2_DEBUG', false );
+}
+
+/**
+ * Whether HTTP/2 debug logging is enabled.
+ */
+function pera_http2_debug_enabled(): bool {
+  $enabled = (bool) PERA_HTTP2_DEBUG;
+
+  if ( ! $enabled && isset( $_GET['http2debug'] ) ) {
+    $flag = sanitize_text_field( wp_unslash( $_GET['http2debug'] ) );
+    if ( $flag === '1' && current_user_can( 'manage_options' ) ) {
+      $enabled = true;
+    }
+  }
+
+  return $enabled;
+}
+
+/**
+ * Get a short request id for correlating logs to responses.
+ */
+function pera_http2_request_id(): string {
+  if ( ! isset( $GLOBALS['pera_http2_debug_req_id'] ) ) {
+    $GLOBALS['pera_http2_debug_req_id'] = substr( wp_generate_uuid4(), 0, 8 );
+  }
+
+  return (string) $GLOBALS['pera_http2_debug_req_id'];
+}
+
+/**
+ * Sanitize a URL string to a path-only value.
+ */
+function pera_http2_sanitize_path( string $url ): string {
+  $path = wp_parse_url( $url, PHP_URL_PATH );
+  if ( ! $path ) {
+    return '/';
+  }
+
+  return $path;
+}
+
+/**
+ * Collect key header details without logging PII.
+ */
+function pera_http2_header_diagnostics(): array {
+  $headers = headers_list();
+  $normalized = array();
+  $set_cookie_count = 0;
+
+  foreach ( $headers as $header_line ) {
+    $parts = explode( ':', $header_line, 2 );
+    $name = strtolower( trim( $parts[0] ) );
+
+    if ( $name === 'set-cookie' ) {
+      $set_cookie_count++;
+    }
+
+    if ( isset( $parts[1] ) ) {
+      $value = trim( $parts[1] );
+    } else {
+      $value = '';
+    }
+
+    if ( ! isset( $normalized[ $name ] ) ) {
+      $normalized[ $name ] = array();
+    }
+    $normalized[ $name ][] = $value;
+  }
+
+  $location = '';
+  if ( isset( $normalized['location'][0] ) ) {
+    $location = pera_http2_sanitize_path( $normalized['location'][0] );
+  }
+
+  return array(
+    'count'            => count( $headers ),
+    'location'         => $location,
+    'content_type'     => $normalized['content-type'][0] ?? '',
+    'content_encoding' => $normalized['content-encoding'][0] ?? '',
+    'cache_control'    => $normalized['cache-control'][0] ?? '',
+    'set_cookie_count' => $set_cookie_count,
+  );
+}
+
+/**
+ * Log a diagnostic snapshot for HTTP/2 issues.
+ */
+function pera_http2_log_snapshot( string $stage ): void {
+  if ( ! pera_http2_debug_enabled() ) {
+    return;
+  }
+
+  $request_uri = isset( $_SERVER['REQUEST_URI'] ) ? (string) $_SERVER['REQUEST_URI'] : '/';
+  $path = pera_http2_sanitize_path( $request_uri );
+  $method = isset( $_SERVER['REQUEST_METHOD'] ) ? (string) $_SERVER['REQUEST_METHOD'] : 'GET';
+  $status = http_response_code();
+  $headers_sent_file = '';
+  $headers_sent_line = 0;
+  $headers_sent = headers_sent( $headers_sent_file, $headers_sent_line );
+  $headers_diag = pera_http2_header_diagnostics();
+  $memory_usage = memory_get_usage( true );
+  $memory_peak = memory_get_peak_usage( true );
+
+  $message = array(
+    'ts'             => gmdate( 'c' ),
+    'stage'          => $stage,
+    'req_id'         => pera_http2_request_id(),
+    'method'         => $method,
+    'path'           => $path,
+    'logged_in'      => is_user_logged_in() ? 'yes' : 'no',
+    'status'         => $status !== false ? (int) $status : 'unknown',
+    'headers_count'  => $headers_diag['count'],
+    'location'       => $headers_diag['location'],
+    'content_type'   => $headers_diag['content_type'],
+    'content_enc'    => $headers_diag['content_encoding'],
+    'cache_control'  => $headers_diag['cache_control'],
+    'set_cookie'     => $headers_diag['set_cookie_count'],
+    'headers_sent'   => $headers_sent ? 'yes' : 'no',
+    'headers_file'   => $headers_sent ? $headers_sent_file : '',
+    'headers_line'   => $headers_sent ? $headers_sent_line : 0,
+    'ob_level'       => ob_get_level(),
+    'mem'            => $memory_usage,
+    'mem_peak'       => $memory_peak,
+  );
+
+  error_log( '[Pera http2] ' . wp_json_encode( $message ) );
+}
+
+/**
+ * Output buffer guard to detect BOM/whitespace before headers.
+ */
+function pera_http2_output_guard( string $buffer ): string {
+  static $checked = false;
+
+  if ( $checked || ! pera_http2_debug_enabled() ) {
+    return $buffer;
+  }
+
+  if ( $buffer !== '' ) {
+    $checked = true;
+    $has_bom = substr( $buffer, 0, 3 ) === "\xEF\xBB\xBF";
+    $has_whitespace = (bool) preg_match( '/^\s+/', $buffer );
+
+    if ( $has_bom || $has_whitespace ) {
+      $headers_sent_file = '';
+      $headers_sent_line = 0;
+      $headers_sent = headers_sent( $headers_sent_file, $headers_sent_line );
+
+      $warning = array(
+        'ts'       => gmdate( 'c' ),
+        'stage'    => 'output_guard',
+        'req_id'   => pera_http2_request_id(),
+        'issue'    => $has_bom ? 'bom_detected' : 'leading_whitespace',
+        'length'   => strlen( $buffer ),
+        'sent'     => $headers_sent ? 'yes' : 'no',
+        'file'     => $headers_sent ? $headers_sent_file : '',
+        'line'     => $headers_sent ? $headers_sent_line : 0,
+      );
+
+      error_log( '[Pera http2] ' . wp_json_encode( $warning ) );
+    }
+  }
+
+  return $buffer;
+}
+
+add_action( 'init', function () {
+  if ( ! pera_http2_debug_enabled() ) {
+    return;
+  }
+
+  pera_http2_request_id();
+  ob_start( 'pera_http2_output_guard' );
+  pera_http2_log_snapshot( 'init' );
+}, 0 );
+
+add_action( 'template_redirect', function () {
+  pera_http2_log_snapshot( 'template_redirect' );
+}, 0 );
+
+add_action( 'send_headers', function () {
+  if ( ! pera_http2_debug_enabled() ) {
+    return;
+  }
+
+  if ( ! headers_sent() ) {
+    header( 'X-Pera-Debug: http2' );
+    header( 'X-Pera-Req: ' . pera_http2_request_id() );
+  }
+}, 0 );
+
+add_action( 'shutdown', function () {
+  if ( ! pera_http2_debug_enabled() ) {
+    return;
+  }
+
+  $last_error = error_get_last();
+  if ( $last_error ) {
+    error_log( '[Pera http2] ' . wp_json_encode( array(
+      'ts'      => gmdate( 'c' ),
+      'stage'   => 'shutdown_error',
+      'req_id'  => pera_http2_request_id(),
+      'type'    => $last_error['type'] ?? '',
+      'message' => $last_error['message'] ?? '',
+      'file'    => $last_error['file'] ?? '',
+      'line'    => $last_error['line'] ?? '',
+    ) ) );
+  }
+
+  pera_http2_log_snapshot( 'shutdown' );
+}, 0 );
+
 
 
 /* =======================================================
