@@ -220,3 +220,109 @@ add_action( 'wp_ajax_pera_toggle_favourite', function () {
 
   wp_send_json_success( array( 'favourites' => $favs ) );
 } );
+
+add_action( 'wp_ajax_pera_favourites_titles', function () {
+  check_ajax_referer( 'pera_favourites', 'nonce' );
+
+  $raw_ids = isset( $_POST['ids'] ) ? $_POST['ids'] : array();
+
+  if ( is_string( $raw_ids ) ) {
+    $decoded = json_decode( $raw_ids, true );
+    if ( is_array( $decoded ) ) {
+      $raw_ids = $decoded;
+    } else {
+      $raw_ids = preg_split( '/[\\s,]+/', $raw_ids );
+    }
+  }
+
+  if ( ! is_array( $raw_ids ) ) {
+    $raw_ids = array();
+  }
+
+  $raw_ids = array_slice( $raw_ids, 0, 50 );
+  $ids = array_values( array_filter( array_map( 'absint', $raw_ids ) ) );
+
+  if ( empty( $ids ) ) {
+    wp_send_json_success( array( 'items' => array() ) );
+  }
+
+  $query = new WP_Query(
+    array(
+      'post_type'      => 'property',
+      'post_status'    => 'publish',
+      'post__in'       => $ids,
+      'orderby'        => 'post__in',
+      'posts_per_page' => min( 50, count( $ids ) ),
+    )
+  );
+
+  $items = array();
+
+  if ( $query->have_posts() ) {
+    while ( $query->have_posts() ) {
+      $query->the_post();
+      $items[] = array(
+        'id'    => get_the_ID(),
+        'title' => get_the_title(),
+        'url'   => get_permalink(),
+      );
+    }
+  }
+
+  wp_reset_postdata();
+
+  wp_send_json_success( array( 'items' => $items ) );
+} );
+
+add_action( 'wp_ajax_nopriv_pera_favourites_titles', function () {
+  check_ajax_referer( 'pera_favourites', 'nonce' );
+
+  $raw_ids = isset( $_POST['ids'] ) ? $_POST['ids'] : array();
+
+  if ( is_string( $raw_ids ) ) {
+    $decoded = json_decode( $raw_ids, true );
+    if ( is_array( $decoded ) ) {
+      $raw_ids = $decoded;
+    } else {
+      $raw_ids = preg_split( '/[\\s,]+/', $raw_ids );
+    }
+  }
+
+  if ( ! is_array( $raw_ids ) ) {
+    $raw_ids = array();
+  }
+
+  $raw_ids = array_slice( $raw_ids, 0, 50 );
+  $ids = array_values( array_filter( array_map( 'absint', $raw_ids ) ) );
+
+  if ( empty( $ids ) ) {
+    wp_send_json_success( array( 'items' => array() ) );
+  }
+
+  $query = new WP_Query(
+    array(
+      'post_type'      => 'property',
+      'post_status'    => 'publish',
+      'post__in'       => $ids,
+      'orderby'        => 'post__in',
+      'posts_per_page' => min( 50, count( $ids ) ),
+    )
+  );
+
+  $items = array();
+
+  if ( $query->have_posts() ) {
+    while ( $query->have_posts() ) {
+      $query->the_post();
+      $items[] = array(
+        'id'    => get_the_ID(),
+        'title' => get_the_title(),
+        'url'   => get_permalink(),
+      );
+    }
+  }
+
+  wp_reset_postdata();
+
+  wp_send_json_success( array( 'items' => $items ) );
+} );

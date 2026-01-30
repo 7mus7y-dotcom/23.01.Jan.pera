@@ -11,6 +11,9 @@
   const undoToast = document.getElementById('fav-undo-toast');
   const undoButton = undoToast ? undoToast.querySelector('[data-fav-undo]') : null;
   const favouritesIdsInput = document.getElementById('fav_post_ids');
+  const guestFavLink = document.querySelector('[data-guest-fav-link]');
+  const guestLatestFavs = document.querySelector('[data-guest-latest-favs]');
+  const guestLatestFavsList = document.querySelector('[data-guest-latest-favs-list]');
 
   const parseIds = (value) => {
     if (!Array.isArray(value)) {
@@ -103,6 +106,7 @@
     writeLocal(favourites);
     updateFavouritesIdsInput();
     updateButtonsForId(postId);
+    updateGuestOffcanvas();
 
     if (isFavouritesPage) {
       if (removedCard && removedParent) {
@@ -127,6 +131,7 @@
       writeLocal(favourites);
       updateFavouritesIdsInput();
       updateButtonsForId(postId);
+      updateGuestOffcanvas();
 
       if (isFavouritesPage) {
         if (removedCard && removedParent && removedCard.parentElement === removedParent) {
@@ -191,6 +196,90 @@
 
     if (favouritesEmptyState) {
       favouritesEmptyState.hidden = count > 0;
+    }
+  };
+
+  const updateGuestOffcanvas = async () => {
+    if (isLoggedIn) {
+      return;
+    }
+
+    if (!guestFavLink && !guestLatestFavs) {
+      return;
+    }
+
+    const ids = Array.from(favourites);
+    const hasFavs = ids.length > 0;
+
+    if (guestFavLink) {
+      guestFavLink.hidden = !hasFavs;
+    }
+
+    if (!guestLatestFavs || !guestLatestFavsList) {
+      return;
+    }
+
+    if (!hasFavs) {
+      guestLatestFavs.hidden = true;
+      guestLatestFavsList.innerHTML = '';
+      return;
+    }
+
+    if (!ajaxUrl) {
+      guestLatestFavs.hidden = true;
+      guestLatestFavsList.innerHTML = '';
+      return;
+    }
+
+    const latestIds = ids.slice(-3).reverse();
+    const body = new URLSearchParams();
+    body.set('action', 'pera_favourites_titles');
+    body.set('nonce', nonce);
+    latestIds.forEach((id) => body.append('ids[]', String(id)));
+
+    try {
+      const response = await fetch(ajaxUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+        },
+        body,
+        credentials: 'same-origin',
+      });
+
+      const payload = await response.json();
+      if (!payload || !payload.success) {
+        throw new Error('Bad response');
+      }
+
+      const items = Array.isArray(payload.data && payload.data.items)
+        ? payload.data.items
+        : [];
+
+      if (!items.length) {
+        guestLatestFavs.hidden = true;
+        guestLatestFavsList.innerHTML = '';
+        return;
+      }
+
+      guestLatestFavsList.innerHTML = '';
+      items.forEach((item) => {
+        if (!item || !item.title || !item.url) {
+          return;
+        }
+        const listItem = document.createElement('li');
+        const link = document.createElement('a');
+        link.href = item.url;
+        link.textContent = item.title;
+        link.className = 'offcanvas-favourites-link text-sm';
+        listItem.appendChild(link);
+        guestLatestFavsList.appendChild(listItem);
+      });
+
+      guestLatestFavs.hidden = guestLatestFavsList.children.length === 0;
+    } catch (err) {
+      guestLatestFavs.hidden = true;
+      guestLatestFavsList.innerHTML = '';
     }
   };
 
@@ -365,12 +454,14 @@
     if (isFavouritesPage) {
       updateFavouritesHero(favourites.size);
     }
+    updateGuestOffcanvas();
 
     persistServerToggle(postId, nextIsFav).then((result) => {
       if (result.ok) {
         if (isFavouritesPage) {
           updateFavouritesHero(favourites.size);
         }
+        updateGuestOffcanvas();
         return;
       }
 
@@ -396,12 +487,14 @@
       if (isFavouritesPage) {
         updateFavouritesHero(favourites.size);
       }
+      updateGuestOffcanvas();
     });
   });
 
   updateAllButtons();
   fetchServerFavourites();
   updateFavouritesIdsInput();
+  updateGuestOffcanvas();
 
   if (favouritesGrid && !isLoggedIn) {
     const localIds = readLocal();

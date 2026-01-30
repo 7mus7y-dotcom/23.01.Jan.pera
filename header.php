@@ -160,22 +160,21 @@ $logo_path = get_stylesheet_directory() . '/logos-icons/pera-logo.svg';
                 Favourites
               </a>
             </div>
-
-            <h3 class="offcanvas-director-title offcanvas-user-heading">Your latest favourites</h3>
-            <div class="offcanvas-favourites-summary">
-              <?php if ( ! empty( $recent_favourite_ids ) ) : ?>
-                <?php
-                $recent_query = new WP_Query(
-                  array(
-                    'post_type'      => 'property',
-                    'post_status'    => 'publish',
-                    'post__in'       => $recent_favourite_ids,
-                    'orderby'        => 'post__in',
-                    'posts_per_page' => 3,
-                  )
-                );
-                ?>
-                <?php if ( $recent_query->have_posts() ) : ?>
+            <?php if ( ! empty( $recent_favourite_ids ) ) : ?>
+              <?php
+              $recent_query = new WP_Query(
+                array(
+                  'post_type'      => 'property',
+                  'post_status'    => 'publish',
+                  'post__in'       => $recent_favourite_ids,
+                  'orderby'        => 'post__in',
+                  'posts_per_page' => 3,
+                )
+              );
+              ?>
+              <?php if ( $recent_query->have_posts() ) : ?>
+                <h3 class="offcanvas-director-title offcanvas-user-heading">Your latest favourites</h3>
+                <div class="offcanvas-favourites-summary">
                   <ul class="offcanvas-menu">
                     <?php while ( $recent_query->have_posts() ) : ?>
                       <?php $recent_query->the_post(); ?>
@@ -186,14 +185,10 @@ $logo_path = get_stylesheet_directory() . '/logos-icons/pera-logo.svg';
                       </li>
                     <?php endwhile; ?>
                   </ul>
-                <?php else : ?>
-                  <p class="offcanvas-director-text">You haven’t saved any properties yet.</p>
-                <?php endif; ?>
-                <?php wp_reset_postdata(); ?>
-              <?php else : ?>
-                <p class="offcanvas-director-text">You haven’t saved any properties yet.</p>
+                </div>
               <?php endif; ?>
-            </div>
+              <?php wp_reset_postdata(); ?>
+            <?php endif; ?>
           <?php else : ?>
             <h2 class="offcanvas-director-title">Client area</h2>
             <p class="offcanvas-director-text">Log in to keep your favourites synced across devices.</p>
@@ -201,6 +196,20 @@ $logo_path = get_stylesheet_directory() . '/logos-icons/pera-logo.svg';
               <a href="<?php echo esc_url( $login_url ); ?>" class="btn btn--solid btn--green">
                 Client login
               </a>
+              <a
+                href="<?php echo esc_url( $favourites_url ); ?>"
+                class="btn btn--solid btn--black offcanvas-fav-link"
+                data-guest-fav-link
+                hidden
+              >
+                Favourites
+              </a>
+            </div>
+            <div class="offcanvas-latest-favs" data-guest-latest-favs hidden>
+              <h3 class="offcanvas-director-title offcanvas-user-heading">Your latest favourites</h3>
+              <div class="offcanvas-favourites-summary">
+                <ul class="offcanvas-menu" data-guest-latest-favs-list></ul>
+              </div>
             </div>
           <?php endif; ?>
         </section>
