@@ -316,49 +316,31 @@ document.addEventListener('DOMContentLoaded', function () {
 
   const header = document.getElementById('site-header');
   if (header) {
-    const SCROLL_TRIGGER = 40;
+    const SCROLL_TRIGGER = 12;
+    let last = null;
+    let ticking = false;
 
-    if ('IntersectionObserver' in window) {
-      let last = false;
-      header.classList.remove('is-scrolled');
-      const sentinel = document.createElement('span');
-      sentinel.setAttribute('aria-hidden', 'true');
-      sentinel.style.cssText = 'display:block;width:1px;height:1px;overflow:hidden;pointer-events:none;';
-      document.body.insertBefore(sentinel, document.body.firstChild);
-
-      const observer = new IntersectionObserver(function (entries) {
-        const entry = entries[0];
-        const isScrolled = !entry.isIntersecting;
-        if (isScrolled !== last) {
-          header.classList.toggle('is-scrolled', isScrolled);
-          last = isScrolled;
-        }
-      }, { rootMargin: '-' + SCROLL_TRIGGER + 'px 0px 0px 0px', threshold: 0 });
-
-      observer.observe(sentinel);
-    } else {
-      let last = null;
-      let ticking = false;
-
-      function update() {
-        const isScrolled = window.scrollY > SCROLL_TRIGGER;
-        if (isScrolled !== last) {
-          header.classList.toggle('is-scrolled', isScrolled);
-          last = isScrolled;
-        }
-        ticking = false;
+    function setHeaderState() {
+      const isScrolled = window.scrollY > SCROLL_TRIGGER;
+      if (isScrolled !== last) {
+        header.classList.toggle('is-scrolled', isScrolled);
+        last = isScrolled;
       }
-
-      function onScroll() {
-        if (!ticking) {
-          ticking = true;
-          requestAnimationFrame(update);
-        }
-      }
-
-      update();
-      window.addEventListener('scroll', onScroll, { passive: true });
     }
+
+    function requestTick() {
+      if (!ticking) {
+        ticking = true;
+        requestAnimationFrame(function () {
+          setHeaderState();
+          ticking = false;
+        });
+      }
+    }
+
+    setHeaderState();
+    window.addEventListener('scroll', requestTick, { passive: true });
+    window.addEventListener('resize', requestTick);
   }
 
 });

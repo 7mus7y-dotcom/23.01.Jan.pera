@@ -1431,7 +1431,7 @@ button.pill:focus-visible {
    ======================================================= */
 
 /* Header shell */
-.site-header {
+#site-header {
   position: sticky;
   top: 0;
   left: 0;
@@ -1439,10 +1439,12 @@ button.pill:focus-visible {
   z-index: 1000;
   background: transparent;
   box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
 }
 
 /* Inner layout wrapper */
-.site-header .header-inner {
+#site-header .header-inner {
   max-width: var(--container);
   margin: 0 auto;
   padding: 18px 20px;
@@ -1458,13 +1460,13 @@ button.pill:focus-visible {
    ------------------------------------------------------- */
 
 /* Make sure both clusters start WHITE (this is the key) */
-.site-branding,
-.header-icons {
+#site-header .site-branding,
+#site-header .header-icons {
   color: #ffffff;
 }
 
 /* LOGO container — no glass until scroll */
-.site-branding {
+#site-header .site-branding {
   padding: 5px 8px;
   border-radius: var(--radius-md);
   background: transparent;
@@ -1488,7 +1490,7 @@ button.pill:focus-visible {
 }
 
 /* Icons cluster — no glass until scroll */
-.header-icons {
+#site-header .header-icons {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -1505,9 +1507,18 @@ button.pill:focus-visible {
     color 0.35s ease; /* removed padding transition (prevents reflow) */
 }
 
+/* Explicitly neutralize any glass utilities until scrolled */
+#site-header:not(.is-scrolled) .site-branding,
+#site-header:not(.is-scrolled) .header-icons {
+  background: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
 /* Icon buttons inside pill */
-.header-icons a,
-.header-icons .header-menu-toggle {
+#site-header .header-icons a,
+#site-header .header-icons .header-menu-toggle {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -1521,7 +1532,7 @@ button.pill:focus-visible {
 }
 
 /* SVG icons in header inherit from .header-icons */
-.header-icons .icon {
+#site-header .header-icons .icon {
   width: 30px;
   height: 30px;
   stroke-width: 2;
@@ -1535,13 +1546,13 @@ button.pill:focus-visible {
    ------------------------------------------------------- */
 
 /* Apply glass + switch to brand colour */
-.site-header.is-scrolled .site-branding,
-.site-header.is-scrolled .header-icons {
+#site-header.is-scrolled .site-branding,
+#site-header.is-scrolled .header-icons {
   color: var(--brand);
 }
 
 /* Glass shell on scroll */
-.site-header.is-scrolled .site-branding {
+#site-header.is-scrolled .site-branding {
   background: var(--glass-bg);
   backdrop-filter: blur(var(--glass-blur-md)) saturate(var(--glass-saturate));
   -webkit-backdrop-filter: blur(var(--glass-blur-md)) saturate(var(--glass-saturate));
@@ -1551,7 +1562,7 @@ button.pill:focus-visible {
 }
 
 /* Glass shell on scroll */
-.site-header.is-scrolled .header-icons {
+#site-header.is-scrolled .header-icons {
   /* padding intentionally unchanged to avoid forced reflow */
   background: var(--glass-bg);
   backdrop-filter: blur(var(--glass-blur-md)) saturate(var(--glass-saturate));
@@ -1562,8 +1573,8 @@ button.pill:focus-visible {
 }
 
 /* Hover in scrolled state – keep it subtle */
-.site-header.is-scrolled .header-icons a:hover,
-.site-header.is-scrolled .header-icons .header-menu-toggle:hover {
+#site-header.is-scrolled .header-icons a:hover,
+#site-header.is-scrolled .header-icons .header-menu-toggle:hover {
   opacity: 0.85;
 }
 
@@ -1571,21 +1582,21 @@ button.pill:focus-visible {
    Dark mode rule: keep logo + icons WHITE always
    ------------------------------------------------------- */
 @media (prefers-color-scheme: dark) {
-  .site-branding,
-  .header-icons,
-  .site-header.is-scrolled .site-branding,
-  .site-header.is-scrolled .header-icons {
+  #site-header .site-branding,
+  #site-header .header-icons,
+  #site-header.is-scrolled .site-branding,
+  #site-header.is-scrolled .header-icons {
     color: #ffffff !important;
   }
 }
 
 /* Mobile tweak */
 @media (max-width: 640px) {
-  .header-icons .icon {
+  #site-header .header-icons .icon {
     width: 22px;
     height: 22px;
   }
-  .site-logo.logo-pera svg {
+  #site-header .site-logo.logo-pera svg {
     width: 150px;
   }
 }
@@ -4078,10 +4089,10 @@ body:not(.single-post) tr:nth-child(even) {
   }
   
   /* Always keep header content white */
-  .site-branding,
-  .header-icons,
-  .site-header.is-scrolled .site-branding,
-  .site-header.is-scrolled .header-icons {
+  #site-header .site-branding,
+  #site-header .header-icons,
+  #site-header.is-scrolled .site-branding,
+  #site-header.is-scrolled .header-icons {
     color: #ffffff;
   }
 
