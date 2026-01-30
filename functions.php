@@ -1015,7 +1015,10 @@ add_action( 'after_switch_theme', 'pera_register_forgot_password_page' );
  */
 require_once get_stylesheet_directory() . '/inc/v2-units-index.php';
 require_once get_stylesheet_directory() . '/inc/ajax-property-archive.php';
-require_once get_stylesheet_directory() . '/inc/filter-for-admin-panel.php';
+
+if ( is_admin() ) {
+  require_once get_stylesheet_directory() . '/inc/filter-for-admin-panel.php';
+}
 
 
 /**
@@ -1070,17 +1073,6 @@ add_action( 'init', function () {
 }, 1 );
 
 
-
-
-/* =======================================================
-   ALLOW SVG UPLOADS (ADMIN ONLY)
-   ======================================================= */
-function pera_allow_svg_uploads( $mimes ) {
-    $mimes['svg']  = 'image/svg+xml';
-    $mimes['svgz'] = 'image/svg+xml';
-    return $mimes;
-}
-add_filter( 'upload_mimes', 'pera_allow_svg_uploads' );
 
 
 /* =======================================================
