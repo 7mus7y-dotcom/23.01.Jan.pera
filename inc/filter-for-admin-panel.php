@@ -308,7 +308,12 @@ if ( ! function_exists( 'pera_admin_property_quick_edit_save' ) ) {
 
     $term_id = absint( wp_unslash( $_POST['pera_district_term'] ) );
     if ( $term_id > 0 ) {
-      wp_set_object_terms( $post_id, array( $term_id ), 'district', false );
+      // WordPress does not auto-assign parent terms; include ancestors for consistent display/filtering.
+      $ancestors = get_ancestors( $term_id, 'district', 'taxonomy' );
+      $term_ids  = array_unique( array_merge( array( $term_id ), $ancestors ) );
+      $term_ids  = array_map( 'intval', $term_ids );
+
+      wp_set_object_terms( $post_id, $term_ids, 'district', false );
       return;
     }
 
