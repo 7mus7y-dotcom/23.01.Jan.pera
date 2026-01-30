@@ -24,6 +24,7 @@ require_once get_stylesheet_directory() . '/inc/district-ancestors.php';
  * Favourites (property)
  */
 require_once get_stylesheet_directory() . '/inc/favourites.php';
+require_once get_stylesheet_directory() . '/inc/property-pagination.php';
 
 
 /**
