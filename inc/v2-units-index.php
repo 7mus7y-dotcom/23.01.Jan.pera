@@ -777,8 +777,8 @@ if ( ! function_exists( 'pera_v2_render_units_price_table' ) ) {
     $pricing_title    = 'Price range';
     $pricing_subtitle = 'Indicative prices by unit type. Availability may change. Contact us for specific pricing and floor plans.';
 
-    $has_resales = has_term( 'resales', 'specials', $post_id );
-    $has_project = has_term( 'project', 'specials', $post_id );
+    $has_resales = has_term( 'resales', 'special', $post_id );
+    $has_project = has_term( 'project', 'special', $post_id );
 
     if ( $has_resales ) {
       $pricing_title    = 'Pricing';
