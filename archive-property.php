@@ -14,24 +14,19 @@ get_header();
 ------------------------------------------------------------ */
 $archive_title       = 'Property for sale in Istanbul';
 $archive_description = 'We’ve got dozens of pages covering hundreds of options across almost all 48 districts of Istanbul. If you are looking for something more specific, be sure to contact us with your details, requirements, budget, etc. – take it easy and leave the rest to us.';
-$archive_base_url = trailingslashit( get_permalink() );
+$archive_base_url = function_exists( 'pera_property_archive_base_url' )
+  ? trailingslashit( pera_property_archive_base_url() )
+  : trailingslashit( get_permalink() );
 
 // ------------------------------------------------------------
 // 1) PAGED RESOLUTION (robust for /page/N/ and ?paged=N)
 // ------------------------------------------------------------
-$paged = (int) get_query_var( 'paged' );
-
-// Fallback: some links/flows use ?paged=N on a page template
-if ( $paged < 1 && isset( $_GET['paged'] ) ) {
-  $paged = absint( $_GET['paged'] );
-}
-
-// Defensive fallback for WP's internal 'page' var
-if ( get_query_var( 'page' ) ) {
-  $paged = max( $paged, (int) get_query_var( 'page' ) );
-}
-
-$paged = max( 1, $paged );
+$paged = max(
+  1,
+  (int) get_query_var( 'paged' ),
+  (int) get_query_var( 'page' ),
+  isset( $_GET['paged'] ) ? absint( $_GET['paged'] ) : 0
+);
 
 
 /* ------------------------------------------------------------
@@ -613,7 +608,7 @@ if ( ! $is_filtered_search && ( $qo instanceof WP_Term ) && ! is_wp_error( $qo )
                         <input
                           type="hidden"
                           name="archive_base"
-                          value="<?php echo esc_attr( trailingslashit( wp_parse_url( get_permalink(), PHP_URL_PATH ) ?: '/' ) ); ?>"
+                          value="<?php echo esc_attr( trailingslashit( wp_parse_url( $archive_base_url, PHP_URL_PATH ) ?: '/' ) ); ?>"
                         >
                         <input type="hidden" name="sort" id="sort-input" value="<?php echo esc_attr( $sort ); ?>">
                         <?php if ( ! empty( $taxonomy_context ) ) : ?>
@@ -920,11 +915,7 @@ if ( ! $is_filtered_search && ( $qo instanceof WP_Term ) && ! is_wp_error( $qo )
 // For now, this is correct + stable.
 // ------------------------------------------------------------
 
-$use_archive_base = true; // set TRUE when you migrate v2 into archive-property.php at /property/
-
-$pagination_base = $use_archive_base
-  ? trailingslashit( get_post_type_archive_link( 'property' ) )
-  : trailingslashit( get_permalink() );
+$pagination_base = trailingslashit( get_pagenum_link( 1 ) );
   
 $add_args = array();
 
