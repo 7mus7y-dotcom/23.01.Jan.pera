@@ -956,13 +956,14 @@ $pagination_html = function_exists( 'pera_render_property_pagination' )
 ?>
 
 <div class="flex-center" style="margin-top:18px; gap:14px; flex-wrap:wrap;">
-  <?php if ( $pagination_html !== '' ) : ?>
-    <nav class="property-pagination" aria-label="Property results pages">
-      <?php
-        echo $pagination_html;
-      ?>
-    </nav>
-  <?php endif; ?>
+  <nav
+    class="property-pagination <?php echo $pagination_html !== '' ? '' : 'is-hidden'; ?>"
+    aria-label="Property results pages"
+  >
+    <?php if ( $pagination_html !== '' ) : ?>
+      <?php echo $pagination_html; ?>
+    <?php endif; ?>
+  </nav>
 
     <?php if ( $total_pages > 1 && $paged < $total_pages ) : ?>
       <div class="property-load-more-wrap text-center">
@@ -1007,7 +1008,7 @@ $pagination_html = function_exists( 'pera_render_property_pagination' )
   const countEl     = document.getElementById('results-count');
   const loadMoreBtn = document.getElementById('load-more-btn');
   const resetBtn    = document.getElementById('filter-reset-btn');
-  const paginationNav = document.querySelector('.property-pagination');
+  let paginationNav = document.querySelector('.property-pagination');
   const dialog = document.getElementById('property-filter-dialog');
   const dialogTrigger = document.getElementById('filters-trigger');
   const dialogOverlay = dialog ? dialog.querySelector('[data-filter-overlay]') : null;
@@ -1183,10 +1184,7 @@ $pagination_html = function_exists( 'pera_render_property_pagination' )
     const fd = new FormData(form);
     fd.set('action', 'pera_filter_properties_v2');
     fd.set('paged', String(paged));
-    
-      fd.set('archive_base', window.location.pathname.replace(/\/page\/\d+\/?$/, '/'));
 
-    
     const basePath = window.location.pathname
         .replace(/\/page\/\d+\/?$/, '/')
         .replace(/\/?$/, '/');
@@ -1209,9 +1207,6 @@ $pagination_html = function_exists( 'pera_render_property_pagination' )
     // Sort: always send (keeps paging stable)
     fd.set('sort', getSortValue());
     
-    // Provide a stable base path for server-side pagination HTML
-    fd.set('archive_base', window.location.pathname.replace(/\/page\/\d+\/?$/, '/'));
-
     if (debugParam === '1') {
       fd.set('pera_debug', '1');
     }
@@ -1311,11 +1306,25 @@ $pagination_html = function_exists( 'pera_render_property_pagination' )
     }
 
     // Update pagination UI (critical for Next/Prev + active page)
+    if (!paginationNav) {
+      paginationNav = document.createElement('nav');
+      paginationNav.className = 'property-pagination is-hidden';
+      paginationNav.setAttribute('aria-label', 'Property results pages');
+
+      const loadMoreWrap = loadMoreBtn ? loadMoreBtn.closest('.property-load-more-wrap') : null;
+      if (loadMoreWrap && loadMoreWrap.parentNode) {
+        loadMoreWrap.parentNode.insertBefore(paginationNav, loadMoreWrap);
+      } else if (grid && grid.parentNode) {
+        grid.parentNode.appendChild(paginationNav);
+      }
+    }
+
     if (paginationNav && typeof d.pagination_html === 'string') {
       if (d.pagination_html.trim()) {
         paginationNav.innerHTML = d.pagination_html;
         paginationNav.classList.remove('is-hidden');
       } else {
+        paginationNav.innerHTML = '';
         paginationNav.classList.add('is-hidden');
       }
     }
