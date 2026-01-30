@@ -79,7 +79,6 @@ if ( ! function_exists( 'pera_admin_bootstrap' ) ) {
     add_action( 'save_post_property', 'pera_admin_property_quick_edit_save', 10, 2 );
     add_action( 'admin_enqueue_scripts', 'pera_admin_property_quick_edit_assets' );
     add_action( 'bulk_edit_custom_box', 'pera_admin_property_bulk_edit_fields', 10, 2 );
-    add_action( 'wp_ajax_inline-save', 'pera_admin_property_bulk_edit_save', 0 );
 
     /**
      * Specials appears in Quick Edit because the taxonomy is registered with
@@ -326,6 +325,29 @@ if ( ! function_exists( 'pera_admin_property_quick_edit_assets' ) ) {
       pera_get_asset_version( '/assets/js/admin-property-quickedit.js' ),
       true
     );
+
+    $terms = get_terms(
+      array(
+        'taxonomy'   => 'district',
+        'hide_empty' => 0,
+      )
+    );
+
+    $district_ancestors = array();
+    if ( ! is_wp_error( $terms ) ) {
+      foreach ( $terms as $term ) {
+        $district_ancestors[ $term->term_id ] = array_map(
+          'intval',
+          get_ancestors( $term->term_id, 'district', 'taxonomy' )
+        );
+      }
+    }
+
+    wp_localize_script(
+      'pera-admin-property-quickedit',
+      'PERA_DISTRICT_ANCESTORS',
+      $district_ancestors
+    );
   }
 }
 
@@ -378,115 +400,6 @@ if ( ! function_exists( 'pera_admin_property_quick_edit_save' ) ) {
     }
 
     wp_set_object_terms( $post_id, array(), 'district', false );
-  }
-}
-
-if ( ! function_exists( 'pera_admin_property_bulk_edit_save' ) ) {
-  function pera_admin_property_bulk_edit_save(): void {
-    if ( ! current_user_can( 'edit_posts' ) ) {
-      return;
-    }
-
-    if ( ! taxonomy_exists( 'district' ) ) {
-      return;
-    }
-
-    if ( ! isset( $_POST['pera_bulk_district_term'] ) ) {
-      return;
-    }
-
-    $raw_ids = array();
-    if ( isset( $_POST['post'] ) ) {
-      $raw_ids = array_merge( $raw_ids, (array) wp_unslash( $_POST['post'] ) );
-    }
-    if ( isset( $_POST['post_ID'] ) ) {
-      $raw_ids[] = wp_unslash( $_POST['post_ID'] );
-    }
-    if ( isset( $_POST['post_ids'] ) ) {
-      $post_ids_payload = wp_unslash( $_POST['post_ids'] );
-      if ( is_array( $post_ids_payload ) ) {
-        $raw_ids = array_merge( $raw_ids, $post_ids_payload );
-      } else {
-        $raw_ids = array_merge(
-          $raw_ids,
-          preg_split( '/[,\s]+/', (string) $post_ids_payload, -1, PREG_SPLIT_NO_EMPTY )
-        );
-      }
-    }
-    if ( isset( $_POST['ids'] ) ) {
-      $raw_ids = array_merge(
-        $raw_ids,
-        preg_split( '/[,\s]+/', (string) wp_unslash( $_POST['ids'] ), -1, PREG_SPLIT_NO_EMPTY )
-      );
-    }
-
-    $post_ids = array_values(
-      array_unique(
-        array_filter(
-          array_map( 'absint', $raw_ids )
-        )
-      )
-    );
-
-    if ( empty( $post_ids ) ) {
-      return;
-    }
-
-    $nonce_present = isset( $_POST['_inline_edit'] );
-    $nonce_valid   = false;
-    if ( $nonce_present ) {
-      $nonce_valid = (bool) check_ajax_referer( 'inlineeditnonce', '_inline_edit', false );
-    }
-
-    if ( $nonce_present && ! $nonce_valid ) {
-      return;
-    }
-
-    if ( ! $nonce_present && defined( 'WP_DEBUG_LOG' ) && WP_DEBUG_LOG ) {
-      error_log( '[PERA BULK] inline edit nonce missing for bulk edit request.' );
-    }
-
-    $term_id = intval( wp_unslash( $_POST['pera_bulk_district_term'] ) );
-    if ( $term_id === -1 ) {
-      return;
-    }
-
-    if ( defined( 'WP_DEBUG_LOG' ) && WP_DEBUG_LOG ) {
-      error_log( '[PERA BULK] post_ids=' . wp_json_encode( $post_ids ) . ' term_id=' . $term_id );
-    }
-
-    foreach ( $post_ids as $post_id ) {
-      if ( ! $post_id ) {
-        continue;
-      }
-
-      $post_type = get_post_type( $post_id );
-      if ( $post_type !== 'property' ) {
-        continue;
-      }
-
-      if ( ! current_user_can( 'edit_post', $post_id ) ) {
-        continue;
-      }
-
-      $term_ids = array();
-      if ( $term_id === 0 ) {
-        wp_set_object_terms( $post_id, array(), 'district', false );
-        if ( defined( 'WP_DEBUG_LOG' ) && WP_DEBUG_LOG ) {
-          error_log( '[PERA BULK] applying term_ids=' . wp_json_encode( $term_ids ) . ' to post ' . $post_id );
-        }
-        continue;
-      }
-
-      $ancestors = get_ancestors( $term_id, 'district', 'taxonomy' );
-      $term_ids  = array_unique( array_merge( array( $term_id ), $ancestors ) );
-      $term_ids  = array_map( 'intval', $term_ids );
-
-      wp_set_object_terms( $post_id, $term_ids, 'district', false );
-      if ( defined( 'WP_DEBUG_LOG' ) && WP_DEBUG_LOG ) {
-        error_log( '[PERA BULK] applying term_ids=' . wp_json_encode( $term_ids ) . ' to post ' . $post_id );
-      }
-    }
   }
 }
 
