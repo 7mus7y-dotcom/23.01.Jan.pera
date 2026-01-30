@@ -559,19 +559,9 @@ if ( ! function_exists( 'pera_ajax_filter_properties_v2' ) ) {
         // Build base URL
         $pagination_base = home_url( trailingslashit( ltrim( $base_path, '/' ) ) );
 
-        
-        $pagination_html = paginate_links( array(
-          'total'     => (int) $q->max_num_pages,
-          'current'   => (int) $paged,
-          'mid_size'  => 1,
-          'end_size'  => 1,
-          'prev_text' => 'Prev',
-          'next_text' => 'Next',
-          'type'      => 'list',
-          'base'      => $pagination_base . '%_%',
-          'format'    => 'page/%#%/',
-          'add_args'  => $add_args,
-        ) );
+        $pagination_html = function_exists( 'pera_render_property_pagination' )
+          ? pera_render_property_pagination( $q, (int) $paged, $add_args, $pagination_base )
+          : '';
 
       $debug_html = '';
       if ( $debug_enabled ) {

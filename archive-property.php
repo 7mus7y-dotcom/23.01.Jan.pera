@@ -921,8 +921,6 @@ if ( ! $is_filtered_search && ( $qo instanceof WP_Term ) && ! is_wp_error( $qo )
 // For now, this is correct + stable.
 // ------------------------------------------------------------
 
-$pagination_base = trailingslashit( get_pagenum_link( 1 ) );
-  
 $add_args = array();
 
 if ( ! empty( $current_district ) ) {
@@ -950,36 +948,23 @@ if ( ! empty( $sort ) && $sort !== 'date_desc' ) {
   $add_args['sort'] = $sort;
 }
 
+$total_pages = (int) $property_query->max_num_pages;
+$pagination_html = function_exists( 'pera_render_property_pagination' )
+  ? pera_render_property_pagination( $property_query, (int) $paged, $add_args )
+  : '';
+
 ?>
 
 <div class="flex-center" style="margin-top:18px; gap:14px; flex-wrap:wrap;">
-  <?php if ( $property_query->max_num_pages > 1 ) : ?>
+  <?php if ( $pagination_html !== '' ) : ?>
     <nav class="property-pagination" aria-label="Property results pages">
       <?php
-
-        echo paginate_links( array(
-          'total'     => (int) $property_query->max_num_pages,
-          'current'   => (int) max( 1, $paged ),
-          'mid_size'  => 1,
-          'end_size'  => 1,
-          'prev_text' => 'Prev',
-          'next_text' => 'Next',
-          'type'      => 'list',
-        
-        // SEO-friendly pagination: /page/N/
-        'base'   => $pagination_base . '%_%',
-        'format' => 'page/%#%/',
-
-        
-          // Keep active filters (district, tags, type, beds, price, keyword, sort)
-          'add_args'  => $add_args,
-        ) );
-
+        echo $pagination_html;
       ?>
     </nav>
   <?php endif; ?>
 
-    <?php if ( $property_query->max_num_pages > 1 && $paged < $property_query->max_num_pages ) : ?>
+    <?php if ( $total_pages > 1 && $paged < $total_pages ) : ?>
       <div class="property-load-more-wrap text-center">
         <button
           type="button"
