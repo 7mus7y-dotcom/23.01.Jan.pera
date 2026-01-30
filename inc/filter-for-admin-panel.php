@@ -78,6 +78,8 @@ if ( ! function_exists( 'pera_admin_bootstrap' ) ) {
     add_action( 'quick_edit_custom_box', 'pera_admin_property_quick_edit_fields', 10, 2 );
     add_action( 'save_post_property', 'pera_admin_property_quick_edit_save', 10, 2 );
     add_action( 'admin_enqueue_scripts', 'pera_admin_property_quick_edit_assets' );
+    add_action( 'bulk_edit_custom_box', 'pera_admin_property_bulk_edit_fields', 10, 2 );
+    add_action( 'wp_ajax_inline-save', 'pera_admin_property_bulk_edit_save', 0 );
 
     /**
      * Specials appears in Quick Edit because the taxonomy is registered with
@@ -252,6 +254,60 @@ if ( ! function_exists( 'pera_admin_property_quick_edit_fields' ) ) {
   }
 }
 
+if ( ! function_exists( 'pera_admin_property_bulk_edit_fields' ) ) {
+  function pera_admin_property_bulk_edit_fields( string $column_name, string $post_type ): void {
+    if ( $post_type !== 'property' ) {
+      return;
+    }
+
+    static $printed = false;
+    if ( $printed ) {
+      return;
+    }
+    $printed = true;
+
+    if ( ! taxonomy_exists( 'district' ) ) {
+      return;
+    }
+
+    $terms = get_terms( array(
+      'taxonomy'   => 'district',
+      'hide_empty' => 0,
+    ) );
+
+    if ( is_wp_error( $terms ) ) {
+      return;
+    }
+
+    $walker  = new Walker_CategoryDropdown();
+    $options = $walker->walk(
+      $terms,
+      0,
+      array(
+        'taxonomy'     => 'district',
+        'hide_empty'   => 0,
+        'hierarchical' => 1,
+        'show_count'   => 0,
+        'selected'     => 0,
+      )
+    );
+    ?>
+    <fieldset class="inline-edit-col-right">
+      <div class="inline-edit-col">
+        <label class="alignleft">
+          <span class="title">District</span>
+          <select name="pera_bulk_district_term" class="pera-bulk-district-select">
+            <option value="-1">— No Change —</option>
+            <option value="0">— No district —</option>
+            <?php echo $options; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+          </select>
+        </label>
+      </div>
+    </fieldset>
+    <?php
+  }
+}
+
 if ( ! function_exists( 'pera_admin_property_quick_edit_assets' ) ) {
   function pera_admin_property_quick_edit_assets( string $hook_suffix ): void {
     if ( $hook_suffix !== 'edit.php' ) {
@@ -318,6 +374,61 @@ if ( ! function_exists( 'pera_admin_property_quick_edit_save' ) ) {
     }
 
     wp_set_object_terms( $post_id, array(), 'district', false );
+  }
+}
+
+if ( ! function_exists( 'pera_admin_property_bulk_edit_save' ) ) {
+  function pera_admin_property_bulk_edit_save(): void {
+    if ( ! isset( $_POST['pera_bulk_district_term'] ) ) {
+      return;
+    }
+
+    if ( ! current_user_can( 'edit_posts' ) ) {
+      return;
+    }
+
+    $post_type = isset( $_POST['post_type'] ) ? sanitize_text_field( wp_unslash( $_POST['post_type'] ) ) : '';
+    if ( $post_type !== 'property' ) {
+      return;
+    }
+
+    if ( ! taxonomy_exists( 'district' ) ) {
+      return;
+    }
+
+    $term_id = intval( wp_unslash( $_POST['pera_bulk_district_term'] ) );
+    if ( $term_id === -1 ) {
+      return;
+    }
+
+    $post_ids = array_map(
+      'intval',
+      isset( $_POST['post'] ) ? (array) wp_unslash( $_POST['post'] ) : array()
+    );
+    if ( empty( $post_ids ) ) {
+      return;
+    }
+
+    foreach ( $post_ids as $post_id ) {
+      if ( ! $post_id ) {
+        continue;
+      }
+
+      if ( ! current_user_can( 'edit_post', $post_id ) ) {
+        continue;
+      }
+
+      if ( $term_id === 0 ) {
+        wp_set_object_terms( $post_id, array(), 'district', false );
+        continue;
+      }
+
+      $ancestors = get_ancestors( $term_id, 'district', 'taxonomy' );
+      $term_ids  = array_unique( array_merge( array( $term_id ), $ancestors ) );
+      $term_ids  = array_map( 'intval', $term_ids );
+
+      wp_set_object_terms( $post_id, $term_ids, 'district', false );
+    }
   }
 }
 
