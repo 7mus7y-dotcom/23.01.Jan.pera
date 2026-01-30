@@ -1,59 +1,283 @@
 <?php
-
 /**
- * Admin list table: guarantee "Project name" column is present for property CPT,
- * even if a plugin removes it under search/filter contexts.
+ * Admin-only filters/actions (wp-admin list tables, quick edit, columns, sorting).
  *
- * - If plugin already adds a project column, we do nothing.
- * - If missing, we add a column and render it from ACF/meta key 'project_name'.
+ * NOTE: This file is the single home for wp-admin customisations.
  */
 
-add_filter('manage_property_posts_columns', function( $columns ) {
+if ( ! defined( 'ABSPATH' ) ) {
+  exit;
+}
 
-  // If plugin already added any obvious project-name column, do nothing.
-  foreach ($columns as $key => $label) {
-    $k = strtolower((string) $key);
-    $l = strtolower((string) $label);
+if ( defined( 'PERA_ADMIN_PANEL_FILTERS_LOADED' ) ) {
+  return;
+}
+
+define( 'PERA_ADMIN_PANEL_FILTERS_LOADED', true );
+
+/* ==============================
+ * Admin Only Boot
+ * ============================== */
+
+if ( ! is_admin() ) {
+  return;
+}
+
+if ( ! function_exists( 'pera_admin_bootstrap' ) ) {
+  function pera_admin_bootstrap(): void {
+    /* ==============================
+     * Property List Table (Columns + Sorting)
+     * ============================== */
+    add_filter( 'manage_property_posts_columns', 'pera_admin_property_columns', 999 );
+    add_action( 'manage_property_posts_custom_column', 'pera_admin_property_column_content', 10, 2 );
+    add_filter( 'manage_edit-property_sortable_columns', 'pera_admin_property_sortable_columns' );
+    add_action( 'pre_get_posts', 'pera_admin_property_sortable_orderby' );
+
+    /* ==============================
+     * Quick Edit (District add + Specials removal)
+     * ============================== */
+    add_action( 'quick_edit_custom_box', 'pera_admin_property_quick_edit_fields', 10, 2 );
+    add_action( 'save_post_property', 'pera_admin_property_quick_edit_save', 10, 2 );
+    add_action( 'admin_enqueue_scripts', 'pera_admin_property_quick_edit_assets' );
+
+    /**
+     * Specials appears in Quick Edit because the taxonomy is registered with
+     * show_in_quick_edit enabled (WP defaults to true unless explicitly disabled).
+     * We suppress it for property rows using quick_edit_show_taxonomy.
+     */
+    add_filter( 'quick_edit_show_taxonomy', 'pera_admin_hide_special_quick_edit', 10, 3 );
+
+    /* ==============================
+     * Admin Uploads
+     * ============================== */
+    add_filter( 'upload_mimes', 'pera_allow_svg_uploads' );
+  }
+}
+
+add_action( 'admin_init', 'pera_admin_bootstrap', 5 );
+
+/* ==============================
+ * Property Columns
+ * ============================== */
+
+if ( ! function_exists( 'pera_admin_property_columns' ) ) {
+  function pera_admin_property_columns( array $columns ): array {
+
+    // If plugin already added any obvious project-name column, do nothing.
+    foreach ( $columns as $key => $label ) {
+      $k = strtolower( (string) $key );
+      $l = strtolower( (string) $label );
+
+      if (
+        $k === 'project_name' ||
+        $k === 'project-name' ||
+        $k === 'pera_project_name' ||
+        ( strpos( $k, 'project' ) !== false && strpos( $k, 'name' ) !== false ) ||
+        $l === 'project name' ||
+        $l === 'project_name'
+      ) {
+        return $columns;
+      }
+    }
+
+    // Otherwise, inject after Title.
+    $new = array();
+    foreach ( $columns as $key => $label ) {
+      $new[ $key ] = $label;
+      if ( $key === 'title' ) {
+        $new['pera_project_name'] = 'Project name';
+      }
+    }
+
+    return $new;
+  }
+}
+
+if ( ! function_exists( 'pera_admin_property_column_content' ) ) {
+  function pera_admin_property_column_content( string $column, int $post_id ): void {
+    if ( $column !== 'pera_project_name' ) {
+      return;
+    }
+
+    $project_name = '';
+
+    if ( function_exists( 'get_field' ) ) {
+      $project_name = (string) get_field( 'project_name', $post_id );
+    }
+
+    if ( $project_name === '' ) {
+      $project_name = (string) get_post_meta( $post_id, 'project_name', true );
+    }
+
+    echo esc_html( $project_name );
+
+    // Quick Edit needs to know the current District term for this row.
+    $district_id = 0;
+    if ( taxonomy_exists( 'district' ) ) {
+      $district_terms = wp_get_post_terms( $post_id, 'district', array( 'fields' => 'ids' ) );
+      if ( ! is_wp_error( $district_terms ) && ! empty( $district_terms ) ) {
+        $district_id = (int) $district_terms[0];
+      }
+    }
+
+    echo '<span class="pera-district-term" data-district-id="' . esc_attr( $district_id ) . '"></span>';
+  }
+}
+
+if ( ! function_exists( 'pera_admin_property_sortable_columns' ) ) {
+  function pera_admin_property_sortable_columns( array $columns ): array {
+    $columns['pera_project_name'] = 'pera_project_name';
+    return $columns;
+  }
+}
+
+if ( ! function_exists( 'pera_admin_property_sortable_orderby' ) ) {
+  function pera_admin_property_sortable_orderby( WP_Query $query ): void {
+    if ( ! is_admin() || ! $query->is_main_query() ) {
+      return;
+    }
+
+    $orderby = $query->get( 'orderby' );
+    if ( $orderby !== 'pera_project_name' ) {
+      return;
+    }
+
+    $query->set( 'meta_key', 'project_name' );
+    $query->set( 'orderby', 'meta_value' );
+  }
+}
+
+/* ==============================
+ * Quick Edit (District + Specials)
+ * ============================== */
+
+if ( ! function_exists( 'pera_admin_property_quick_edit_fields' ) ) {
+  function pera_admin_property_quick_edit_fields( string $column_name, string $post_type ): void {
+    if ( $post_type !== 'property' || $column_name !== 'title' ) {
+      return;
+    }
+
+    if ( ! taxonomy_exists( 'district' ) ) {
+      return;
+    }
+
+    $dropdown = wp_dropdown_categories( array(
+      'taxonomy'         => 'district',
+      'name'             => 'pera_district_term',
+      'show_option_none' => '— No district —',
+      'option_none_value'=> '0',
+      'hide_empty'       => 0,
+      'hierarchical'     => 1,
+      'show_count'       => 0,
+      'echo'             => 0,
+    ) );
+
+    if ( ! $dropdown ) {
+      return;
+    }
+    ?>
+    <fieldset class="inline-edit-col-right">
+      <div class="inline-edit-col">
+        <label class="alignleft">
+          <span class="title">District</span>
+          <span class="input-text-wrap">
+            <?php echo $dropdown; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+          </span>
+        </label>
+      </div>
+    </fieldset>
+    <?php
+  }
+}
+
+if ( ! function_exists( 'pera_admin_property_quick_edit_assets' ) ) {
+  function pera_admin_property_quick_edit_assets( string $hook_suffix ): void {
+    if ( $hook_suffix !== 'edit.php' ) {
+      return;
+    }
+
+    $screen = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
+    if ( ! $screen || $screen->post_type !== 'property' ) {
+      return;
+    }
+
+    wp_add_inline_script( 'jquery', "
+      (function($){
+        var $edit = inlineEditPost.edit;
+        inlineEditPost.edit = function(id){
+          $edit.apply(this, arguments);
+          var postId = typeof(id) === 'object' ? this.getId(id) : id;
+          if (!postId) return;
+          var $row = $('#post-' + postId);
+          var districtId = parseInt($row.find('.pera-district-term').data('district-id'), 10) || 0;
+          $('#edit-' + postId).find('select[name=\"pera_district_term\"]').val(districtId);
+        };
+      })(jQuery);
+    " );
+  }
+}
+
+if ( ! function_exists( 'pera_admin_property_quick_edit_save' ) ) {
+  function pera_admin_property_quick_edit_save( int $post_id, WP_Post $post ): void {
+    if ( $post->post_type !== 'property' ) {
+      return;
+    }
+
+    if ( ! taxonomy_exists( 'district' ) ) {
+      return;
+    }
+
+    if ( ! isset( $_POST['pera_district_term'] ) ) {
+      return;
+    }
+
+    if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
+      return;
+    }
+
+    if ( wp_is_post_revision( $post_id ) ) {
+      return;
+    }
+
+    if ( ! current_user_can( 'edit_post', $post_id ) ) {
+      return;
+    }
 
     if (
-      $k === 'project_name' ||
-      $k === 'project-name' ||
-      $k === 'pera_project_name' ||
-      strpos($k, 'project') !== false && strpos($k, 'name') !== false ||
-      $l === 'project name' ||
-      $l === 'project_name'
+      ! isset( $_POST['_inline_edit'] ) ||
+      ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['_inline_edit'] ) ), 'inlineeditnonce' )
     ) {
-      return $columns;
+      return;
     }
-  }
 
-  // Otherwise, inject after Title.
-  $new = [];
-  foreach ( $columns as $key => $label ) {
-    $new[$key] = $label;
-    if ( $key === 'title' ) {
-      $new['pera_project_name'] = 'Project name';
+    $term_id = absint( wp_unslash( $_POST['pera_district_term'] ) );
+    if ( $term_id > 0 ) {
+      wp_set_post_terms( $post_id, array( $term_id ), 'district', false );
+      return;
     }
+
+    wp_set_post_terms( $post_id, array(), 'district', false );
   }
+}
 
-  return $new;
+if ( ! function_exists( 'pera_admin_hide_special_quick_edit' ) ) {
+  function pera_admin_hide_special_quick_edit( bool $show, string $taxonomy, string $post_type ): bool {
+    if ( $post_type === 'property' && $taxonomy === 'special' ) {
+      return false;
+    }
 
-}, 999); // very late priority so we run after plugins
-
-add_action('manage_property_posts_custom_column', function( $column, $post_id ) {
-
-  if ( $column !== 'pera_project_name' ) return;
-
-  $project_name = '';
-
-  if ( function_exists('get_field') ) {
-    $project_name = (string) get_field('project_name', $post_id);
+    return $show;
   }
+}
 
-  if ( $project_name === '' ) {
-    $project_name = (string) get_post_meta($post_id, 'project_name', true);
+/* ==============================
+ * Admin Uploads
+ * ============================== */
+
+if ( ! function_exists( 'pera_allow_svg_uploads' ) ) {
+  function pera_allow_svg_uploads( array $mimes ): array {
+    $mimes['svg']  = 'image/svg+xml';
+    $mimes['svgz'] = 'image/svg+xml';
+    return $mimes;
   }
-
-  echo esc_html($project_name);
-
-}, 10, 2);
+}
