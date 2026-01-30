@@ -773,6 +773,12 @@ if ( ! $is_filtered_search && ( $qo instanceof WP_Term ) && ! is_wp_error( $qo )
                                 ) );
 
                                 if ( ! is_wp_error( $districts ) ) :
+                                    $districts = array_filter(
+                                        $districts,
+                                        static function ( $district ) {
+                                            return (int) $district->parent !== 0;
+                                        }
+                                    );
                                     foreach ( $districts as $district ) :
                                         $is_active = in_array( $district->slug, $current_district, true );
                                         ?>
