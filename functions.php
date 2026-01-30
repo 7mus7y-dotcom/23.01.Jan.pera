@@ -1024,6 +1024,12 @@ add_action( 'after_switch_theme', 'pera_register_forgot_password_page' );
  * V2 Search / Index System (isolated, non-breaking)
  * -------------------------------------------------
  */
+/**
+ * TEMP: Homepage test template assets
+ * Safe to delete after testing
+ */
+require_once get_stylesheet_directory() . '/inc/home-page-test-assets.php';
+
 require_once get_stylesheet_directory() . '/inc/v2-units-index.php';
 require_once get_stylesheet_directory() . '/inc/ajax-property-archive.php';
 
