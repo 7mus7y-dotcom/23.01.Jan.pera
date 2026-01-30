@@ -463,7 +463,7 @@ $has_further_reading = ! empty( $post_ids );
         <?php endif; ?>
       <?php endif; ?>
 
-      <?php if ( current_user_can( 'manage_options' ) && $project_name ) : ?>
+      <?php if ( pera_is_frontend_admin_equivalent() && $project_name ) : ?>
         <span class="pill pill--green pill--admin"><?php echo esc_html( $project_name ); ?></span>
       <?php endif; ?>
     </div>

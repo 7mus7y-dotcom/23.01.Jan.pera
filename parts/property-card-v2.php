@@ -283,7 +283,7 @@ if ( $size_min > 0 ) {
           </span>
         </button>
 
-        <?php if ( $show_admin && current_user_can( 'edit_post', $post_id ) ) : ?>
+        <?php if ( $show_admin && pera_is_frontend_admin_equivalent() ) : ?>
           <div class="property-card__admin-pills">
 
             <?php if ( $project_name !== '' ) : ?>

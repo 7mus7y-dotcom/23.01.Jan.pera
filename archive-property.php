@@ -313,7 +313,7 @@ $initial_count_text = sprintf(
   (int) $property_query->found_posts
 );
                             
-$debug_enabled = current_user_can( 'manage_options' ) && isset( $_GET['pera_debug'] ) && (string) $_GET['pera_debug'] === '1';
+$debug_enabled = pera_is_frontend_admin_equivalent() && isset( $_GET['pera_debug'] ) && (string) $_GET['pera_debug'] === '1';
 $debug_html = '';
 if ( $debug_enabled ) {
   $qo = get_queried_object();

@@ -6,6 +6,11 @@
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 /**
+ * Access control helpers shared by admin + front-end.
+ */
+require_once get_stylesheet_directory() . '/inc/access-control.php';
+
+/**
  * Load taxonomy term meta (term excerpt + featured image).
  * Used by inc/seo-all.php for term meta descriptions + social images.
  */
@@ -84,7 +89,7 @@ function pera_http2_debug_enabled(): bool {
 
   if ( ! $enabled && isset( $_GET['http2debug'] ) ) {
     $flag = sanitize_text_field( wp_unslash( $_GET['http2debug'] ) );
-    if ( $flag === '1' && current_user_can( 'manage_options' ) ) {
+    if ( $flag === '1' && pera_is_frontend_admin_equivalent() ) {
       $enabled = true;
     }
   }
