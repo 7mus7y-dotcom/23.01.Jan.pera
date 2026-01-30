@@ -23,6 +23,44 @@ if ( ! is_admin() ) {
   return;
 }
 
+if ( ! function_exists( 'pera_block_employee_admin_access' ) ) {
+  function pera_block_employee_admin_access(): void {
+    if ( ! is_user_logged_in() ) {
+      return;
+    }
+
+    if ( ! pera_is_employee() ) {
+      return;
+    }
+
+    $user = wp_get_current_user();
+    if ( ! $user || ! $user->exists() ) {
+      return;
+    }
+
+    if ( in_array( 'administrator', (array) $user->roles, true ) ) {
+      return;
+    }
+
+    if ( defined( 'DOING_AJAX' ) && DOING_AJAX ) {
+      return;
+    }
+
+    if ( wp_doing_cron() ) {
+      return;
+    }
+
+    if ( function_exists( 'wp_is_json_request' ) && wp_is_json_request() ) {
+      return;
+    }
+
+    wp_safe_redirect( home_url( '/' ) );
+    exit;
+  }
+}
+
+add_action( 'admin_init', 'pera_block_employee_admin_access', 1 );
+
 if ( ! function_exists( 'pera_admin_bootstrap' ) ) {
   function pera_admin_bootstrap(): void {
     /* ==============================

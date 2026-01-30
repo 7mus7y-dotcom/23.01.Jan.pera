@@ -244,7 +244,7 @@ if ( ! function_exists( 'pera_ajax_filter_properties_v2' ) ) {
           );
         }
 
-        $debug_enabled = current_user_can( 'manage_options' ) && isset( $_POST['pera_debug'] ) && (string) $_POST['pera_debug'] === '1';
+        $debug_enabled = pera_is_frontend_admin_equivalent() && isset( $_POST['pera_debug'] ) && (string) $_POST['pera_debug'] === '1';
 
 
 
