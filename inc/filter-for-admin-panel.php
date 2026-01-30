@@ -32,6 +32,7 @@ if ( ! function_exists( 'pera_admin_bootstrap' ) ) {
     add_action( 'manage_property_posts_custom_column', 'pera_admin_property_column_content', 10, 2 );
     add_filter( 'manage_edit-property_sortable_columns', 'pera_admin_property_sortable_columns' );
     add_action( 'pre_get_posts', 'pera_admin_property_sortable_orderby' );
+    add_filter( 'post_row_actions', 'pera_admin_property_row_actions', 10, 2 );
 
     /* ==============================
      * Quick Edit (District add + Specials removal)
@@ -110,17 +111,6 @@ if ( ! function_exists( 'pera_admin_property_column_content' ) ) {
     }
 
     echo esc_html( $project_name );
-
-    // Quick Edit needs to know the current District term for this row.
-    $district_id = 0;
-    if ( taxonomy_exists( 'district' ) ) {
-      $district_terms = wp_get_post_terms( $post_id, 'district', array( 'fields' => 'ids' ) );
-      if ( ! is_wp_error( $district_terms ) && ! empty( $district_terms ) ) {
-        $district_id = (int) $district_terms[0];
-      }
-    }
-
-    echo '<span class="pera-district-term" data-district-id="' . esc_attr( $district_id ) . '"></span>';
   }
 }
 
@@ -144,6 +134,33 @@ if ( ! function_exists( 'pera_admin_property_sortable_orderby' ) ) {
 
     $query->set( 'meta_key', 'project_name' );
     $query->set( 'orderby', 'meta_value' );
+  }
+}
+
+if ( ! function_exists( 'pera_admin_property_row_actions' ) ) {
+  function pera_admin_property_row_actions( array $actions, WP_Post $post ): array {
+    if ( $post->post_type !== 'property' ) {
+      return $actions;
+    }
+
+    if ( ! taxonomy_exists( 'district' ) ) {
+      return $actions;
+    }
+
+    $district_id = 0;
+    $district_terms = wp_get_post_terms( $post->ID, 'district', array( 'fields' => 'ids' ) );
+    if ( ! is_wp_error( $district_terms ) && ! empty( $district_terms ) ) {
+      $district_id = (int) $district_terms[0];
+    }
+
+    $district_marker = '<span class="pera-district-term" data-district-id="' . esc_attr( $district_id ) . '" style="display:none;"></span>';
+    if ( isset( $actions['edit'] ) ) {
+      $actions['edit'] .= $district_marker;
+    } else {
+      $actions['pera_district'] = $district_marker;
+    }
+
+    return $actions;
   }
 }
 
@@ -201,19 +218,13 @@ if ( ! function_exists( 'pera_admin_property_quick_edit_assets' ) ) {
       return;
     }
 
-    wp_add_inline_script( 'jquery', "
-      (function($){
-        var $edit = inlineEditPost.edit;
-        inlineEditPost.edit = function(id){
-          $edit.apply(this, arguments);
-          var postId = typeof(id) === 'object' ? this.getId(id) : id;
-          if (!postId) return;
-          var $row = $('#post-' + postId);
-          var districtId = parseInt($row.find('.pera-district-term').data('district-id'), 10) || 0;
-          $('#edit-' + postId).find('select[name=\"pera_district_term\"]').val(districtId);
-        };
-      })(jQuery);
-    " );
+    wp_enqueue_script(
+      'pera-admin-property-quickedit',
+      get_stylesheet_directory_uri() . '/assets/js/admin-property-quickedit.js',
+      array( 'jquery', 'inline-edit-post' ),
+      pera_get_asset_version( '/assets/js/admin-property-quickedit.js' ),
+      true
+    );
   }
 }
 
@@ -252,11 +263,11 @@ if ( ! function_exists( 'pera_admin_property_quick_edit_save' ) ) {
 
     $term_id = absint( wp_unslash( $_POST['pera_district_term'] ) );
     if ( $term_id > 0 ) {
-      wp_set_post_terms( $post_id, array( $term_id ), 'district', false );
+      wp_set_object_terms( $post_id, array( $term_id ), 'district', false );
       return;
     }
 
-    wp_set_post_terms( $post_id, array(), 'district', false );
+    wp_set_object_terms( $post_id, array(), 'district', false );
   }
 }
 
