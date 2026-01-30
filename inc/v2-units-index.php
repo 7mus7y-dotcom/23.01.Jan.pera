@@ -774,6 +774,19 @@ if ( ! function_exists( 'pera_v2_render_units_price_table' ) ) {
     $custom_text = function_exists( 'get_field' ) ? (string) get_field( 'v2_custom_text', $post_id ) : '';
     $custom_text = trim( $custom_text );
 
+    $pricing_title    = 'Price range';
+    $pricing_subtitle = 'Indicative prices by unit type. Availability may change. Contact us for specific pricing and floor plans.';
+
+    $has_resales = has_term( 'resales', 'specials', $post_id );
+    $has_project = has_term( 'project', 'specials', $post_id );
+
+    if ( $has_resales ) {
+      $pricing_title    = 'Pricing';
+      $pricing_subtitle = 'Final pricing is subject to negotiation with the seller and contract.';
+    } elseif ( $has_project ) {
+      $pricing_subtitle = 'Indicative prices by unit type. Availability may change. Contact us for specific pricing and floor plans. Final pricing subject to negotiation with the developer';
+    }
+
     ?>
     <?php if ( $wrap_section ) : ?>
       <section class="section section-soft property-price-range">
@@ -782,8 +795,8 @@ if ( ! function_exists( 'pera_v2_render_units_price_table' ) ) {
       <div>
 
         <header class="section-header p-sm">
-          <h2>Price range</h2>
-          <p>Indicative prices by unit type. Availability may change. Contact us for specific pricing and floor plans.</p>
+          <h2><?php echo esc_html( $pricing_title ); ?></h2>
+          <p><?php echo esc_html( $pricing_subtitle ); ?></p>
         </header>
 
         
