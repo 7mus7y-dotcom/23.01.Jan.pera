@@ -208,9 +208,15 @@ if ( ! function_exists( 'pera_admin_property_row_actions' ) ) {
 
 if ( ! function_exists( 'pera_admin_property_quick_edit_fields' ) ) {
   function pera_admin_property_quick_edit_fields( string $column_name, string $post_type ): void {
-    if ( $post_type !== 'property' || $column_name !== 'title' ) {
+    if ( $post_type !== 'property' ) {
       return;
     }
+
+    static $printed = false;
+    if ( $printed ) {
+      return;
+    }
+    $printed = true;
 
     if ( ! taxonomy_exists( 'district' ) ) {
       return;
@@ -231,6 +237,7 @@ if ( ! function_exists( 'pera_admin_property_quick_edit_fields' ) ) {
       return;
     }
     ?>
+    <!-- PERA DEBUG: district quick edit rendered -->
     <fieldset class="inline-edit-col-right">
       <div class="inline-edit-col">
         <label class="alignleft">
