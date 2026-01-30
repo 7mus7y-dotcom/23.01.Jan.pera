@@ -15,6 +15,11 @@ require_once get_stylesheet_directory() . '/inc/access-control.php';
  * Used by inc/seo-all.php for term meta descriptions + social images.
  */
 require_once get_stylesheet_directory() . '/inc/taxonomy-meta.php';
+
+/**
+ * Enforce district ancestors for property assignments.
+ */
+require_once get_stylesheet_directory() . '/inc/district-ancestors.php';
 /**
  * Favourites (property)
  */
