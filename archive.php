@@ -137,21 +137,25 @@ get_header();
         
         </section>
 
-
-
-
     <!-- POSTS GRID -->
-    <section class="section section-posts content-panel--overlap-hero">
-        <div class="container">
+    <section class="content-panel content-panel--overlap-hero section-archive-desc">
+      <div class="content-panel-box">
+        <div class="content-panel-grid">
+          <div class="content-panel-left">
             <?php if ( ! empty( $archive_description ) ) : ?>
               <div class="archive-hero-desc">
                 <div class="archive-hero-desc__content lead">
                   <?php echo wp_kses_post( wpautop( $archive_description ) ); ?>
                 </div>
-            
               </div>
             <?php endif; ?>
+          </div>
+        </div>
+      </div>
+    </section>
 
+    <section class="section section-posts content-panel--overlap-hero">
+        <div class="container">
             <?php if ( have_posts() ) : ?>
 
                 <div class="cards-grid">
