@@ -1646,6 +1646,10 @@ button.pill:focus-visible {
     var(--glass-shadow-soft);
 }
 
+.border-brand {
+  border: 1px solid var(--brand);
+}
+
 .glass--compact { padding: 4px 10px; }
 
 
