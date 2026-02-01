@@ -91,7 +91,7 @@ get_header();
 
 
     <!-- CONTENT PANEL (overlapping hero) -->
-    <section class="content-panel">
+    <section class="content-panel content-panel--overlap-hero">
         <div class="content-panel-box">
             <div class="content-panel-grid">
                 <!-- LEFT: TEXT -->

@@ -164,7 +164,7 @@ $beds_options = array( 1, 2, 3, 4, 5, 6 );
   </section>
     
     <!-- ABOUT + HOW WE WORK -->
-<section class="content-panel">
+<section class="content-panel content-panel--overlap-hero">
   <div class="content-panel-box">
     <div class="content-panel-grid">
 

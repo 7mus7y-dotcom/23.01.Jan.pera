@@ -2894,9 +2894,25 @@ body:not(.single-post) tr:nth-child(even) {
 
 /* =======================================================
    HERO → PANEL OVERLAP (generic, no extra classes needed)
-   =======================================================*/ 
-.hero + .content-panel {
+   =======================================================*/
+/* Explicit hero overlap (preferred) */
+.content-panel--overlap-hero {
   margin-top: calc(var(--header-height) * -0.35);
+}
+@media (max-width: 900px) {
+  .content-panel--overlap-hero {
+    margin-top: -40px;
+  }
+}
+
+/* TEMP fallback — remove once templates migrated and verified */
+.hero + .content-panel:not(.content-panel--overlap-hero) {
+  margin-top: calc(var(--header-height) * -0.35);
+}
+@media (max-width: 900px) {
+  .hero + .content-panel:not(.content-panel--overlap-hero) {
+    margin-top: -40px;
+  }
 }
 
 
