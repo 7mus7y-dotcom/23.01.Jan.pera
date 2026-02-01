@@ -130,7 +130,7 @@ get_header();
 
 
     <!-- POSTS GRID -->
-    <section class="section section-posts">
+    <section class="section section-posts content-panel--overlap-hero">
         <div class="container">
             <?php if ( ! empty( $archive_description ) ) : ?>
               <div class="archive-hero-desc">
