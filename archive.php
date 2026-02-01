@@ -138,7 +138,7 @@ get_header();
         </section>
 
     <!-- POSTS GRID -->
-    <section class="content-panel content-panel--overlap-hero section-archive-desc">
+    <section class="content-panel content-panel--overlap-hero section-archive-desc border-brand">
       <div class="content-panel-box">
         <div class="content-panel-grid">
           <div class="content-panel-left">
