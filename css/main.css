@@ -1250,13 +1250,6 @@ button.pill:focus-visible {
   padding-bottom: var(--space-sm);
 }
 
-/* No extra padding on the footer keyword block (it sits in a row with buttons) */
-.hero-search-lite .filter-row--footer .filter-group{
-  padding-bottom: 0;
-}
-
- 
-
 /* =======================================================
    ARCHIVE HERO – COLLAPSIBLE DESCRIPTION
    ======================================================= */
