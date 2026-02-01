@@ -46,28 +46,6 @@ $beds_options = array( 1, 2, 3, 4, 5, 6 );
           action="<?php echo esc_url( $archive_base_url ); ?>"
         >
 
-          <!-- PROPERTY TYPE (taxonomy slug; V2 supports property_type) -->
-          <div class="filter-group text-center">
-            <div class="filter-group__label">Property type</div>
-
-            <div class="filter-pill-row flex-center" role="radiogroup" aria-label="Property type">
-              <label class="pill pill--outline filter-pill pill--active">
-                <input type="radio" name="property_type" value="" checked>
-                <span>All</span>
-              </label>
-
-              <label class="pill pill--outline filter-pill">
-                <input type="radio" name="property_type" value="apartments">
-                <span>Apartment</span>
-              </label>
-
-              <label class="pill pill--outline filter-pill">
-                <input type="radio" name="property_type" value="villas">
-                <span>Villa</span>
-              </label>
-            </div>
-          </div>
-
           <!-- BEDROOMS (V2: v2_beds radio integer; NOT bedrooms[] taxonomy) -->
           <div class="filter-group text-center">
             <div class="filter-group__label">Bedrooms</div>
