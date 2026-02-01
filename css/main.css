@@ -1126,6 +1126,16 @@ button.pill:focus-visible {
 .hero--right .hero-actions  { justify-content: flex-end; }
 .hero--center .hero-actions { justify-content: center; }
 
+/* Hero: content-fit (opt-in) */
+.hero.hero--fit {
+  min-height: 0;
+  height: auto;
+}
+
+.hero.hero--fit .hero-content {
+  padding: var(--space-xl) var(--space-md);
+}
+
 /* Mobile tweaks */
 @media (max-width: 768px) {
   .hero {
@@ -1134,6 +1144,10 @@ button.pill:focus-visible {
 
   .hero-content {
     padding: 150px 16px 50px;
+  }
+
+  .hero.hero--fit .hero-content {
+    padding: var(--space-lg) 16px var(--space-md);
   }
 }
 

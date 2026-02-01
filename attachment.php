@@ -24,7 +24,7 @@ $hero_img_id = wp_attachment_is_image( $attachment_id ) ? $attachment_id : 0;
 ?>
 
 <main id="primary" class="site-main content-rail">
-  <section class="hero hero--left">
+  <section class="hero hero--left hero--fit">
     
      <div class="hero-content">
       <nav aria-label="Breadcrumb">
