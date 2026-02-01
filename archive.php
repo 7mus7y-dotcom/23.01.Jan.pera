@@ -25,9 +25,20 @@ get_header();
         
             $archive_title = single_cat_title( '', false );
         
-            // 1) Use custom category excerpt if available
-            if ( $term && ! is_wp_error( $term ) && function_exists( 'pera_get_category_excerpt' ) ) {
-                $archive_subtitle = pera_get_category_excerpt( $term->term_id, 28 );
+            // 1) Use custom category excerpt if available (term meta).
+            if ( $term && ! is_wp_error( $term ) ) {
+                $term_id      = (int) $term->term_id;
+                $excerpt_key  = defined( 'PERA_TERM_EXCERPT_KEY' ) ? PERA_TERM_EXCERPT_KEY : 'pera_term_excerpt';
+                $term_excerpt = (string) get_term_meta( $term_id, $excerpt_key, true );
+
+                if ( $term_excerpt === '' ) {
+                    $term_excerpt = (string) get_term_meta( $term_id, 'category_excerpt', true );
+                }
+
+                $term_excerpt = trim( $term_excerpt );
+                if ( $term_excerpt !== '' ) {
+                    $archive_subtitle = $term_excerpt;
+                }
             }
         
             // 2) Fallbacks if excerpt is empty
