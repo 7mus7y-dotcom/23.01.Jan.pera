@@ -223,7 +223,7 @@ $beds_options = array( 1, 2, 3, 4, 5, 6 );
         </ol>
 
         <div class="hero-actions" style="margin-top: 16px;">
-          <a class="btn btn--solid btn--green" href="/contact/">Speak to an advisor</a>
+          <a class="btn btn--solid btn--green" href="/contact-us/">Speak to an advisor</a>
           <a class="btn btn--ghost btn--blue" href="/book-a-consultancy/">Book a consultancy</a>
         </div>
 
