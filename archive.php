@@ -138,8 +138,8 @@ get_header();
         </section>
 
     <!-- POSTS GRID -->
-    <section class="content-panel content-panel--overlap-hero section-archive-desc border-brand">
-      <div class="content-panel-box">
+    <section class="content-panel content-panel--overlap-hero section-archive-desc">
+      <div class="content-panel-box border-brand">
         <div class="content-panel-grid">
           <div class="content-panel-left">
             <?php if ( ! empty( $archive_description ) ) : ?>
