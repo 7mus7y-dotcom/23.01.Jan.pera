@@ -1133,7 +1133,7 @@ button.pill:focus-visible {
 }
 
 .hero.hero--fit .hero-content {
-  padding: var(--space-xl) var(--space-md);
+  padding-bottom: var(--space-lg);
 }
 
 /* Mobile tweaks */
@@ -1147,7 +1147,7 @@ button.pill:focus-visible {
   }
 
   .hero.hero--fit .hero-content {
-    padding: var(--space-lg) 16px var(--space-md);
+    padding-bottom: var(--space-md);
   }
 }
 
