@@ -73,7 +73,7 @@ get_header();
 
 
       <!-- ABOUT COMPANY SECTION -->
-      <section class="content-panel">
+      <section class="content-panel content-panel--overlap-hero">
         <div class="content-panel-box border-dm">
           <div class="content-panel-grid">
     

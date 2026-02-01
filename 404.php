@@ -36,7 +36,7 @@ get_header();
   </section>
 
   <!-- CONTENT PANEL (single card wrapper, then grid inside) -->
-  <section class="content-panel">
+  <section class="content-panel content-panel--overlap-hero">
     <div class="container">
 
       <div class="content-panel-box">

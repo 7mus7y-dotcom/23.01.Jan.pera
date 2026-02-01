@@ -73,7 +73,7 @@ get_header();
 
 
     <!-- WHY RENT WITH PERA -->
-    <section class="content-panel">
+    <section class="content-panel content-panel--overlap-hero">
         <div class="content-panel-box">
             <div class="content-panel-grid">
 
