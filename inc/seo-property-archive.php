@@ -48,6 +48,27 @@ if ( ! function_exists( 'pera_property_archive_is_filtered_request' ) ) {
   }
 }
 
+add_filter( 'pre_get_document_title', function( $title ) {
+  if ( ! is_post_type_archive( 'property' ) ) {
+    return $title;
+  }
+
+  if ( is_tax() || is_search() ) {
+    return $title;
+  }
+
+  $paged = max( 1, (int) get_query_var( 'paged' ) );
+  if ( get_query_var( 'page' ) ) {
+    $paged = max( $paged, (int) get_query_var( 'page' ) );
+  }
+
+  if ( $paged > 1 ) {
+    return $title;
+  }
+
+  return 'Property for Sale in Istanbul';
+}, 20 );
+
 add_action( 'wp_head', function () {
 
   // Run only on property archive + property taxonomies
