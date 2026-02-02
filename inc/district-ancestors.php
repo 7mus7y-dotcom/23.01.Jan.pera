@@ -61,3 +61,54 @@ function pera_enforce_district_ancestors( $object_id, $terms, $tt_ids, $taxonomy
 
   unset( $running[ $object_id ] );
 }
+
+/**
+ * Get the deepest assigned term for a post within a taxonomy.
+ *
+ * @param int    $post_id  Post ID.
+ * @param string $taxonomy Taxonomy name.
+ * @return WP_Term|null
+ */
+function pera_get_deepest_term( int $post_id, string $taxonomy ): ?WP_Term {
+  $terms = wp_get_post_terms( $post_id, $taxonomy );
+  if ( empty( $terms ) || is_wp_error( $terms ) ) {
+    return null;
+  }
+
+  $pick_term  = null;
+  $best_depth = -1;
+
+  foreach ( $terms as $term ) {
+    if ( ! $term || empty( $term->term_id ) ) {
+      continue;
+    }
+
+    $depth     = 0;
+    $parent_id = (int) $term->parent;
+
+    while ( $parent_id > 0 ) {
+      $parent_term = get_term( $parent_id, $taxonomy );
+      if ( is_wp_error( $parent_term ) || ! $parent_term ) {
+        break;
+      }
+
+      $depth++;
+      if ( $depth > 10 ) {
+        break;
+      }
+      $parent_id = (int) $parent_term->parent;
+    }
+
+    if ( $depth > $best_depth ) {
+      $best_depth = $depth;
+      $pick_term  = $term;
+    }
+  }
+
+  if ( $pick_term ) {
+    return $pick_term;
+  }
+
+  $fallback = reset( $terms );
+  return $fallback ? $fallback : null;
+}
