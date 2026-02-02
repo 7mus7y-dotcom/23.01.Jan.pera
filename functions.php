@@ -753,29 +753,6 @@ add_action( 'after_setup_theme', function() {
     ) );
 });
 
-// ============================================================
-// SEO: Prevent indexing of unit-specific property URLs
-// (?unit_key=2 etc.)
-// ============================================================
-add_action( 'wp_head', function () {
-
-  if ( ! is_singular( 'property' ) ) {
-    return;
-  }
-
-  if ( isset( $_GET['unit_key'] ) && absint( $_GET['unit_key'] ) > 0 ) {
-
-    // Canonical to clean property URL
-    echo '<link rel="canonical" href="' . esc_url( get_permalink() ) . '">' . "\n";
-
-    // Do not index parameterised unit views
-    echo '<meta name="robots" content="noindex,follow">' . "\n";
-  }
-
-}, 1 );
-
-
-
 /* =======================================================
    LOGIN SCREEN (wp-login.php): login.css + BRANDING
    ======================================================= */
