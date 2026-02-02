@@ -697,8 +697,37 @@ $custom_video_text = $custom_video_text ? wp_kses_post( wpautop( $custom_video_t
       <?php
       $district_terms = get_the_terms( get_the_ID(), 'district' );
 
-      if ( ! empty( $district_terms ) && ! is_wp_error( $district_terms ) ) {
-        $district_term = $district_terms[0];
+      if ( ! is_wp_error( $district_terms ) && is_array( $district_terms ) && ! empty( $district_terms ) ) {
+        $pick_term  = null;
+        $best_depth = -1;
+
+        foreach ( $district_terms as $term ) {
+          if ( ! $term || empty( $term->term_id ) ) {
+            continue;
+          }
+
+          $depth = 0;
+          $parent_id = (int) $term->parent;
+
+          while ( $parent_id > 0 ) {
+            $parent_term = get_term( $parent_id, 'district' );
+            if ( is_wp_error( $parent_term ) || ! $parent_term ) {
+              break;
+            }
+            $depth++;
+            $parent_id = (int) $parent_term->parent;
+            if ( $depth > 10 ) {
+              break;
+            }
+          }
+
+          if ( $depth > $best_depth ) {
+            $best_depth = $depth;
+            $pick_term  = $term;
+          }
+        }
+
+        $district_term = $pick_term ? $pick_term : $district_terms[0];
         $district_url  = get_term_link( $district_term );
 
         if ( ! is_wp_error( $district_url ) && $district_url ) {
