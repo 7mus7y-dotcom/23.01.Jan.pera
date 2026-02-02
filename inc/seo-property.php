@@ -114,3 +114,56 @@ add_action('wp_head', function () {
   echo "<!-- /Pera: Single Property SEO / Social -->\n\n";
 
 }, 12);
+
+/**
+ * Property robots/canonical rules:
+ * - Base URL => indexable (no noindex)
+ * - Unit/detail params (e.g. ?unit_key=2) => noindex,follow + canonical to base permalink
+ */
+if ( ! function_exists( 'pera_property_has_unit_params' ) ) {
+  function pera_property_has_unit_params(): bool {
+    if ( ! is_singular( 'property' ) ) {
+      return false;
+    }
+
+    $unit_params = array( 'unit_key' );
+
+    foreach ( $unit_params as $param ) {
+      if ( isset( $_GET[ $param ] ) && (string) $_GET[ $param ] !== '' ) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+}
+
+add_filter( 'wp_robots', function ( array $robots ): array {
+  if ( pera_property_has_unit_params() ) {
+    $robots['noindex'] = true;
+    $robots['follow'] = true;
+  }
+
+  return $robots;
+} );
+
+add_filter( 'get_canonical_url', function ( ?string $canonical, $post ): ?string {
+  if ( ! pera_property_has_unit_params() ) {
+    return $canonical;
+  }
+
+  $post_id = 0;
+  if ( is_object( $post ) && isset( $post->ID ) ) {
+    $post_id = (int) $post->ID;
+  } elseif ( is_numeric( $post ) ) {
+    $post_id = (int) $post;
+  } else {
+    $post_id = (int) get_queried_object_id();
+  }
+
+  if ( $post_id > 0 ) {
+    return get_permalink( $post_id );
+  }
+
+  return $canonical;
+}, 10, 2 );

@@ -11,6 +11,43 @@
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+if ( ! function_exists( 'pera_property_archive_is_filtered_request' ) ) {
+  function pera_property_archive_is_filtered_request(): bool {
+    $filter_keys = array(
+      's',
+      'property_type',
+      'v2_beds',
+      'district',
+      'property_tags',
+      'min_price',
+      'max_price',
+      'sort',
+      'region',
+      'special',
+    );
+
+    foreach ( $filter_keys as $k ) {
+      if ( ! isset( $_GET[ $k ] ) ) {
+        continue;
+      }
+
+      $v = $_GET[ $k ];
+
+      if ( is_array( $v ) ) {
+        if ( ! empty( $v ) ) {
+          return true;
+        }
+      } else {
+        if ( trim( (string) $v ) !== '' ) {
+          return true;
+        }
+      }
+    }
+
+    return false;
+  }
+}
+
 add_action( 'wp_head', function () {
 
   // Run only on property archive + property taxonomies
@@ -36,40 +73,7 @@ add_action( 'wp_head', function () {
   // -------------------------------
   // Detect “filtered” state (robust for arrays + scalars)
   // -------------------------------
-  $filter_keys = array(
-    's',
-    'property_type',
-    'v2_beds',
-    'district',
-    'property_tags',
-    'min_price',
-    'max_price',
-    'sort',
-    'region',
-    'special',
-  );
-
-  $is_filtered = false;
-
-  foreach ( $filter_keys as $k ) {
-    if ( ! isset( $_GET[ $k ] ) ) {
-      continue;
-    }
-
-    $v = $_GET[ $k ];
-
-    if ( is_array( $v ) ) {
-      if ( ! empty( $v ) ) {
-        $is_filtered = true;
-        break;
-      }
-    } else {
-      if ( trim( (string) $v ) !== '' ) {
-        $is_filtered = true;
-        break;
-      }
-    }
-  }
+  $is_filtered = pera_property_archive_is_filtered_request();
 
   // -------------------------------
   // Canonical base (taxonomy-aware)
@@ -127,10 +131,6 @@ add_action( 'wp_head', function () {
   // -------------------------------
   echo "\n<!-- Pera SEO: Property archive -->\n";
 
-  if ( $is_filtered ) {
-    echo '<meta name="robots" content="noindex,follow">' . "\n";
-  }
-
   if ( $meta_desc !== '' ) {
     echo '<meta name="description" content="' . esc_attr( $meta_desc ) . '">' . "\n";
   }
@@ -139,3 +139,36 @@ add_action( 'wp_head', function () {
   echo "<!-- /Pera SEO: Property archive -->\n\n";
 
 }, 30 );
+
+add_filter( 'wp_robots', function ( array $robots ): array {
+
+  if ( is_admin() ) return $robots;
+
+  $property_taxonomies = array(
+    'district',
+    'region',
+    'property_type',
+    'property_tags',
+    'special',
+  );
+  $property_taxonomies = array_filter( $property_taxonomies, 'taxonomy_exists' );
+
+  $is_property_context = is_post_type_archive( 'property' );
+
+  if ( ! empty( $property_taxonomies ) && is_tax( $property_taxonomies ) ) {
+    $is_property_context = true;
+  }
+
+  if ( ! $is_property_context ) {
+    return $robots;
+  }
+
+  $is_filtered = pera_property_archive_is_filtered_request();
+
+  if ( $is_filtered ) {
+    $robots['noindex'] = true;
+    $robots['follow'] = true;
+  }
+
+  return $robots;
+} );

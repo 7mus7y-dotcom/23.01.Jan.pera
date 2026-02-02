@@ -4,9 +4,9 @@ if ( ! defined('ABSPATH') ) exit;
 /**
  * Pera SEO / Social meta (OG + Twitter) – No Yoast
  * - Applies to all public pages EXCEPT single Property CPT (handled separately)
- * - Adds <meta description>, canonical, robots, OG, Twitter
+ * - Adds <meta description>, canonical, OG, Twitter
  * - Adds document title filters (so <title> is correct)
- * - Adds "noindex,follow" for:
+ * - Adds "noindex,follow" via wp_robots for:
  *    - WP search results
  *    - Property archive URLs that are filtered via querystring (to avoid index bloat)
  */
@@ -198,7 +198,33 @@ add_filter( 'pre_get_document_title', function( $title ) {
 }, 20 );
 
 /* =======================================================
-   HEAD META (description, canonical, robots, OG, Twitter)
+   ROBOTS RULES (wp_robots)
+======================================================= */
+
+add_filter( 'wp_robots', function ( array $robots ): array {
+
+  if ( is_admin() ) return $robots;
+
+  // Exclude your single-property SEO module
+  if ( is_singular('property') ) return $robots;
+
+  // WP search results: noindex
+  if ( is_search() ) {
+    $robots['noindex'] = true;
+    $robots['follow'] = true;
+  }
+
+  // Filtered property archive URLs: noindex (prevents index bloat)
+  if ( pera_is_filtered_property_archive() ) {
+    $robots['noindex'] = true;
+    $robots['follow'] = true;
+  }
+
+  return $robots;
+} );
+
+/* =======================================================
+   HEAD META (description, canonical, OG, Twitter)
 ======================================================= */
 
 add_action( 'wp_head', function () {
@@ -221,19 +247,6 @@ add_action( 'wp_head', function () {
   if ( is_home() && ! is_front_page() ) {
     $posts_page_id = (int) get_option('page_for_posts');
     if ( $posts_page_id ) $post_id = $posts_page_id;
-  }
-
-  // ---------- Robots ----------
-  $robots = '';
-
-  // WP search results: noindex
-  if ( is_search() ) {
-    $robots = 'noindex,follow';
-  }
-
-  // Filtered property archive URLs: noindex (prevents index bloat)
-  if ( $robots === '' && pera_is_filtered_property_archive() ) {
-    $robots = 'noindex,follow';
   }
 
   // ---------- Canonical ----------
@@ -296,10 +309,6 @@ add_action( 'wp_head', function () {
   $og_type = is_singular() ? 'article' : 'website';
 
   echo "\n<!-- Pera: SEO / Social -->\n";
-
-  if ( $robots !== '' ) {
-    echo '<meta name="robots" content="' . esc_attr($robots) . '">' . "\n";
-  }
 
   if ( $desc !== '' ) {
     echo '<meta name="description" content="' . esc_attr($desc) . '">' . "\n";
