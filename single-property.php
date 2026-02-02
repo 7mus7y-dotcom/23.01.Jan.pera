@@ -698,11 +698,11 @@ $custom_video_text = $custom_video_text ? wp_kses_post( wpautop( $custom_video_t
       $district_terms = get_the_terms( get_the_ID(), 'district' );
 
       if ( ! empty( $district_terms ) && ! is_wp_error( $district_terms ) ) {
-        $district     = $district_terms[0];
-        $district_url = get_term_link( $district );
+        $district_term = $district_terms[0];
+        $district_url  = get_term_link( $district_term );
 
         if ( ! is_wp_error( $district_url ) && $district_url ) {
-          $district_name = $district->name;
+          $district_name = $district_term->name;
           ?>
           <p class="lead">
             Browse all <a href="<?php echo esc_url( $district_url ); ?>">
