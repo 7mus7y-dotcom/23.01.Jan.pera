@@ -62,6 +62,116 @@ if ( ! function_exists('pera_property_get_meta_description') ) {
   }
 }
 
+if ( ! function_exists( 'pera_property_get_district_name' ) ) {
+  function pera_property_get_district_name( int $post_id ): string {
+    $terms = get_the_terms( $post_id, 'district' );
+    if ( is_array( $terms ) && ! empty( $terms ) ) {
+      $term = reset( $terms );
+      if ( is_object( $term ) && ! empty( $term->name ) ) {
+        return (string) $term->name;
+      }
+    }
+
+    return '';
+  }
+}
+
+if ( ! function_exists( 'pera_property_get_v2_units' ) ) {
+  function pera_property_get_v2_units( int $post_id ): array {
+    if ( function_exists( 'get_field' ) ) {
+      $rows = get_field( 'v2_units', $post_id );
+      if ( is_array( $rows ) ) {
+        return $rows;
+      }
+    }
+
+    return array();
+  }
+}
+
+if ( ! function_exists( 'pera_property_find_unit_row' ) ) {
+  function pera_property_find_unit_row( int $post_id, string $unit_key ): ?array {
+    $rows = pera_property_get_v2_units( $post_id );
+    if ( empty( $rows ) ) {
+      return null;
+    }
+
+    $index = (int) $unit_key;
+    if ( $index > 0 ) {
+      $row_index = $index - 1;
+      if ( isset( $rows[ $row_index ] ) && is_array( $rows[ $row_index ] ) ) {
+        return $rows[ $row_index ];
+      }
+    }
+
+    foreach ( $rows as $row ) {
+      if ( ! is_array( $row ) ) {
+        continue;
+      }
+      if ( isset( $row['v2_index_key'] ) && (string) $row['v2_index_key'] === $unit_key ) {
+        return $row;
+      }
+    }
+
+    return null;
+  }
+}
+
+if ( ! function_exists( 'pera_property_extract_bedrooms' ) ) {
+  function pera_property_extract_bedrooms( array $row ): ?int {
+    $keys = array( 'beds', 'bedrooms', 'v2_beds' );
+    foreach ( $keys as $key ) {
+      if ( isset( $row[ $key ] ) && $row[ $key ] !== '' ) {
+        if ( is_numeric( $row[ $key ] ) ) {
+          return (int) $row[ $key ];
+        }
+        if ( preg_match( '/\d+/', (string) $row[ $key ], $matches ) ) {
+          return (int) $matches[0];
+        }
+      }
+    }
+
+    if ( isset( $row['v2_index_key'] ) && is_string( $row['v2_index_key'] ) ) {
+      if ( preg_match( '/\d+/', $row['v2_index_key'], $matches ) ) {
+        return (int) $matches[0];
+      }
+    }
+
+    return null;
+  }
+}
+
+add_filter( 'pre_get_document_title', function ( string $title ): string {
+  if ( ! is_singular( 'property' ) ) {
+    return $title;
+  }
+
+  $post_id = (int) get_queried_object_id();
+  if ( ! $post_id ) {
+    return $title;
+  }
+
+  $district = pera_property_get_district_name( $post_id );
+  $location = $district !== '' ? $district . ', Istanbul' : 'Istanbul';
+
+  $unit_key = isset( $_GET['unit_key'] ) ? trim( (string) $_GET['unit_key'] ) : '';
+  if ( $unit_key !== '' ) {
+    $row = pera_property_find_unit_row( $post_id, $unit_key );
+    if ( $row ) {
+      $bedrooms = pera_property_extract_bedrooms( $row );
+      if ( $bedrooms && $bedrooms > 0 ) {
+        return sprintf(
+          '%d bedroom apartment for sale in %s | Pera Property',
+          $bedrooms,
+          $location
+        );
+      }
+    }
+  }
+
+  return sprintf( 'Property for sale in %s | Pera Property', $location );
+}, 9 );
+
 add_action('wp_head', function () {
 
   if ( ! is_singular('property') ) return;
