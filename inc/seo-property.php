@@ -96,18 +96,32 @@ if ( ! function_exists( 'pera_property_find_unit_row' ) ) {
       return null;
     }
 
-    $index = (int) $unit_key;
-    if ( $index > 0 ) {
-      $row_index = $index - 1;
-      if ( isset( $rows[ $row_index ] ) && is_array( $rows[ $row_index ] ) ) {
+    $unit_key = trim( (string) $unit_key );
+
+    // 1) If numeric, treat as BED COUNT (primary meaning of ?unit_key=2 etc.)
+    if ( $unit_key !== '' && ctype_digit( $unit_key ) ) {
+      $beds = (int) $unit_key;
+
+      foreach ( $rows as $row ) {
+        if ( ! is_array( $row ) ) continue;
+
+        $b = isset( $row['v2_bedrooms'] ) ? (int) $row['v2_bedrooms'] : 0;
+        if ( $b === $beds ) {
+          return $row;
+        }
+      }
+
+      // Optional fallback (only if you want to support legacy "row index" links)
+      $row_index = $beds - 1;
+      if ( $row_index >= 0 && isset( $rows[ $row_index ] ) && is_array( $rows[ $row_index ] ) ) {
         return $rows[ $row_index ];
       }
     }
 
+    // 2) Fallback: match v2_index_key exactly (if unit_key is a full index key string)
     foreach ( $rows as $row ) {
-      if ( ! is_array( $row ) ) {
-        continue;
-      }
+      if ( ! is_array( $row ) ) continue;
+
       if ( isset( $row['v2_index_key'] ) && (string) $row['v2_index_key'] === $unit_key ) {
         return $row;
       }
@@ -119,7 +133,7 @@ if ( ! function_exists( 'pera_property_find_unit_row' ) ) {
 
 if ( ! function_exists( 'pera_property_extract_bedrooms' ) ) {
   function pera_property_extract_bedrooms( array $row ): ?int {
-    $keys = array( 'beds', 'bedrooms', 'v2_beds' );
+    $keys = array( 'v2_bedrooms', 'beds', 'bedrooms', 'v2_beds' );
     foreach ( $keys as $key ) {
       if ( isset( $row[ $key ] ) && $row[ $key ] !== '' ) {
         if ( is_numeric( $row[ $key ] ) ) {
