@@ -62,45 +62,21 @@ $property_tags = wp_get_post_terms( $property_id, 'property_tags' );
 $special_slugs = wp_get_post_terms( $property_id, 'special', array( 'fields' => 'slugs' ) );
 
 /* District (deepest child term) */
-$district_term = null;
-$district_terms = ( ! empty( $district ) && ! is_wp_error( $district ) ) ? $district : array();
-
-if ( ! empty( $district_terms ) ) {
-  $pick_term  = null;
-  $best_depth = -1;
-
-  foreach ( $district_terms as $term ) {
-    if ( ! $term || empty( $term->term_id ) ) {
-      continue;
-    }
-
-    $depth = 0;
-    $parent_id = (int) $term->parent;
-
-    while ( $parent_id > 0 ) {
-      $parent_term = get_term( $parent_id, 'district' );
-      if ( is_wp_error( $parent_term ) || ! $parent_term ) {
-        break;
-      }
-      $depth++;
-      $parent_id = (int) $parent_term->parent;
-      if ( $depth > 10 ) {
-        break;
-      }
-    }
-
-    if ( $depth > $best_depth ) {
-      $best_depth = $depth;
-      $pick_term  = $term;
-    }
-  }
-
-  $district_term = $pick_term ? $pick_term : $district_terms[0];
-}
+$district_term = pera_get_deepest_term( $property_id, 'district' );
 
 /* Safe links (only when term exists) */
-$district_link = $district_term ? get_term_link( $district_term ) : '';
-$region_link   = ( ! empty( $region ) && ! is_wp_error( $region ) ) ? get_term_link( $region[0] ) : '';
+$district_link = '';
+if ( $district_term ) {
+  $tmp           = get_term_link( $district_term );
+  $district_link = is_wp_error( $tmp ) ? '' : $tmp;
+}
+
+$region_link = '';
+$region_term = ( ! empty( $region ) && ! is_wp_error( $region ) ) ? reset( $region ) : null;
+if ( $region_term ) {
+  $tmp         = get_term_link( $region_term );
+  $region_link = is_wp_error( $tmp ) ? '' : $tmp;
+}
 
 
 
@@ -481,7 +457,7 @@ $has_further_reading = ! empty( $post_ids );
 
     <div class="property-hero__pills">
       <?php if ( $district_term ) : ?>
-        <?php if ( $district_link && ! is_wp_error( $district_link ) ) : ?>
+        <?php if ( $district_link ) : ?>
           <a class="pill pill--green" href="<?php echo esc_url( $district_link ); ?>">
             <?php echo esc_html( $district_term->name ); ?>
           </a>
@@ -735,7 +711,7 @@ $custom_video_text = $custom_video_text ? wp_kses_post( wpautop( $custom_video_t
       if ( $district_term ) {
         $district_url = $district_link;
 
-        if ( ! is_wp_error( $district_url ) && $district_url ) {
+        if ( $district_url ) {
           $district_name = $district_term->name;
           ?>
           <p class="lead">
@@ -782,9 +758,9 @@ $custom_video_text = $custom_video_text ? wp_kses_post( wpautop( $custom_video_t
     </div><!-- /.property-overview__main -->
 
             <!-- RIGHT -->
+            <?php if ( $has_facts_v2 ) : ?>
             <aside class="property-overview__aside">
             
-              <?php if ( $has_facts_v2 ) : ?>
                 <div class="card-shell">
             
                   <h3 style="margin:0;">Key figures</h3>
@@ -919,9 +895,9 @@ $custom_video_text = $custom_video_text ? wp_kses_post( wpautop( $custom_video_t
             
                   </div><!-- .property-facts -->
                 </div><!-- .card-shell -->
-              <?php endif; ?>
             
             </aside>
+            <?php endif; ?>
 
 
   </div><!-- /.grid-2 -->
