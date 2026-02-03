@@ -45,6 +45,40 @@ if ( ! function_exists( 'pera_get_district_archive_title' ) ) {
   }
 }
 
+if ( ! function_exists( 'pera_get_region_archive_location_name' ) ) {
+  function pera_get_region_archive_location_name( WP_Term $term ): string {
+    $name = trim( (string) $term->name );
+
+    if ( $name === '' ) {
+      return 'Istanbul';
+    }
+
+    $normalized = function_exists( 'mb_strtolower' )
+      ? mb_strtolower( $name, 'UTF-8' )
+      : strtolower( $name );
+
+    if ( in_array( $normalized, array( 'istanbul', 'i̇stanbul' ), true ) ) {
+      return 'Istanbul';
+    }
+
+    return $name . ', Istanbul';
+  }
+}
+
+if ( ! function_exists( 'pera_get_region_archive_heading' ) ) {
+  function pera_get_region_archive_heading( WP_Term $term ): string {
+    $location = pera_get_region_archive_location_name( $term );
+    return sprintf( 'Property for sale in %s', $location );
+  }
+}
+
+if ( ! function_exists( 'pera_get_region_archive_title' ) ) {
+  function pera_get_region_archive_title( WP_Term $term ): string {
+    $location = pera_get_region_archive_location_name( $term );
+    return sprintf( 'Property for sale in %s | Pera Property', $location );
+  }
+}
+
 if ( ! function_exists( 'pera_property_archive_is_filtered_request' ) ) {
   function pera_property_archive_is_filtered_request(): bool {
     $filter_keys = array(
@@ -93,6 +127,19 @@ add_filter( 'pre_get_document_title', function( $title ) {
   }
 
   return pera_get_district_archive_title( $term );
+}, 20 );
+
+add_filter( 'pre_get_document_title', function( $title ) {
+  if ( ! is_tax( 'region' ) ) {
+    return $title;
+  }
+
+  $term = get_queried_object();
+  if ( ! ( $term instanceof WP_Term ) || is_wp_error( $term ) ) {
+    return $title;
+  }
+
+  return pera_get_region_archive_title( $term );
 }, 20 );
 
 add_filter( 'pre_get_document_title', function( $title ) {
