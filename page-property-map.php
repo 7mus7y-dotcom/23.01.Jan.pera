@@ -11,58 +11,95 @@ if ( ! defined( 'ABSPATH' ) ) {
 get_header();
 
 $markers = array();
+$acf_loaded = function_exists( 'get_field' );
 
-if ( function_exists( 'get_field' ) ) {
+if ( $acf_loaded ) {
     $property_query = new WP_Query(
         array(
             'post_type'      => 'property',
             'post_status'    => 'publish',
             'posts_per_page' => -1,
-            'meta_query'     => array(
-                array(
-                    'key'     => 'map',
-                    'value'   => '',
-                    'compare' => '!=',
-                ),
-            ),
+            'fields'         => 'ids',
         )
     );
 
     if ( $property_query->have_posts() ) {
-        while ( $property_query->have_posts() ) {
-            $property_query->the_post();
-
-            $map = get_field( 'map', get_the_ID() );
-            if ( ! is_array( $map ) || empty( $map['lat'] ) || empty( $map['lng'] ) ) {
+        foreach ( $property_query->posts as $property_id ) {
+            $map = get_field( 'map', $property_id );
+            if ( ! is_array( $map ) ) {
                 continue;
             }
 
-            set_query_var(
-                'pera_property_card_args',
-                array(
-                    'variant'    => 'archive',
-                    'show_admin' => false,
-                )
-            );
+            $lat = $map['lat'] ?? $map['latitude'] ?? null;
+            $lng = $map['lng'] ?? $map['longitude'] ?? null;
 
-            ob_start();
-            get_template_part( 'parts/property-card-v2' );
-            $card_html = ob_get_clean();
+            $lat = is_numeric( $lat ) ? (float) $lat : null;
+            $lng = is_numeric( $lng ) ? (float) $lng : null;
 
-            set_query_var( 'pera_property_card_args', array() );
+            if ( null === $lat || null === $lng ) {
+                continue;
+            }
+
+            $thumb = '';
+            $main_image = get_field( 'main_image', $property_id );
+            if ( is_array( $main_image ) && ! empty( $main_image['ID'] ) ) {
+                $thumb = wp_get_attachment_image_url( (int) $main_image['ID'], 'pera-card' );
+                if ( ! $thumb ) {
+                    $thumb = wp_get_attachment_image_url( (int) $main_image['ID'], 'medium' );
+                }
+            }
+
+            $price_text = '';
+            $is_project = false;
+            $special_terms = get_the_terms( $property_id, 'special' );
+            if ( ! empty( $special_terms ) && ! is_wp_error( $special_terms ) ) {
+                foreach ( $special_terms as $term ) {
+                    if ( in_array( $term->slug, array( 'project', 'projects' ), true ) ) {
+                        $is_project = true;
+                        break;
+                    }
+                }
+            }
+
+            if ( function_exists( 'pera_v2_units_aggregate' ) && function_exists( 'pera_v2_units_format_price_text' ) ) {
+                $unit_rows = function_exists( 'pera_v2_get_units_rows' )
+                    ? pera_v2_get_units_rows( $property_id )
+                    : ( function_exists( 'get_field' ) ? get_field( 'v2_units', $property_id ) : array() );
+
+                $unit_rows = is_array( $unit_rows ) ? $unit_rows : array();
+                $aggregated = pera_v2_units_aggregate( $unit_rows );
+                $price_text = pera_v2_units_format_price_text(
+                    (int) $aggregated['price_min'],
+                    (int) $aggregated['price_max'],
+                    $is_project
+                );
+            }
 
             $markers[] = array(
-                'id'        => get_the_ID(),
-                'title'     => get_the_title(),
-                'url'       => get_permalink(),
-                'lat'       => (float) $map['lat'],
-                'lng'       => (float) $map['lng'],
-                'card_html' => $card_html,
+                'id'         => $property_id,
+                'title'      => get_the_title( $property_id ),
+                'url'        => get_permalink( $property_id ),
+                'lat'        => $lat,
+                'lng'        => $lng,
+                'thumb'      => $thumb,
+                'price_text' => $price_text,
             );
         }
     }
 
     wp_reset_postdata();
+}
+
+echo "\n<!-- property-map debug: markers=" . count( $markers ) . " acf=" . ( $acf_loaded ? 'yes' : 'no' ) . " -->\n";
+if ( ! empty( $markers[0] ) ) {
+    echo "<!-- property-map debug first: lat={$markers[0]['lat']} lng={$markers[0]['lng']} -->\n";
+}
+
+if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+    error_log( sprintf( '[property-map] markers=%d acf=%s', count( $markers ), $acf_loaded ? 'yes' : 'no' ) );
+    if ( ! empty( $markers[0] ) ) {
+        error_log( sprintf( '[property-map] first lat=%s lng=%s', $markers[0]['lat'], $markers[0]['lng'] ) );
+    }
 }
 ?>
 
@@ -91,8 +128,8 @@ if ( function_exists( 'get_field' ) ) {
           <div
             id="property-map"
             class="property-map__canvas"
-            data-markers="<?php echo esc_attr( wp_json_encode( $markers ) ); ?>"
           ></div>
+          <script type="application/json" id="property-map-data"><?php echo wp_json_encode( $markers ); ?></script>
 
           <div class="property-map__selected" aria-live="polite">
             <div class="content-panel-box">
