@@ -6,12 +6,15 @@
     }
 
     let markersData = [];
-    const markersRaw = mapEl.dataset.markers || '[]';
+    const markersRawEl = document.getElementById('property-map-data');
     try {
-      markersData = JSON.parse(markersRaw);
+      markersData = markersRawEl ? JSON.parse(markersRawEl.textContent) : [];
     } catch (error) {
+      console.error('[PropertyMap] Failed to parse markers JSON.', error);
       markersData = [];
     }
+
+    console.log('[PropertyMap] markers:', markersData.length);
 
     const selectedPanel = document.querySelector('.property-map__selected');
     const defaultCenter = { lat: 41.0082, lng: 28.9784 };
@@ -23,11 +26,67 @@
     });
 
     if (!markersData.length) {
+      if (selectedPanel) {
+        selectedPanel.innerHTML = `
+          <div class="content-panel-box">
+            <p class="text-sm muted">No properties are available on the map right now.</p>
+          </div>
+        `;
+      }
       return;
     }
 
     const bounds = new window.google.maps.LatLngBounds();
     const infoWindow = new window.google.maps.InfoWindow();
+    let markerCount = 0;
+    let lastPosition = null;
+
+    const renderSelectedCard = (markerData) => {
+      if (!selectedPanel) {
+        return;
+      }
+
+      selectedPanel.innerHTML = '';
+
+      const wrapper = document.createElement('div');
+      wrapper.className = 'content-panel-box';
+
+      if (markerData.thumb) {
+        const image = document.createElement('img');
+        image.src = markerData.thumb;
+        image.alt = markerData.title ? `${markerData.title} thumbnail` : 'Property thumbnail';
+        image.loading = 'lazy';
+        image.style.width = '100%';
+        image.style.height = 'auto';
+        image.style.borderRadius = '12px';
+        image.style.display = 'block';
+        image.style.marginBottom = '12px';
+        wrapper.appendChild(image);
+      }
+
+      const title = document.createElement('h3');
+      title.className = 'text-lg';
+      const titleLink = document.createElement('a');
+      titleLink.href = markerData.url || '#';
+      titleLink.textContent = markerData.title || 'View listing';
+      title.appendChild(titleLink);
+      wrapper.appendChild(title);
+
+      if (markerData.price_text) {
+        const price = document.createElement('p');
+        price.className = 'text-sm muted';
+        price.textContent = markerData.price_text;
+        wrapper.appendChild(price);
+      }
+
+      const button = document.createElement('a');
+      button.href = markerData.url || '#';
+      button.className = 'btn btn--solid btn--green';
+      button.textContent = 'View listing';
+      wrapper.appendChild(button);
+
+      selectedPanel.appendChild(wrapper);
+    };
 
     markersData.forEach((markerData) => {
       const position = {
@@ -46,12 +105,11 @@
       });
 
       bounds.extend(position);
+      markerCount += 1;
+      lastPosition = position;
 
       marker.addListener('click', () => {
-        if (selectedPanel && markerData.card_html) {
-          selectedPanel.innerHTML = markerData.card_html;
-        }
-
+        renderSelectedCard(markerData);
         if (markerData.title && markerData.url) {
           infoWindow.setContent(
             `<div class="property-map__info"><strong>${markerData.title}</strong><br><a href="${markerData.url}">View</a></div>`
@@ -65,10 +123,21 @@
       });
     });
 
-    if (markersData.length === 1) {
-      map.setCenter(bounds.getCenter());
+    if (markerCount === 0) {
+      if (selectedPanel) {
+        selectedPanel.innerHTML = `
+          <div class="content-panel-box">
+            <p class="text-sm muted">No properties are available on the map right now.</p>
+          </div>
+        `;
+      }
+      return;
+    }
+
+    if (markerCount === 1 && lastPosition) {
+      map.setCenter(lastPosition);
       map.setZoom(14);
-    } else {
+    } else if (markerCount > 1) {
       map.fitBounds(bounds);
     }
   };
