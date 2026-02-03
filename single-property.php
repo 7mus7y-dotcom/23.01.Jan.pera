@@ -1015,7 +1015,6 @@ $custom_video_text = $custom_video_text ? wp_kses_post( wpautop( $custom_video_t
               $number     = function_exists( 'get_field' ) ? get_field( 'number', $advisor_id ) : '';
               $number_raw = is_string( $number ) ? trim( $number ) : '';
               $number_digits = $number_raw ? preg_replace( '/\D+/', '', $number_raw ) : '';
-              $wa_url     = $number_digits ? 'https://wa.me/' . $number_digits : '';
               $photo_id   = '';
 
               if ( is_array( $photo ) && ! empty( $photo['ID'] ) ) {
@@ -1059,8 +1058,6 @@ $custom_video_text = $custom_video_text ? wp_kses_post( wpautop( $custom_video_t
                     $listing_title = get_the_title();
                     $wa_message    = rawurlencode( "Hello I'd like more info on listing {$listing_id} {$listing_title}" );
                     $wa_href       = 'https://wa.me/' . $number_digits . '?text=' . $wa_message;
-                  } elseif ( $wa_url && 0 === strpos( $wa_url, 'https://wa.me/' ) ) {
-                    $wa_href = $wa_url;
                   }
                   if ( $wa_href || $tel_url ) :
                     ?>
@@ -1075,7 +1072,7 @@ $custom_video_text = $custom_video_text ? wp_kses_post( wpautop( $custom_video_t
                           <svg class="icon" aria-hidden="true" width="16" height="16">
                             <use href="<?php echo esc_url( get_stylesheet_directory_uri() . '/logos-icons/icons.svg#icon-whatsapp' ); ?>"></use>
                           </svg>
-                          WhatsApp
+                          Contact
                         </a>
                       <?php endif; ?>
                     </div>
