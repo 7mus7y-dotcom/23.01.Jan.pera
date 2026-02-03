@@ -46,46 +46,50 @@
         return;
       }
 
-      selectedPanel.innerHTML = '';
+      const showError = () => {
+        selectedPanel.innerHTML = `
+          <div class="content-panel-box">
+            <p class="muted">Unable to load listing.</p>
+          </div>
+        `;
+      };
 
-      const wrapper = document.createElement('div');
-      wrapper.className = 'content-panel-box';
+      selectedPanel.innerHTML = `
+        <div class="content-panel-box">
+          <p class="text-sm muted">Loading...</p>
+        </div>
+      `;
 
-      if (markerData.thumb) {
-        const image = document.createElement('img');
-        image.src = markerData.thumb;
-        image.alt = markerData.title ? `${markerData.title} thumbnail` : 'Property thumbnail';
-        image.loading = 'lazy';
-        image.style.width = '100%';
-        image.style.height = 'auto';
-        image.style.borderRadius = '12px';
-        image.style.display = 'block';
-        image.style.marginBottom = '12px';
-        wrapper.appendChild(image);
+      if (!window.PropertyMap || !PropertyMap.ajax_url || !PropertyMap.nonce) {
+        showError();
+        return;
       }
 
-      const title = document.createElement('h3');
-      title.className = 'text-lg';
-      const titleLink = document.createElement('a');
-      titleLink.href = markerData.url || '#';
-      titleLink.textContent = markerData.title || 'View listing';
-      title.appendChild(titleLink);
-      wrapper.appendChild(title);
-
-      if (markerData.price_text) {
-        const price = document.createElement('p');
-        price.className = 'text-sm muted';
-        price.textContent = markerData.price_text;
-        wrapper.appendChild(price);
+      if (!markerData || !markerData.id) {
+        showError();
+        return;
       }
 
-      const button = document.createElement('a');
-      button.href = markerData.url || '#';
-      button.className = 'btn btn--solid btn--green';
-      button.textContent = 'View listing';
-      wrapper.appendChild(button);
-
-      selectedPanel.appendChild(wrapper);
+      fetch(PropertyMap.ajax_url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' },
+        body: new URLSearchParams({
+          action: 'get_property_map_card',
+          nonce: PropertyMap.nonce,
+          post_id: String(markerData.id),
+        }),
+      })
+        .then((response) => response.json())
+        .then((payload) => {
+          if (payload && payload.success && payload.data && payload.data.html) {
+            selectedPanel.innerHTML = payload.data.html;
+            return;
+          }
+          showError();
+        })
+        .catch(() => {
+          showError();
+        });
     };
 
     markersData.forEach((markerData) => {

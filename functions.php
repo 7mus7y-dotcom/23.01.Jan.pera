@@ -664,6 +664,15 @@ if ( $needs_slider ) {
       pera_get_asset_version( '/js/property-map.js' ),
       true
     );
+
+    wp_localize_script(
+      'pera-property-map',
+      'PropertyMap',
+      array(
+        'ajax_url' => admin_url( 'admin-ajax.php' ),
+        'nonce'    => wp_create_nonce( 'property_map_card' ),
+      )
+    );
   }
 
 }, 20 );
@@ -1040,6 +1049,7 @@ require_once get_stylesheet_directory() . '/inc/home-page-test-assets.php';
 
 require_once get_stylesheet_directory() . '/inc/v2-units-index.php';
 require_once get_stylesheet_directory() . '/inc/ajax-property-archive.php';
+require_once get_stylesheet_directory() . '/inc/ajax-property-map-card.php';
 
 if ( is_admin() ) {
   require_once get_stylesheet_directory() . '/inc/filter-for-admin-panel.php';
