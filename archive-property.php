@@ -375,7 +375,11 @@ $qo = get_queried_object();
 
 if ( ! $is_filtered_search && ( $qo instanceof WP_Term ) && ! is_wp_error( $qo ) ) {
 
-  $hero_title = $qo->name;
+  if ( $qo->taxonomy === 'district' && function_exists( 'pera_get_district_archive_heading' ) ) {
+    $hero_title = pera_get_district_archive_heading( $qo );
+  } else {
+    $hero_title = $qo->name;
+  }
 
   // Prefer term excerpt stored in term meta if you have it:
   // Change 'term_excerpt' if your actual meta key differs.
