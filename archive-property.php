@@ -379,6 +379,8 @@ if ( ! $is_filtered_search && ( $qo instanceof WP_Term ) && ! is_wp_error( $qo )
     $hero_title = pera_get_district_archive_heading( $qo );
   } elseif ( $qo->taxonomy === 'region' && function_exists( 'pera_get_region_archive_heading' ) ) {
     $hero_title = pera_get_region_archive_heading( $qo );
+  } elseif ( $qo->taxonomy === 'property_tags' && function_exists( 'pera_get_property_tags_archive_heading' ) ) {
+    $hero_title = pera_get_property_tags_archive_heading( $qo );
   } else {
     $hero_title = $qo->name;
   }

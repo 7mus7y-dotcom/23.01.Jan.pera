@@ -79,6 +79,30 @@ if ( ! function_exists( 'pera_get_region_archive_title' ) ) {
   }
 }
 
+if ( ! function_exists( 'pera_get_property_tags_archive_heading' ) ) {
+  function pera_get_property_tags_archive_heading( WP_Term $term ): string {
+    $tag = trim( (string) $term->name );
+
+    if ( $tag === '' ) {
+      return 'Property for sale in Istanbul';
+    }
+
+    return sprintf( 'Property for sale in Istanbul - %s', $tag );
+  }
+}
+
+if ( ! function_exists( 'pera_get_property_tags_archive_title' ) ) {
+  function pera_get_property_tags_archive_title( WP_Term $term ): string {
+    $tag = trim( (string) $term->name );
+
+    if ( $tag === '' ) {
+      return 'Property for sale in Istanbul | Pera Property';
+    }
+
+    return sprintf( 'Property for sale in Istanbul - %s | Pera Property', $tag );
+  }
+}
+
 if ( ! function_exists( 'pera_property_archive_is_filtered_request' ) ) {
   function pera_property_archive_is_filtered_request(): bool {
     $filter_keys = array(
@@ -140,6 +164,19 @@ add_filter( 'pre_get_document_title', function( $title ) {
   }
 
   return pera_get_region_archive_title( $term );
+}, 20 );
+
+add_filter( 'pre_get_document_title', function( $title ) {
+  if ( ! is_tax( 'property_tags' ) ) {
+    return $title;
+  }
+
+  $term = get_queried_object();
+  if ( ! ( $term instanceof WP_Term ) || is_wp_error( $term ) ) {
+    return $title;
+  }
+
+  return pera_get_property_tags_archive_title( $term );
 }, 20 );
 
 add_filter( 'pre_get_document_title', function( $title ) {
