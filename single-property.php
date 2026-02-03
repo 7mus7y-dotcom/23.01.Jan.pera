@@ -1049,15 +1049,36 @@ $custom_video_text = $custom_video_text ? wp_kses_post( wpautop( $custom_video_t
                 <div class="advisor-row__body">
                   <div class="advisor-row__name"><?php echo esc_html( $name ); ?></div>
                   <?php if ( $position ) : ?>
-                    <div class="advisor-row__position"><?php echo esc_html( $position ); ?></div>
+                    <div class="advisor-row__position text-sm"><?php echo esc_html( $position ); ?></div>
                   <?php endif; ?>
-                  <?php if ( $wa_url ) : ?>
-                    <a class="advisor-row__wa" href="<?php echo esc_url( $wa_url ); ?>" target="_blank" rel="noopener">
-                      <svg class="icon" aria-hidden="true" width="16" height="16">
-                        <use href="<?php echo esc_url( get_stylesheet_directory_uri() . '/logos-icons/icons.svg#icon-whatsapp' ); ?>"></use>
-                      </svg>
-                      Contact
-                    </a>
+                  <?php
+                  $tel_url = $number_digits ? 'tel:' . $number_digits : '';
+                  $wa_href = '';
+                  if ( $number_digits ) {
+                    $listing_id    = get_the_ID();
+                    $listing_title = get_the_title();
+                    $wa_message    = rawurlencode( "Hello I'd like more info on listing {$listing_id} {$listing_title}" );
+                    $wa_href       = 'https://wa.me/' . $number_digits . '?text=' . $wa_message;
+                  } elseif ( $wa_url && 0 === strpos( $wa_url, 'https://wa.me/' ) ) {
+                    $wa_href = $wa_url;
+                  }
+                  if ( $wa_href || $tel_url ) :
+                    ?>
+                    <div class="inline-row pill pill--green glass--pill glass--compact">
+                      <?php if ( $tel_url ) : ?>
+                        <a class="advisor-row__wa" href="<?php echo esc_url( $tel_url ); ?>">
+                          Contact
+                        </a>
+                      <?php endif; ?>
+                      <?php if ( $wa_href ) : ?>
+                        <a class="advisor-row__wa" href="<?php echo esc_url( $wa_href ); ?>" target="_blank" rel="noopener">
+                          <svg class="icon" aria-hidden="true" width="16" height="16">
+                            <use href="<?php echo esc_url( get_stylesheet_directory_uri() . '/logos-icons/icons.svg#icon-whatsapp' ); ?>"></use>
+                          </svg>
+                          WhatsApp
+                        </a>
+                      <?php endif; ?>
+                    </div>
                   <?php endif; ?>
                 </div>
               </div>
