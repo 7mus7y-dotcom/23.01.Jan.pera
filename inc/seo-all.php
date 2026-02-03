@@ -159,45 +159,6 @@ if ( ! function_exists('pera_property_archive_base_url') ) {
 }
 
 /* =======================================================
-   DOCUMENT TITLE OVERRIDES (browser <title>)
-======================================================= */
-
-add_filter( 'pre_get_document_title', function( $title ) {
-
-  if ( is_admin() ) return $title;
-  if ( is_singular('property') ) return $title; // excluded
-
-  $qo = get_queried_object();
-
-  // Property archive context
-  if ( is_post_type_archive('property') ) {
-
-    // If filtered, use a cleaner generic title (don’t put every filter in title)
-    if ( pera_is_filtered_property_archive() ) {
-      return 'Property search results in Istanbul';
-    }
-
-    return 'Property for sale in Istanbul';
-  }
-
-  // Property taxonomy titles
-  if ( is_tax( 'region' ) && $qo && ! is_wp_error($qo) ) {
-    return sprintf( 'Property for sale in %s, Istanbul', $qo->name );
-  }
-  if ( is_tax( 'district' ) && $qo && ! is_wp_error($qo) ) {
-    return sprintf( '%s property for sale in Istanbul', $qo->name );
-  }
-  if ( is_tax( 'property_type' ) && $qo && ! is_wp_error($qo) ) {
-    return sprintf( '%s in Istanbul', $qo->name );
-  }
-  if ( is_tax( 'bedrooms' ) && $qo && ! is_wp_error($qo) ) {
-    return sprintf( '%s bedroom property for sale in Istanbul', $qo->name );
-  }
-
-  return $title;
-}, 20 );
-
-/* =======================================================
    ROBOTS RULES (wp_robots)
 ======================================================= */
 
