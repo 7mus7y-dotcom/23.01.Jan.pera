@@ -66,9 +66,30 @@ if ( ! function_exists( 'pera_property_get_district_name' ) ) {
   function pera_property_get_district_name( int $post_id ): string {
     $terms = get_the_terms( $post_id, 'district' );
     if ( is_array( $terms ) && ! empty( $terms ) ) {
-      $term = reset( $terms );
-      if ( is_object( $term ) && ! empty( $term->name ) ) {
-        return (string) $term->name;
+      $deepest_term = null;
+      $max_depth = -1;
+
+      foreach ( $terms as $term ) {
+        if ( ! is_object( $term ) || empty( $term->term_id ) ) {
+          continue;
+        }
+
+        $ancestors = get_ancestors( (int) $term->term_id, 'district' );
+        $depth = is_array( $ancestors ) ? count( $ancestors ) : 0;
+
+        if ( $depth > $max_depth ) {
+          $max_depth = $depth;
+          $deepest_term = $term;
+        }
+      }
+
+      if ( is_object( $deepest_term ) && ! empty( $deepest_term->name ) ) {
+        $name = (string) $deepest_term->name;
+        if ( strcasecmp( $name, 'Istanbul' ) === 0 ) {
+          return '';
+        }
+
+        return $name;
       }
     }
 
