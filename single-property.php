@@ -1064,7 +1064,7 @@ $custom_video_text = $custom_video_text ? wp_kses_post( wpautop( $custom_video_t
                     ?>
                     <div class="inline-row pill pill--green glass--pill glass--compact">
                       <a class="advisor-row__wa" href="<?php echo esc_url( $wa_href ); ?>" target="_blank" rel="noopener">
-                        <svg class="icon" aria-hidden="true" width="16" height="16">
+                        <svg class="icon" aria-hidden="true">
                           <use href="<?php echo esc_url( get_stylesheet_directory_uri() . '/logos-icons/icons.svg#icon-whatsapp' ); ?>"></use>
                         </svg>
                         Contact

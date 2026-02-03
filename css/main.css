@@ -1409,9 +1409,9 @@ button.pill:focus-visible {
 
 .advisor-row__wa{
   color: inherit;
-  font-size:0.9rem;
   display: inline-flex;
   align-items: center;
+  text-decoration:none;
   gap: 8px;
 }
 
@@ -2967,8 +2967,8 @@ body:not(.single-post) tr:nth-child(even) {
   margin: 4px 0 14px;
 }
 .inline-row .icon {
-  width: 18px;
-  height: 18px;
+  width: 16px;
+  height: 16px;
   flex-shrink: 0;
   fill: currentColor;
   stroke: currentColor;
