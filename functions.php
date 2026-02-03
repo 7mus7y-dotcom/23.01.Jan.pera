@@ -508,6 +508,7 @@ add_action( 'wp_enqueue_scripts', function () {
   $is_contact_page = is_page_template( 'page-contact.php' );
   $is_about_new    = is_page_template( 'page-about-new.php' );
   $is_favourites_page = is_page_template( 'page-favourites.php' );
+  $is_property_map = is_page_template( 'page-property-map.php' );
 
 /* =========================
    2) slider.css
@@ -555,7 +556,7 @@ if ( $needs_slider ) {
      Rule: home OR property archive OR single property OR single post
   ========================= */
 
-  if ( $is_home || $is_property_archive || $is_single_property || $is_single_post || $is_favourites_page ) {
+  if ( $is_home || $is_property_archive || $is_single_property || $is_single_post || $is_favourites_page || $is_property_map ) {
 
     $deps = array( 'pera-main-css' );
     if ( $needs_slider ) {
@@ -632,6 +633,36 @@ if ( $needs_slider ) {
         'nonce'        => wp_create_nonce( 'pera_favourites' ),
         'is_logged_in' => is_user_logged_in(),
       )
+    );
+  }
+
+  /* =========================
+     8) property-map.js (Property Map template only)
+  ========================= */
+
+  if ( $is_property_map ) {
+    $google_maps_url = 'https://maps.googleapis.com/maps/api/js';
+    if ( defined( 'PERA_GOOGLE_MAPS_KEY' ) && PERA_GOOGLE_MAPS_KEY ) {
+      $google_maps_url = add_query_arg(
+        array( 'key' => rawurlencode( PERA_GOOGLE_MAPS_KEY ) ),
+        $google_maps_url
+      );
+    }
+
+    wp_enqueue_script(
+      'pera-google-maps',
+      $google_maps_url,
+      array(),
+      null,
+      true
+    );
+
+    wp_enqueue_script(
+      'pera-property-map',
+      get_stylesheet_directory_uri() . '/js/property-map.js',
+      array( 'pera-google-maps' ),
+      pera_get_asset_version( '/js/property-map.js' ),
+      true
     );
   }
 

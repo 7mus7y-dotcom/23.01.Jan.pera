@@ -3848,10 +3848,36 @@ body:not(.single-post) tr:nth-child(even) {
    Attachment page
    ============================================================ */
    
-   .img-center > img {
-       padding: 20px;
-       margin: 0 auto;
-   }
+.img-center > img {
+    padding: 20px;
+    margin: 0 auto;
+}
+
+/* =======================================================
+   Property Map
+   ======================================================= */
+
+.property-map {
+  display: grid;
+  gap: var(--space-md);
+}
+
+.property-map__canvas {
+  height: 520px;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: var(--bg-soft);
+}
+
+.property-map__selected .content-panel-box {
+  margin: 0;
+}
+
+@media (max-width: 768px) {
+  .property-map__canvas {
+    height: 420px;
+  }
+}
 
 /* =======================================================
    DARK MODE – prefers-color-scheme
