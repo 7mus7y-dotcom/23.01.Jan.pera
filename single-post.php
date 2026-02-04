@@ -225,7 +225,7 @@ get_header();
                                     'image_size'    => 'large', // consider 'medium_large' for sidebar perf
                                   ) );
                         
-                                  get_template_part( 'parts/property-card' );
+                                  get_template_part( 'parts/property-card-v2' );
                         
                                 endwhile;
                         
