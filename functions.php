@@ -616,7 +616,7 @@ if ( $needs_slider ) {
      Rule: home OR property archive OR single property
   ========================= */
 
-  if ( $is_home || $is_property_archive || $is_single_property || $is_favourites_page ) {
+  if ( $is_home || $is_property_archive || $is_single_property || $is_single_post || $is_favourites_page ) {
     wp_enqueue_script(
       'pera-favourites',
       get_stylesheet_directory_uri() . '/js/favourites.js',
