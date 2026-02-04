@@ -15,6 +15,10 @@ require_once get_stylesheet_directory() . '/inc/access-control.php';
  * Used by inc/seo-all.php for term meta descriptions + social images.
  */
 require_once get_stylesheet_directory() . '/inc/taxonomy-meta.php';
+/**
+ * SEO helper functions used by templates.
+ */
+require_once get_stylesheet_directory() . '/inc/seo-helpers.php';
 
 /**
  * Enforce district ancestors for property assignments.
