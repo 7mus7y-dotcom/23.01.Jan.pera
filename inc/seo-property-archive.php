@@ -74,7 +74,7 @@ add_filter( 'pre_get_document_title', function( $title ) {
 add_action( 'wp_head', function () {
 
   // Run only on property archive + property taxonomies
-  $taxes = array( 'district', 'region', 'property_type', 'property_tags', 'special' );
+  $taxes = array( 'district', 'region', 'property_type', 'bedrooms', 'property_tags' );
   $taxes = array_values( array_filter( $taxes, 'taxonomy_exists' ) );
 
   $is_property_context =
@@ -86,14 +86,6 @@ add_action( 'wp_head', function () {
   }
 
   // -------------------------------
-  // Resolve current page number
-  // -------------------------------
-  $paged = max( 1, (int) get_query_var( 'paged' ) );
-  if ( get_query_var( 'page' ) ) {
-    $paged = max( $paged, (int) get_query_var( 'page' ) );
-  }
-
-  // -------------------------------
   // Detect “filtered” state (robust for arrays + scalars)
   // -------------------------------
   $is_filtered = pera_property_archive_is_filtered_request();
@@ -101,25 +93,39 @@ add_action( 'wp_head', function () {
   // -------------------------------
   // Canonical base (taxonomy-aware)
   // -------------------------------
-  if ( is_tax() ) {
-    $qo = get_queried_object();
-    $base = ( $qo instanceof WP_Term && ! is_wp_error( $qo ) ) ? get_term_link( $qo ) : '';
-    if ( is_wp_error( $base ) ) {
-      $base = '';
+  $canonical = function_exists( 'pera_property_archive_canonical_url' )
+    ? pera_property_archive_canonical_url()
+    : '';
+
+  if ( $canonical === '' ) {
+    $paged = function_exists( 'pera_property_archive_get_paged' )
+      ? pera_property_archive_get_paged()
+      : max( 1, (int) get_query_var( 'paged' ) );
+
+    if ( get_query_var( 'page' ) ) {
+      $paged = max( $paged, (int) get_query_var( 'page' ) );
     }
-  } else {
-    $base = get_post_type_archive_link( 'property' );
+
+    if ( is_tax() ) {
+      $qo = get_queried_object();
+      $base = ( $qo instanceof WP_Term && ! is_wp_error( $qo ) ) ? get_term_link( $qo ) : '';
+      if ( is_wp_error( $base ) ) {
+        $base = '';
+      }
+    } else {
+      $base = get_post_type_archive_link( 'property' );
+    }
+
+    if ( ! $base ) {
+      $base = home_url( '/property/' );
+    }
+
+    $base = trailingslashit( $base );
+
+    $canonical = ( $paged > 1 )
+      ? $base . 'page/' . $paged . '/'
+      : $base;
   }
-
-  if ( ! $base ) {
-    $base = home_url( '/property/' );
-  }
-
-  $base = trailingslashit( $base );
-
-  $canonical = ( $paged > 1 )
-    ? $base . 'page/' . $paged . '/'
-    : $base;
 
   // -------------------------------
   // Optional meta description (taxonomy only, unfiltered only)

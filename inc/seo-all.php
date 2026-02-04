@@ -185,10 +185,20 @@ add_action( 'wp_head', function () {
 
   // ---------- Canonical ----------
   $canonical = '';
+  $taxes = array( 'region', 'district', 'property_type', 'bedrooms', 'property_tags' );
+  $taxes = array_values( array_filter( $taxes, 'taxonomy_exists' ) );
 
-  // If filtered property archive: canonical should be the stable base (term page or archive)
-  if ( pera_is_filtered_property_archive() ) {
-    $canonical = pera_property_archive_base_url();
+  $property_context = is_post_type_archive( 'property' )
+    || ( ! empty( $taxes ) && is_tax( $taxes ) );
+
+  if ( $property_context ) {
+    $canonical = function_exists( 'pera_property_archive_canonical_url' )
+      ? pera_property_archive_canonical_url()
+      : '';
+
+    if ( $canonical === '' ) {
+      $canonical = pera_seo_all_canonical_fallback();
+    }
   } else {
     if ( function_exists('wp_get_canonical_url') ) {
       $canonical = wp_get_canonical_url( $post_id ?: null );
