@@ -11,43 +11,6 @@
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-if ( ! function_exists( 'pera_property_archive_is_filtered_request' ) ) {
-  function pera_property_archive_is_filtered_request(): bool {
-    $filter_keys = array(
-      's',
-      'property_type',
-      'v2_beds',
-      'district',
-      'property_tags',
-      'min_price',
-      'max_price',
-      'sort',
-      'region',
-      'special',
-    );
-
-    foreach ( $filter_keys as $k ) {
-      if ( ! isset( $_GET[ $k ] ) ) {
-        continue;
-      }
-
-      $v = $_GET[ $k ];
-
-      if ( is_array( $v ) ) {
-        if ( ! empty( $v ) ) {
-          return true;
-        }
-      } else {
-        if ( trim( (string) $v ) !== '' ) {
-          return true;
-        }
-      }
-    }
-
-    return false;
-  }
-}
-
 add_filter( 'pre_get_document_title', function( $title ) {
   if ( ! is_tax( 'district' ) ) {
     return $title;

@@ -95,3 +95,52 @@ if ( ! function_exists( 'pera_get_property_tags_archive_title' ) ) {
     return sprintf( 'Property for sale in Istanbul - %s | Pera Property', $tag );
   }
 }
+
+if ( ! function_exists( 'pera_property_archive_is_filtered_request' ) ) {
+  function pera_property_archive_is_filtered_request( ?array $query = null ): bool {
+    $query = $query ?? $_GET;
+
+    $is_property_context = is_post_type_archive( 'property' )
+      || is_tax( array( 'region', 'district', 'property_type', 'bedrooms', 'property_tags' ) );
+
+    if ( ! $is_property_context ) {
+      return false;
+    }
+
+    $filter_keys = array(
+      's',
+      'property_type',
+      'district',
+      'min_price',
+      'max_price',
+      'property_tags',
+      'v2_beds',
+      'bedrooms',
+      'sort',
+      'region',
+      'special',
+    );
+
+    foreach ( $filter_keys as $key ) {
+      if ( ! isset( $query[ $key ] ) ) {
+        continue;
+      }
+
+      $value = $query[ $key ];
+
+      if ( is_array( $value ) ) {
+        foreach ( $value as $item ) {
+          if ( trim( (string) $item ) !== '' ) {
+            return true;
+          }
+        }
+      } else {
+        if ( trim( (string) $value ) !== '' ) {
+          return true;
+        }
+      }
+    }
+
+    return false;
+  }
+}
