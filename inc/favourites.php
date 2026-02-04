@@ -97,13 +97,9 @@ function pera_render_favourite_cards( array $ids ): array {
     while ( $query->have_posts() ) {
       $query->the_post();
 
-      set_query_var( 'pera_property_card_args', array(
+      pera_render_property_card( array(
         'variant' => 'archive',
       ) );
-
-      get_template_part( 'parts/property-card-v2' );
-
-      set_query_var( 'pera_property_card_args', array() );
     }
   }
 

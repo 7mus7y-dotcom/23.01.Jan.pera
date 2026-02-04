@@ -877,14 +877,9 @@ if ( ! $is_filtered_search && ( $qo instanceof WP_Term ) && ! is_wp_error( $qo )
     <?php while ( $property_query->have_posts() ) : $property_query->the_post(); ?>
 
       <?php
-        set_query_var( 'pera_property_card_args', array(
+        pera_render_property_card( array(
           'variant' => 'archive',
         ) );
-
-        // V2 card template part
-        get_template_part( 'parts/property-card-v2' );
-
-        set_query_var( 'pera_property_card_args', array() );
       ?>
 
     <?php endwhile; ?>

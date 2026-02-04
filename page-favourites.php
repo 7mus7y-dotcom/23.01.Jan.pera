@@ -246,13 +246,9 @@ get_header();
         <?php if ( $logged_in && $favourites_query && $favourites_query->have_posts() ) : ?>
           <?php while ( $favourites_query->have_posts() ) : $favourites_query->the_post(); ?>
             <?php
-              set_query_var( 'pera_property_card_args', array(
+              pera_render_property_card( array(
                 'variant' => 'archive',
               ) );
-
-              get_template_part( 'parts/property-card-v2' );
-
-              set_query_var( 'pera_property_card_args', array() );
             ?>
           <?php endwhile; ?>
           <?php wp_reset_postdata(); ?>

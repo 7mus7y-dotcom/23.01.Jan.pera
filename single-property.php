@@ -1531,7 +1531,7 @@ $custom_video_text = $custom_video_text ? wp_kses_post( wpautop( $custom_video_t
 
               // This is the critical part that makes the root element:
               // <article class="slider-card property-card ...">
-              set_query_var( 'pera_property_card_args', array(
+              pera_render_property_card( array(
                 'variant'       => 'sidebar',     // reuse the same card variant if you want identical styling
                 'card_classes'  => 'slider-card', // ensures the <article> has slider-card on it
                 'show_badges'   => true,
@@ -1541,11 +1541,8 @@ $custom_video_text = $custom_video_text ? wp_kses_post( wpautop( $custom_video_t
                 'image_size'    => 'pera-card',
               ) );
 
-              get_template_part( 'parts/property-card-v2' );
-
             endwhile;
 
-            set_query_var( 'pera_property_card_args', null );
             wp_reset_postdata();
             ?>
 
