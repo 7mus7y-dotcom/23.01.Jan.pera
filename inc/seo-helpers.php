@@ -144,3 +144,63 @@ if ( ! function_exists( 'pera_property_archive_is_filtered_request' ) ) {
     return false;
   }
 }
+
+if ( ! function_exists( 'pera_property_archive_get_paged' ) ) {
+  function pera_property_archive_get_paged(): int {
+    $paged = (int) get_query_var( 'paged' );
+
+    if ( $paged < 1 ) {
+      $paged = (int) get_query_var( 'page' );
+    }
+
+    if ( $paged < 1 && isset( $_GET['paged'] ) ) {
+      $paged = absint( $_GET['paged'] );
+    }
+
+    if ( $paged < 1 && isset( $_SERVER['REQUEST_URI'] ) ) {
+      if ( preg_match( '~/page/(\d+)/?~', (string) $_SERVER['REQUEST_URI'], $m ) ) {
+        $paged = (int) $m[1];
+      }
+    }
+
+    return max( 1, $paged );
+  }
+}
+
+if ( ! function_exists( 'pera_property_archive_canonical_url' ) ) {
+  function pera_property_archive_canonical_url(): string {
+    $taxes = array( 'region', 'district', 'property_type', 'bedrooms', 'property_tags' );
+    $taxes = array_values( array_filter( $taxes, 'taxonomy_exists' ) );
+
+    $is_property_context = is_post_type_archive( 'property' )
+      || ( ! empty( $taxes ) && is_tax( $taxes ) );
+
+    if ( ! $is_property_context ) {
+      return '';
+    }
+
+    if ( function_exists( 'pera_property_archive_base_url' ) ) {
+      $base = pera_property_archive_base_url();
+    } else {
+      if ( is_tax() ) {
+        $qo = get_queried_object();
+        $base = ( $qo instanceof WP_Term && ! is_wp_error( $qo ) ) ? get_term_link( $qo ) : '';
+      } else {
+        $base = get_post_type_archive_link( 'property' );
+      }
+    }
+
+    if ( ! $base || is_wp_error( $base ) ) {
+      return '';
+    }
+
+    $base = trailingslashit( (string) $base );
+    $paged = pera_property_archive_get_paged();
+
+    if ( $paged > 1 ) {
+      return trailingslashit( $base . 'page/' . $paged );
+    }
+
+    return $base;
+  }
+}
