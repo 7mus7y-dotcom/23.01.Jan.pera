@@ -137,50 +137,30 @@ $hero_img_alt = ( is_array( $main_image ) && ! empty( $main_image['alt'] ) ) ? (
 
 // unit_key = beds (int), e.g. ?unit_key=2
 $unit_key = isset( $_GET['unit_key'] ) ? absint( $_GET['unit_key'] ) : 0;
-
-// Aggregate: one row per bed type (must contain beds, price_min, price_max, size_min, size_max)
-$v2_units_by_beds = function_exists( 'pera_v2_units_aggregate_by_beds' )
-  ? (array) pera_v2_units_aggregate_by_beds( $property_id )
+if ( ! function_exists( 'pera_units_get_display_data' ) ) {
+  $v2_helper_path = get_stylesheet_directory() . '/inc/v2-units-index.php';
+  if ( file_exists( $v2_helper_path ) ) {
+    require_once $v2_helper_path;
+  }
+}
+$units_data = function_exists( 'pera_units_get_display_data' )
+  ? pera_units_get_display_data(
+      $property_id,
+      array(
+        'context'    => 'single',
+        'unit_key'   => $unit_key,
+        'is_project' => $is_project,
+      )
+    )
   : array();
 
-// Defensive sort: ensure cheapest is first (price_min ascending)
-if ( ! empty( $v2_units_by_beds ) ) {
-  usort( $v2_units_by_beds, function( $a, $b ) {
-    return (int) ( $a['price_min'] ?? 0 ) <=> (int) ( $b['price_min'] ?? 0 );
-  } );
-}
-
-/**
- * Resolve selected unit row:
- * 1) explicit selection (unit_key) if possible
- * 2) fallback to cheapest
- */
-$selected_v2_unit = null;
-
-// Explicit selection by unit_key (beds)
-if ( $unit_key > 0 ) {
-
-  // Prefer your dedicated selector if it exists
-  if ( function_exists( 'pera_v2_get_selected_unit' ) ) {
-    $selected_v2_unit = pera_v2_get_selected_unit( $property_id, $unit_key );
-  }
-
-  // Fallback: if selector failed but we have aggregation, match by beds
-  if ( ! is_array( $selected_v2_unit ) && ! empty( $v2_units_by_beds ) ) {
-    foreach ( $v2_units_by_beds as $row ) {
-      if ( (int) ( $row['beds'] ?? 0 ) === $unit_key ) {
-        $selected_v2_unit = $row;
-        break;
-      }
-    }
-  }
-}
-
-// Cheapest fallback (no unit_key or invalid selection)
-if ( ! is_array( $selected_v2_unit ) && ! empty( $v2_units_by_beds ) ) {
-  $selected_v2_unit = $v2_units_by_beds[0];
-  $unit_key = (int) ( $selected_v2_unit['beds'] ?? 0 ); // keep context consistent
-}
+$selected_v2_unit = $units_data['selected_unit'] ?? null;
+$v2_units_by_beds = $units_data['aggregated_by_beds'] ?? array();
+$unit_key = isset( $units_data['unit_key'] ) ? (int) $units_data['unit_key'] : $unit_key;
+$price_text = $units_data['price_text'] ?? '';
+$price_bounds = $units_data['price_bounds'] ?? array();
+$hero_price_min = isset( $units_data['price_min'] ) ? (int) $units_data['price_min'] : 0;
+$hero_price_max = isset( $units_data['price_max'] ) ? (int) $units_data['price_max'] : 0;
 
 /* -----------------------------
    Beds label for hero pills
@@ -202,17 +182,11 @@ if ( $selected_beds > 0 ) {
 /* ------------------------------------------------------
    HERO DISPLAY VALUES (V2-only)
 ------------------------------------------------------ */
-$hero_price_min = 0;
-$hero_price_max = 0;
-
 $selected_size_min  = 0;
 $selected_size_max  = 0;
 $selected_size_text = '';
 
 if ( is_array( $selected_v2_unit ) ) {
-
-  $hero_price_min = (int) ( $selected_v2_unit['price_min'] ?? 0 );
-  $hero_price_max = (int) ( $selected_v2_unit['price_max'] ?? 0 );
 
   $selected_size_min = (float) ( $selected_v2_unit['size_min'] ?? 0 );
   $selected_size_max = (float) ( $selected_v2_unit['size_max'] ?? 0 );

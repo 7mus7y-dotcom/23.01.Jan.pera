@@ -61,18 +61,23 @@ if ( $acf_loaded ) {
                 }
             }
 
-            if ( function_exists( 'pera_v2_units_aggregate' ) && function_exists( 'pera_v2_units_format_price_text' ) ) {
-                $unit_rows = function_exists( 'pera_v2_get_units_rows' )
-                    ? pera_v2_get_units_rows( $property_id )
-                    : ( function_exists( 'get_field' ) ? get_field( 'v2_units', $property_id ) : array() );
+            if ( ! function_exists( 'pera_units_get_display_data' ) ) {
+                $v2_helper_path = get_stylesheet_directory() . '/inc/v2-units-index.php';
+                if ( file_exists( $v2_helper_path ) ) {
+                    require_once $v2_helper_path;
+                }
+            }
 
-                $unit_rows = is_array( $unit_rows ) ? $unit_rows : array();
-                $aggregated = pera_v2_units_aggregate( $unit_rows );
-                $price_text = pera_v2_units_format_price_text(
-                    (int) $aggregated['price_min'],
-                    (int) $aggregated['price_max'],
-                    $is_project
+            if ( function_exists( 'pera_units_get_display_data' ) ) {
+                $units_data = pera_units_get_display_data(
+                    $property_id,
+                    array(
+                        'context'    => 'map',
+                        'unit_key'   => 0,
+                        'is_project' => $is_project,
+                    )
                 );
+                $price_text = $units_data['price_text'] ?? '';
             }
 
             $markers[] = array(

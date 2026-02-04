@@ -738,6 +738,148 @@ if ( ! function_exists( 'pera_v2_get_selected_unit' ) ) {
   }
 }
 
+/* ============================================================
+   ORCHESTRATION HELPERS (thin wrappers for templates)
+   ============================================================ */
+if ( ! function_exists( 'pera_units_get_selected_unit_safe' ) ) {
+  function pera_units_get_selected_unit_safe( int $post_id, int $unit_key ): ?array {
+    if ( $post_id < 1 || $unit_key < 1 ) return null;
+    if ( ! function_exists( 'pera_v2_get_selected_unit' ) ) return null;
+
+    $selected = pera_v2_get_selected_unit( $post_id, $unit_key );
+    return is_array( $selected ) ? $selected : null;
+  }
+}
+
+if ( ! function_exists( 'pera_units_normalise_project_flag' ) ) {
+  function pera_units_normalise_project_flag( ?bool $is_project ): bool {
+    return $is_project === true;
+  }
+}
+
+if ( ! function_exists( 'pera_v2_price_bounds_for_post' ) ) {
+  function pera_v2_price_bounds_for_post( int $post_id ): array {
+    if ( ! function_exists( 'pera_v2_get_price_bounds' ) ) {
+      return array();
+    }
+
+    try {
+      $bounds = call_user_func( 'pera_v2_get_price_bounds' );
+      return is_array( $bounds ) ? $bounds : array();
+    } catch ( Throwable $e ) {
+      // fall through
+    }
+
+    try {
+      $bounds = call_user_func( 'pera_v2_get_price_bounds', $post_id );
+      return is_array( $bounds ) ? $bounds : array();
+    } catch ( Throwable $e ) {
+      return array();
+    }
+  }
+}
+
+if ( ! function_exists( 'pera_units_get_display_data' ) ) {
+  function pera_units_get_display_data( int $post_id, array $opts = array() ): array {
+    $unit_key   = isset( $opts['unit_key'] ) ? absint( $opts['unit_key'] ) : 0;
+    $context    = isset( $opts['context'] ) ? (string) $opts['context'] : 'single';
+    $is_project = array_key_exists( 'is_project', $opts ) ? (bool) $opts['is_project'] : null;
+
+    if ( $post_id < 1 ) {
+      return array(
+        'context'            => $context,
+        'unit_key'           => $unit_key,
+        'selected_unit'      => null,
+        'aggregated_by_beds' => array(),
+        'aggregated_all'     => array(),
+        'price_min'          => 0,
+        'price_max'          => 0,
+        'price_text'         => '',
+        'size_text'          => '',
+        'price_bounds'       => array(),
+        'is_project'         => (bool) $is_project,
+      );
+    }
+
+    $rows = function_exists( 'pera_v2_get_units_rows' ) ? pera_v2_get_units_rows( $post_id ) : array();
+
+    $aggregated_by_beds = function_exists( 'pera_v2_units_aggregate_by_beds' )
+      ? pera_v2_units_aggregate_by_beds( $post_id )
+      : array();
+
+    if ( $context === 'single' && ! empty( $aggregated_by_beds ) ) {
+      usort( $aggregated_by_beds, function( $a, $b ) {
+        return (int) ( $a['price_min'] ?? 0 ) <=> (int) ( $b['price_min'] ?? 0 );
+      } );
+    }
+
+    $aggregated_all = function_exists( 'pera_v2_units_aggregate' )
+      ? pera_v2_units_aggregate( $rows )
+      : array();
+
+    $selected = function_exists( 'pera_units_get_selected_unit_safe' )
+      ? pera_units_get_selected_unit_safe( $post_id, $unit_key )
+      : null;
+
+    if ( ! is_array( $selected ) && ! empty( $aggregated_by_beds ) && is_array( $aggregated_by_beds ) ) {
+      $first = reset( $aggregated_by_beds );
+      if ( is_array( $first ) ) {
+        $selected = $first;
+        if ( $unit_key < 1 && isset( $first['beds'] ) ) {
+          $unit_key = absint( $first['beds'] );
+        }
+      }
+    }
+
+    $price_min = 0;
+    $price_max = 0;
+
+    if ( is_array( $selected ) ) {
+      $price_min = isset( $selected['price_min'] ) ? (int) $selected['price_min'] : 0;
+      $price_max = isset( $selected['price_max'] ) ? (int) $selected['price_max'] : 0;
+    }
+
+    if ( $price_min < 1 && is_array( $aggregated_all ) ) {
+      $price_min = isset( $aggregated_all['price_min'] ) ? (int) $aggregated_all['price_min'] : $price_min;
+      $price_max = isset( $aggregated_all['price_max'] ) ? (int) $aggregated_all['price_max'] : $price_max;
+    }
+
+    $is_project = function_exists( 'pera_units_normalise_project_flag' )
+      ? pera_units_normalise_project_flag( $is_project )
+      : false;
+
+    $price_text = function_exists( 'pera_v2_units_format_price_text' )
+      ? pera_v2_units_format_price_text( $price_min, $price_max, $is_project )
+      : '';
+
+    $size_text = function_exists( 'pera_v2_units_format_size_text' ) && is_array( $selected )
+      ? pera_v2_units_format_size_text(
+          isset( $selected['size_min'] ) ? (float) $selected['size_min'] : 0,
+          isset( $selected['size_max'] ) ? (float) $selected['size_max'] : 0
+        )
+      : '';
+
+    $price_bounds = function_exists( 'pera_v2_price_bounds_for_post' )
+      ? pera_v2_price_bounds_for_post( $post_id )
+      : array();
+    $price_bounds = is_array( $price_bounds ) ? $price_bounds : array();
+
+    return array(
+      'context'            => $context,
+      'unit_key'           => $unit_key,
+      'selected_unit'      => is_array( $selected ) ? $selected : null,
+      'aggregated_by_beds' => is_array( $aggregated_by_beds ) ? $aggregated_by_beds : array(),
+      'aggregated_all'     => is_array( $aggregated_all ) ? $aggregated_all : array(),
+      'price_min'          => $price_min,
+      'price_max'          => $price_max,
+      'price_text'         => (string) $price_text,
+      'size_text'          => (string) $size_text,
+      'price_bounds'       => is_array( $price_bounds ) ? $price_bounds : array(),
+      'is_project'         => (bool) $is_project,
+    );
+  }
+}
+
 
 /* ============================================================
    RENDERER: Price range table (Step 2C) + custom text under table
