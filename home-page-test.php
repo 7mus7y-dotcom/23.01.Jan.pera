@@ -176,11 +176,9 @@ $featured_query = new WP_Query( array(
           <div class="slider-card">
             <?php if ( $featured_index < 5 ) : ?>
               <?php
-                set_query_var( 'pera_property_card_args', array(
+                pera_render_property_card( array(
                   'variant' => 'archive',
                 ) );
-                get_template_part( 'parts/property-card-v2' );
-                set_query_var( 'pera_property_card_args', null );
               ?>
             <?php else : ?>
               <div class="property-card property-card--archive">

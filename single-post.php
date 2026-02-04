@@ -215,7 +215,7 @@ get_header();
                                 while ( $properties->have_posts() ) :
                                   $properties->the_post();
                         
-                                  set_query_var( 'pera_property_card_args', array(
+                                  pera_render_property_card( array(
                                     'variant'       => 'sidebar',
                                     'card_classes'  => 'slider-card',
                                     'show_badges'   => true,
@@ -225,12 +225,9 @@ get_header();
                                     'image_size'    => 'large', // consider 'medium_large' for sidebar perf
                                   ) );
                         
-                                  get_template_part( 'parts/property-card-v2' );
-                        
                                 endwhile;
                         
-                                // IMPORTANT: clear state + reset postdata
-                                set_query_var( 'pera_property_card_args', null );
+                                // IMPORTANT: reset postdata
                                 wp_reset_postdata();
                                 ?>
                               </div>

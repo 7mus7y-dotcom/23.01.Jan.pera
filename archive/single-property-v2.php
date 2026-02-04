@@ -1126,7 +1126,7 @@ $has_further_reading = ! empty( $post_ids );
             while ( $related->have_posts() ) :
               $related->the_post();
         
-              set_query_var( 'pera_property_card_args', array(
+              pera_render_property_card( array(
                 'variant'       => 'sidebar',
                 'card_classes'  => 'slider-card',
                 'show_badges'   => true,
@@ -1140,12 +1140,8 @@ $has_further_reading = ! empty( $post_ids );
                 'v2_beds'       => isset($_GET['unit_key']) ? absint($_GET['unit_key']) : 0,
               ) );
         
-              // Use the V2 card template
-              get_template_part( 'parts/property-card-v2' );
-        
             endwhile;
         
-            set_query_var( 'pera_property_card_args', null );
             wp_reset_postdata();
             ?>
         
