@@ -332,35 +332,9 @@ if ( $debug_enabled ) {
    ====================================================== */
 
 // Detect whether this is a filtered/search result
-$is_filtered_search = false;
-
-$search_keys = array(
-  's',
-  'property_type',
-  'district',
-  'min_price',
-  'max_price',
-  'property_tags',
-  'v2_beds',
-);
-
-foreach ( $search_keys as $key ) {
-  if ( isset( $_GET[ $key ] ) ) {
-    $val = $_GET[ $key ];
-
-    // Treat arrays (district[], property_tags[]) as active if non-empty
-    if ( is_array( $val ) && ! empty( $val ) ) {
-      $is_filtered_search = true;
-      break;
-    }
-
-    // Treat scalars as active if non-empty after trim
-    if ( ! is_array( $val ) && trim( (string) $val ) !== '' ) {
-      $is_filtered_search = true;
-      break;
-    }
-  }
-}
+$is_filtered_search = function_exists( 'pera_property_archive_is_filtered_request' )
+  ? pera_property_archive_is_filtered_request( $_GET )
+  : false;
 
 // Build heading (no count here — count belongs in #results-count. change heading based on taxonomy pages and search)
 if ( $is_filtered_search ) {

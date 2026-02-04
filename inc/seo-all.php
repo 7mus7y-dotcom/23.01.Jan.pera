@@ -106,36 +106,9 @@ if ( ! function_exists('pera_seo_all_canonical_fallback') ) {
  */
 if ( ! function_exists('pera_is_filtered_property_archive') ) {
   function pera_is_filtered_property_archive(): bool {
-
-    $is_property_context = is_post_type_archive('property')
-      || is_tax( array('region','district','property_type','bedrooms','property_tags') );
-
-    if ( ! $is_property_context ) return false;
-
-    $keys = array(
-      's',
-      'min_price',
-      'max_price',
-      'district',
-      'bedrooms',
-      'property_tags',
-      'property_type',
-      'sort',
-      'paged', // if you ever pass it
-    );
-
-    foreach ( $keys as $k ) {
-      if ( isset($_GET[$k]) ) {
-        $v = $_GET[$k];
-        if ( is_array($v) ) {
-          if ( ! empty($v) ) return true;
-        } else {
-          if ( (string)$v !== '' ) return true;
-        }
-      }
-    }
-
-    return false;
+    return function_exists( 'pera_property_archive_is_filtered_request' )
+      ? pera_property_archive_is_filtered_request( $_GET )
+      : false;
   }
 }
 
