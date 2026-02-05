@@ -140,6 +140,80 @@ $beds_options = array( 1, 2, 3, 4, 5, 6 );
       </div>
     </div>
   </section>
+
+<?php
+// -----------------------------------------------------------------------------
+// HOME — Bodrum Mansion hero (ADMIN ONLY)
+// -----------------------------------------------------------------------------
+if ( current_user_can( 'manage_options' ) ) :
+
+  $mansion_url = 'https://www.peraproperty.com/bodrum-property/mansion-scale-estate-in-yalikavak-marina/';
+
+  // Fixed hero image
+  $hero_img_id = 56209;
+  $hero_img    = wp_get_attachment_image_url( $hero_img_id, 'full' );
+?>
+
+<section class="hero hero--left hero--home hero--bodrum-mansion">
+  <div class="hero__media">
+    <?php if ( $hero_img ) : ?>
+      <img
+        class="hero__img"
+        src="<?php echo esc_url( $hero_img ); ?>"
+        alt="<?php echo esc_attr( 'Mansion-scale estate in Yalıkavak Marina, Bodrum' ); ?>"
+        loading="lazy"
+        decoding="async"
+      />
+    <?php else : ?>
+      <!-- Image ID 56209 missing -->
+      <div class="hero__img" aria-hidden="true"></div>
+    <?php endif; ?>
+
+    <div class="hero-overlay" aria-hidden="true"></div>
+  </div>
+
+  <div class="hero-content">
+    <div class="hero-content__inner">
+
+      <div class="hero-kicker">
+        Bodrum · Yalıkavak Marina
+      </div>
+
+      <h2 class="hero-title">
+        Mansion-Scale Waterfront Estate
+      </h2>
+
+      <p class="hero-tagline">
+        A landmark private residence overlooking Yalıkavak Marina — conceived on a scale rarely
+        available in Bodrum, combining absolute privacy with destination-grade prestige.
+      </p>
+
+      <div class="hero-highlights">
+        <span class="pill">Ultra-prime marina frontage</span>
+        <span class="pill">Estate-scale plot</span>
+        <span class="pill">Multiple living wings</span>
+        <span class="pill">Private pool & terraces</span>
+        <span class="pill">€10M · Negotiable</span>
+      </div>
+
+      <div class="hero-actions">
+        <a class="btn btn--primary" href="<?php echo esc_url( $mansion_url ); ?>">
+          View full details
+        </a>
+        <a class="btn btn--ghost" href="<?php echo esc_url( $mansion_url . '#contact-form' ); ?>">
+          Arrange private viewing
+        </a>
+      </div>
+
+      <div class="hero-note">
+        Off-market positioning · Discreet sales process · Private appointments only
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<?php endif; ?>
     
 <?php
 /* ======================================================
