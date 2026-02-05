@@ -22,7 +22,7 @@ $beds_options = array( 1, 2, 3, 4, 5, 6 );
 
 // Budget presets still work in V2 because your V2 SSR/AJAX reads min_price/max_price
 ?>
-  <section class="hero hero--center" aria-label="Homepage hero search">
+<section class="hero hero--center" aria-label="Homepage hero search">
     <?php if ( $hero_img_url ) : ?>
       <img class="hero-media" src="<?php echo esc_url( $hero_img_url ); ?>" alt="" aria-hidden="true">
     <?php endif; ?>
@@ -147,7 +147,6 @@ $beds_options = array( 1, 2, 3, 4, 5, 6 );
    Uses existing parts/property-card-v2
    ====================================================== */
 $featured_count = 6;
-
 $featured_query = new WP_Query( array(
   'post_type'           => 'property',
   'post_status'         => 'publish',
@@ -224,12 +223,10 @@ $featured_query = new WP_Query( array(
   </div>
 </section>
 
-
-
 <!-- ======================================================
      FEATURED DISTRICTS (LOCATION GATEWAY)
      ====================================================== -->
-        <section class="section">
+<section class="section">
           <div class="container">
         
             <div class="section-header section-header--center">
@@ -339,13 +336,17 @@ if ( current_user_can( 'manage_options' ) ) :
   $hero_img = wp_get_attachment_image_url( $hero_img_id, 'full' );
 ?>
 
-<section class="section">
-  <div class="container">
+<!-- ======================================================
+    BODRUM MANSION
+    ====================================================== -->
+
+<section class="content">
+  <div class="content-panel-box">
+    <div class="content-panel-grid">
 
     <!-- Reuse your existing "content-panel" pattern to keep site rhythm -->
-    <div class="content-panel">
+      <div class="content-panel-left">
       <!-- Inside the panel, use hero-style block classes you already have (no CSS added) -->
-      <div class="hero hero--left hero--feature">
         <div class="hero__media">
           <?php if ( $hero_img ) : ?>
             <img
@@ -362,9 +363,9 @@ if ( current_user_can( 'manage_options' ) ) :
 
           <div class="hero-overlay" aria-hidden="true"></div>
         </div>
+      </div>
 
-        <div class="hero-content">
-          <div class="hero-content__inner">
+      <div class="content-panel-right">
 
             <div class="hero-kicker">Bodrum · Yalıkavak Marina</div>
 
@@ -376,15 +377,14 @@ if ( current_user_can( 'manage_options' ) ) :
             </p>
 
             <div class="hero-highlights">
-              <span class="pill">Ultra-prime marina setting</span>
+              <span class="pill">Ultra-prime marina location</span>
               <span class="pill">Estate-scale plot</span>
               <span class="pill">Sea-view terraces</span>
               <span class="pill">Private appointments</span>
-              <span class="pill">€10M · Negotiable</span>
             </div>
 
             <div class="hero-actions">
-              <a class="btn btn--primary" href="<?php echo esc_url( $mansion_url ); ?>">
+              <a class="btn btn--solid btn--blue" href="<?php echo esc_url( $mansion_url ); ?>">
                 View full details
               </a>
               <a class="btn btn--ghost" href="<?php echo esc_url( $mansion_url . '#contact-form' ); ?>">
@@ -392,17 +392,17 @@ if ( current_user_can( 'manage_options' ) ) :
               </a>
             </div>
 
-          </div>
         </div>
-      </div><!-- /.hero -->
-    </div><!-- /.content-panel -->
-
+      </div><!-- /.content-panel -->
   </div><!-- /.container -->
 </section>
 
 <?php endif; ?>
 
-<!-- BUYER JOURNEY (INFO STEPS – 4 STEPS) -->
+<!-- ======================================================
+     BUYER JOURNEY
+     ====================================================== -->
+
 <section class="section">
   <div class="container">
 
@@ -482,11 +482,8 @@ if ( current_user_can( 'manage_options' ) ) :
 </section>
 
 
-
-
-
 <!-- ======================================================
-     SELL WITH PERA (HOMEPAGE TEASER — OPTION 2)
+     SELL WITH PERA (HOMEPAGE)
      ====================================================== -->
 <section class="content" id="sell-with-pera">
   <div class="content-panel-box">
@@ -558,11 +555,9 @@ if ( current_user_can( 'manage_options' ) ) :
   </div>
 </section>
 
-
-
-    <!-- ABOUT + HOW WE WORK -->
-<section class="content-panel">
-  <div class="content-panel-box">
+<!-- ABOUT + HOW WE WORK -->
+<section class="section">
+  <div class="container">
     <div class="content-panel-grid">
 
       <!-- LEFT SIDE: ABOUT + SIGNOFF -->
@@ -647,11 +642,9 @@ if ( current_user_can( 'manage_options' ) ) :
         </div>
 
       </div>
-
     </div>
   </div>
 </section>
-
 
 </main>
 
