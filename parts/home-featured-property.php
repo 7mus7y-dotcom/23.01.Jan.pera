@@ -87,34 +87,25 @@ if ( ! empty( $project_summary ) ) {
 }
 
 $price_label = '';
+$is_project = has_term( 'project', 'special', $property_id );
 
-if (
-  ! function_exists( 'pera_v2_get_units_rows' )
-  || ! function_exists( 'pera_v2_units_aggregate' )
-  || ! function_exists( 'pera_v2_units_format_price_text' )
-) {
+if ( ! function_exists( 'pera_units_get_display_data' ) ) {
   $v2_helper_path = get_stylesheet_directory() . '/inc/v2-units-index.php';
   if ( file_exists( $v2_helper_path ) ) {
     require_once $v2_helper_path;
   }
 }
 
-if (
-  function_exists( 'pera_v2_get_units_rows' )
-  && function_exists( 'pera_v2_units_aggregate' )
-  && function_exists( 'pera_v2_units_format_price_text' )
-) {
-  $v2_units = pera_v2_get_units_rows( $property_id );
-  $v2_units = is_array( $v2_units ) ? $v2_units : array();
-
-  if ( ! empty( $v2_units ) ) {
-    $aggregate = pera_v2_units_aggregate( $v2_units );
-    $price_min = isset( $aggregate['price_min'] ) ? (int) $aggregate['price_min'] : 0;
-    $price_max = isset( $aggregate['price_max'] ) ? (int) $aggregate['price_max'] : 0;
-    $is_project = has_term( 'project', 'special', $property_id );
-
-    $price_label = pera_v2_units_format_price_text( $price_min, $price_max, $is_project );
-  }
+if ( function_exists( 'pera_units_get_display_data' ) ) {
+  $units_data = pera_units_get_display_data(
+    $property_id,
+    array(
+      'context'    => 'featured',
+      'unit_key'   => 0,
+      'is_project' => $is_project,
+    )
+  );
+  $price_label = $units_data['price_text'] ?? '';
 }
 
 /* Taxonomies (optional output) */
