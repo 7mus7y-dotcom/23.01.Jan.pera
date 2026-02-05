@@ -367,16 +367,16 @@ if ( current_user_can( 'manage_options' ) ) :
 
       <div class="content-panel-right">
 
-            <div class="hero-kicker">Bodrum · Yalıkavak Marina</div>
+            <div class="home-featured__kicker">Bodrum · Yalıkavak Marina</div>
 
-            <h2 class="hero-title">Mansion-Scale Waterfront Estate</h2>
+            <h2 class="home-featured__title">Mansion-Scale Waterfront Estate</h2>
 
-            <p class="hero-tagline">
+            <p class="home-featured__excerpt">
               A landmark private residence overlooking the marina — created for uncompromising privacy,
               scale, and prestige in Bodrum’s most sought-after setting.
             </p>
 
-            <div class="hero-highlights">
+            <div class="property-facilities__pills">
               <span class="pill">Ultra-prime marina location</span>
               <span class="pill">Estate-scale plot</span>
               <span class="pill">Sea-view terraces</span>
