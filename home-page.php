@@ -141,97 +141,6 @@ $beds_options = array( 1, 2, 3, 4, 5, 6 );
     </div>
   </section>
     
-    <!-- ABOUT + HOW WE WORK -->
-<section class="content-panel content-panel--overlap-hero">
-  <div class="content-panel-box">
-    <div class="content-panel-grid">
-
-      <!-- LEFT SIDE: ABOUT + SIGNOFF -->
-      <div class="content-panel-left">
-
-        <div class="section-header">
-          <h2>ABOUT OUR COMPANY</h2>
-
-          <p>
-            Pera Property is a consultancy-led real estate agency focused exclusively on Istanbul.
-            We work with both new developments and resale properties, advising clients from initial
-            strategy through to title deed. Prefer a structured, free strategy session first?
-            <a href="/book-a-consultancy/">Book a consultancy</a> to validate your plan before viewing properties.
-          </p>
-
-          <p>
-            <em>
-              Our impartial, whole-of-market approach ensures each client reaches the optimal outcome
-              based on their goals — not sales pressure.
-            </em>
-          </p>
-        </div>
-
-        <div class="signoff-card">
-          <div class="signoff-avatar">
-            <?php
-              echo wp_get_attachment_image(
-                55492,
-                'thumbnail',
-                false,
-                array(
-                  'class'   => 'signoff-avatar-img',
-                  'loading' => 'lazy',
-                  'alt'     => 'D Koray Dillioglu',
-                )
-              );
-            ?>
-          </div>
-
-          <div class="signoff-text">
-            <h5>D Koray Dillioglu</h5>
-            <p>– Director @ Pera Property</p>
-          </div>
-        </div>
-
-      </div>
-
-      <!-- RIGHT SIDE: HOW WE WORK -->
-      <div class="content-panel-right">
-
-        <div class="section-header">
-          <h3>How we help you buy in Istanbul</h3>
-          <p>
-            A clear, structured process designed to reduce risk and remove uncertainty.
-          </p>
-        </div>
-
-        <ol class="process-steps">
-          <li>
-            <strong>Understand your objectives</strong>
-
-          </li>
-
-          <li>
-            <strong>Shortlist the right options</strong>
-          
-          </li>
-
-          <li>
-            <strong>Guide you through to completion</strong>
-         
-          </li>
-          <li>
-            <strong>Manage your investment for as long as you need it</strong>
-         
-          </li>
-        </ol>
-
-        <div class="hero-actions" style="margin-top: 16px;">
-          <a class="btn btn--solid btn--green" href="/contact-us/">Speak to an advisor</a>
-          <a class="btn btn--ghost btn--blue" href="/book-a-consultancy/">Book a consultancy</a>
-        </div>
-
-      </div>
-
-    </div>
-  </div>
-</section>
 <?php
 /* ======================================================
    FEATURED OPPORTUNITIES (HOME)
@@ -572,6 +481,99 @@ $featured_query = new WP_Query( array(
   </div>
 </section>
 
+
+
+    <!-- ABOUT + HOW WE WORK -->
+<section class="content-panel">
+  <div class="content-panel-box">
+    <div class="content-panel-grid">
+
+      <!-- LEFT SIDE: ABOUT + SIGNOFF -->
+      <div class="content-panel-left">
+
+        <div class="section-header">
+          <h2>ABOUT OUR COMPANY</h2>
+
+          <p>
+            Pera Property is a consultancy-led real estate agency focused exclusively on Istanbul.
+            We work with both new developments and resale properties, advising clients from initial
+            strategy through to title deed. Prefer a structured, free strategy session first?
+            <a href="/book-a-consultancy/">Book a consultancy</a> to validate your plan before viewing properties.
+          </p>
+
+          <p>
+            <em>
+              Our impartial, whole-of-market approach ensures each client reaches the optimal outcome
+              based on their goals — not sales pressure.
+            </em>
+          </p>
+        </div>
+
+        <div class="signoff-card">
+          <div class="signoff-avatar">
+            <?php
+              echo wp_get_attachment_image(
+                55492,
+                'thumbnail',
+                false,
+                array(
+                  'class'   => 'signoff-avatar-img',
+                  'loading' => 'lazy',
+                  'alt'     => 'D Koray Dillioglu',
+                )
+              );
+            ?>
+          </div>
+
+          <div class="signoff-text">
+            <h5>D Koray Dillioglu</h5>
+            <p>– Director @ Pera Property</p>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- RIGHT SIDE: HOW WE WORK -->
+      <div class="content-panel-right">
+
+        <div class="section-header">
+          <h3>How we help you buy in Istanbul</h3>
+          <p>
+            A clear, structured process designed to reduce risk and remove uncertainty.
+          </p>
+        </div>
+
+        <ol class="process-steps">
+          <li>
+            <strong>Understand your objectives</strong>
+
+          </li>
+
+          <li>
+            <strong>Shortlist the right options</strong>
+          
+          </li>
+
+          <li>
+            <strong>Guide you through to completion</strong>
+         
+          </li>
+          <li>
+            <strong>Manage your investment for as long as you need it</strong>
+         
+          </li>
+        </ol>
+
+        <div class="hero-actions" style="margin-top: 16px;">
+          <a class="btn btn--solid btn--green" href="/contact-us/">Speak to an advisor</a>
+          <a class="btn btn--ghost btn--blue" href="/book-a-consultancy/">Book a consultancy</a>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+</section>
 
 
 </main>
