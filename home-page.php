@@ -333,7 +333,7 @@ if ( current_user_can( 'manage_options' ) ) :
   $hero_img_id = 56209;
 
   // Use full size; if your existing patterns use a different size, align to them.
-  $hero_img = wp_get_attachment_image_url( $hero_img_id, 'full' );
+  $hero_img = wp_get_attachment_image_url( $hero_img_id, 'pera-card' );
 ?>
 
 <!-- ======================================================
@@ -347,7 +347,7 @@ if ( current_user_can( 'manage_options' ) ) :
     <!-- Reuse your existing "content-panel" pattern to keep site rhythm -->
       <div class="content-panel-left">
       <!-- Inside the panel, use hero-style block classes you already have (no CSS added) -->
-        <div class="hero__media">
+        <div class="hero__media media-frame">
           <?php if ( $hero_img ) : ?>
             <img
               class="hero__img"
@@ -360,8 +360,6 @@ if ( current_user_can( 'manage_options' ) ) :
             <!-- Image ID 56209 missing -->
             <div class="hero__img" aria-hidden="true"></div>
           <?php endif; ?>
-
-          <div class="hero-overlay" aria-hidden="true"></div>
         </div>
       </div>
 
@@ -376,7 +374,7 @@ if ( current_user_can( 'manage_options' ) ) :
               scale, and prestige in Bodrum’s most sought-after setting.
             </p>
 
-            <div class="property-facilities__pills">
+            <div class="property-facilities__pills pb-md">
               <span class="pill">Ultra-prime marina location</span>
               <span class="pill">Estate-scale plot</span>
               <span class="pill">Sea-view terraces</span>
@@ -387,7 +385,7 @@ if ( current_user_can( 'manage_options' ) ) :
               <a class="btn btn--solid btn--blue" href="<?php echo esc_url( $mansion_url ); ?>">
                 View full details
               </a>
-              <a class="btn btn--ghost" href="<?php echo esc_url( $mansion_url . '#contact-form' ); ?>">
+              <a class="btn btn--solid btn--green" href="<?php echo esc_url( $mansion_url . '#contact-form' ); ?>">
                 Arrange a viewing
               </a>
             </div>
